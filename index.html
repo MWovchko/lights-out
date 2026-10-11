@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lights Out Door Strip</title>
+<meta name="description" content="A foam strip that blocks hallway light under your dorm door. $9.99 for ORU students.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root {
+  --night: #0d1020; --night-2: #151a31; --line: #2a3150;
+  --ink: #e8e9f3; --ink-dim: #9aa0bd; --glow: #ffcf7a; --glow-soft: rgba(255,207,122,.22);
+  --ok: #8fe0b8; --bad: #ff9d8f;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--night); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 64px; display: grid; gap: 56px; }
+nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.brand i { display: inline-block; width: 22px; height: 5px; background: var(--glow); border-radius: 2px; box-shadow: 0 0 10px 2px var(--glow-soft); }
+nav .links { display: flex; gap: 18px; }
+nav a { color: var(--ink-dim); text-decoration: none; font-size: 15px; }
+nav a:hover { color: var(--ink); }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--glow); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(40px, 7vw, 76px); font-weight: 800; line-height: .98; letter-spacing: -.02em; }
+h2 { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
+h3 { font-size: 20px; font-weight: 800; }
+p { margin: 0; }
+
+.hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+.hero > * { min-width: 0; }
+.hero-copy { display: grid; gap: 18px; justify-items: start; }
+.lede { color: var(--ink-dim); max-width: 34ch; font-size: 19px; }
+.jump { font: 800 17px var(--display); color: var(--night); background: var(--glow); text-decoration: none; border-radius: 8px; padding: 12px 20px; }
+
+.scene { position: relative; aspect-ratio: 4 / 5; max-width: 100%; border-radius: 6px; overflow: hidden; background: linear-gradient(#11152a, #0a0d1a); border: 1px solid var(--line); }
+.door { position: absolute; left: 14%; right: 14%; top: 8%; bottom: 13%; background: linear-gradient(90deg, #232a48, #1c2240); border: 1px solid #333c63; border-bottom: none; }
+.door::before { content: ""; position: absolute; inset: 8% 12% 52% 12%; border: 1px solid #343d66; }
+.door::after { content: ""; position: absolute; inset: 54% 12% 8% 12%; border: 1px solid #343d66; }
+.knob { position: absolute; right: 9%; top: 52%; width: 12px; height: 12px; border-radius: 50%; background: #4a5486; z-index: 1; }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; height: 13%; background: #090b16; }
+.gap { position: absolute; left: 14%; right: 14%; bottom: 13%; height: 6px; background: var(--glow); box-shadow: 0 0 18px 6px var(--glow-soft); transition: opacity .6s ease; }
+.spill { position: absolute; left: 4%; right: 4%; bottom: 0; height: 13%; background: radial-gradient(ellipse 60% 100% at 50% 0%, var(--glow-soft), transparent 70%); transition: opacity .6s ease; }
+.strip { position: absolute; left: 14%; right: 14%; bottom: 13%; height: 8px; background: #3a416a; border-radius: 2px; transform: translateX(-110%); transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.scene.blocked .gap { opacity: .04; }
+.scene.blocked .spill { opacity: 0; }
+.scene.blocked .strip { transform: none; }
+.zz { position: absolute; left: 22%; top: 30%; font-family: var(--display); font-weight: 800; color: var(--ink-dim); font-size: 28px; opacity: 0; transition: opacity .6s ease .3s; }
+.scene.blocked .zz { opacity: .8; }
+.toggle { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: rgba(13,16,32,.85); padding: 3px; }
+.toggle button { font: 600 13px var(--body); color: var(--ink-dim); background: none; border: 0; padding: 7px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--night); }
+
+.order { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: start; scroll-margin-top: 20px; }
+.order > * { min-width: 0; }
+.points { display: grid; gap: 16px; padding: 0; margin: 0; list-style: none; }
+.points li { display: grid; gap: 2px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.points li:last-child { border-bottom: 0; }
+.points strong { font-size: 18px; }
+.points span { color: var(--ink-dim); }
+.steps { counter-reset: s; display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; color: var(--ink-dim); }
+.steps li::before { content: counter(s); font-family: var(--mono); color: var(--glow); }
+
+.card { background: var(--night-2); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: grid; gap: 18px; }
+.price-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.price { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.was { font-family: var(--mono); color: var(--ink-dim); text-decoration: line-through; }
+.badge { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--night); background: var(--ok); padding: 3px 8px; border-radius: 4px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.row2 > * { min-width: 0; }
+label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+.opt { font-weight: 400; color: var(--ink-dim); }
+.hint { font-size: 14px; color: var(--ink-dim); margin-top: 6px; }
+.hint.ok { color: var(--ok); }
+input[type="email"], input[type="text"], input[type="tel"], textarea { width: 100%; font: 16px var(--body); color: var(--ink); background: var(--night); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+textarea { min-height: 110px; resize: vertical; }
+input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+input[aria-invalid="true"] { border-color: var(--bad); }
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.qty button { width: 44px; height: 44px; font-size: 20px; color: var(--ink); background: var(--night); border: 0; cursor: pointer; }
+.qty output { min-width: 48px; text-align: center; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.total { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 15px; color: var(--ink-dim); border-top: 1px solid var(--line); padding-top: 16px; }
+.total b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.cta { width: 100%; text-align: center; font: 800 18px var(--display); color: var(--night); background: var(--glow); border: 0; border-radius: 8px; padding: 16px; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.cta:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--glow-soft); }
+.cta:disabled { opacity: .6; cursor: wait; transform: none; box-shadow: none; }
+.cta.quiet { background: var(--ink); }
+.fine { font-size: 13px; color: var(--ink-dim); }
+.err { color: var(--bad); font-size: 15px; }
+.done { display: grid; gap: 12px; text-align: left; }
+.done .code { font-family: var(--mono); font-size: 22px; color: var(--glow); }
+.hp { position: absolute; left: -9999px; }
+
+.qa { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: start; scroll-margin-top: 20px; }
+.qa > * { min-width: 0; }
+.faq { display: grid; gap: 4px; }
+details { border-bottom: 1px solid var(--line); padding-block: 14px; }
+summary { cursor: pointer; font-weight: 700; }
+details p { color: var(--ink-dim); margin-top: 8px; max-width: 60ch; }
+footer { color: var(--ink-dim); font-size: 13px; font-family: var(--mono); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 760px) {
+  .hero, .order, .qa { grid-template-columns: 1fr; gap: 28px; }
+  .wrap { padding-block: 20px 48px; gap: 44px; }
+  .row2 { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav>
+    <span class="brand"><i aria-hidden="true"></i>Lights Out</span>
+    <span class="links"><a href="#order">Pre-order</a><a href="#questions">Questions</a></span>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Pre-orders open · ORU dorms</span>
+      <h1>Hallway light stays in the hallway.</h1>
+      <p class="lede">The Lights Out strip slides into the gap under your door and blocks the glow that keeps you up. It cuts down hallway noise too. So you can sleep.</p>
+      <a class="jump" href="#order">Pre-order for $9.99</a>
+    </div>
+    <div class="scene" id="scene" role="img" aria-label="A dorm door at night with hallway light shining through the gap underneath">
+      <div class="toggle" role="group" aria-label="Compare">
+        <button type="button" id="t-off" aria-pressed="true">Without strip</button>
+        <button type="button" id="t-on" aria-pressed="false">With strip</button>
+      </div>
+      <div class="door"><span class="knob"></span></div>
+      <div class="floor"></div>
+      <div class="spill"></div>
+      <div class="gap"></div>
+      <div class="strip"></div>
+      <div class="zz">z z z</div>
+    </div>
+  </section>
+
+  <section class="order" id="order">
+    <div style="display:grid;gap:32px">
+      <div style="display:grid;gap:20px">
+        <h2>What you get</h2>
+        <ul class="points">
+          <li><strong>Blocks the light gap</strong><span>Covers the line of light under your door that hits your face at 2 a.m.</span></li>
+          <li><strong>Quieter nights</strong><span>Muffles hallway voices, doors and footsteps.</span></li>
+          <li><strong>No tools, no damage</strong><span>Foam slides under the door. Nothing to screw in, nothing for RA checks to flag.</span></li>
+        </ul>
+      </div>
+      <div style="display:grid;gap:14px">
+        <h3>How pre-ordering works</h3>
+        <ol class="steps">
+          <li>Fill in the form with your hall and room.</li>
+          <li>We send payment instructions to your email. Your order is locked in once it's paid.</li>
+          <li>We bring your strip to your dorm when the batch arrives.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="orderForm" novalidate style="display:grid;gap:18px">
+        <div>
+          <div class="price-row">
+            <span class="price" id="price">$11.99</span>
+            <span class="was" id="was" hidden>$11.99</span>
+            <span class="badge" id="badge" hidden>ORU PRICE</span>
+          </div>
+          <p class="fine" style="margin-top:8px">per strip · $9.99 with an @oru.edu email</p>
+        </div>
+
+        <div class="row2">
+          <div><label for="name">Name</label><input type="text" id="name" name="name" autocomplete="name" required></div>
+          <div><label for="phone">Phone <span class="opt">(optional)</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel"></div>
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="you@oru.edu" inputmode="email" required>
+          <p class="hint" id="hint">Use your ORU email to get $2 off each strip.</p>
+        </div>
+
+        <div class="row2">
+          <div><label for="hall">Residence hall</label><input type="text" id="hall" name="hall" placeholder="e.g. EMR" required></div>
+          <div><label for="room">Room number</label><input type="text" id="room" name="room" required></div>
+        </div>
+
+        <div>
+          <label id="qty-label">How many?</label>
+          <div class="qty" role="group" aria-labelledby="qty-label">
+            <button type="button" id="minus" aria-label="One fewer">−</button>
+            <output id="qty" aria-live="polite">1</output>
+            <button type="button" id="plus" aria-label="One more">+</button>
+          </div>
+        </div>
+
+        <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="total"><span>Total</span><b id="total">$11.99</b></div>
+        <p class="err" id="orderErr" role="alert" hidden></p>
+        <button class="cta" type="submit" id="orderBtn">Pre-order 1 strip · $11.99</button>
+        <p class="fine">No payment yet. We'll email you how to pay.</p>
+      </form>
+
+      <div class="done" id="orderDone" hidden>
+        <span class="eyebrow">Order received</span>
+        <h3>You're on the list.</h3>
+        <p>Your order number is</p>
+        <span class="code" id="orderCode"></span>
+        <p class="fine" id="orderSummary"></p>
+        <p>Watch your email for payment instructions. Your strip is reserved once it's paid.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="qa" id="questions">
+    <div style="display:grid;gap:16px">
+      <h2>Questions</h2>
+      <div class="faq">
+        <details><summary>Who gets the $9.99 price?</summary><p>Anyone ordering with an @oru.edu email. Everyone else pays $11.99.</p></details>
+        <details><summary>When do I pay?</summary><p>After you order, we email you payment instructions. Your strip is reserved once payment comes in.</p></details>
+        <details><summary>When do I get it?</summary><p>This is a pre-order. We'll email you when the batch arrives and bring it to your dorm.</p></details>
+        <details><summary>Will it fit my door?</summary><p>It's made for standard dorm doors. If yours has an unusual gap, ask below and we'll sort it out.</p></details>
+        <details><summary>Can I cancel?</summary><p>Yes. Ask below or reply to your order email before your strip is delivered.</p></details>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="qForm" novalidate style="display:grid;gap:16px">
+        <h3>Ask a question</h3>
+        <div><label for="qname">Name</label><input type="text" id="qname" name="name" autocomplete="name" required></div>
+        <div><label for="qemail">Email</label><input type="email" id="qemail" name="email" autocomplete="email" required><p class="hint">We'll answer you here.</p></div>
+        <div><label for="qtext">Your question</label><textarea id="qtext" name="question" required></textarea></div>
+        <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="err" id="qErr" role="alert" hidden></p>
+        <button class="cta quiet" type="submit" id="qBtn">Send question</button>
+      </form>
+      <div class="done" id="qDone" hidden>
+        <span class="eyebrow">Question sent</span>
+        <h3>Thanks. We'll email you back.</h3>
+        <p class="fine">Good questions get added to the list on the left.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>Lights Out · run by an ORU student</span><span>Tulsa, OK</span></footer>
+</main>
+
+<script>
+(function () {
+  // Orders and questions go to Melvin's inbox through FormSubmit.
+  var ENDPOINT = "https://formsubmit.co/ajax/agent-agent@inkboxmail.com";
+  var FULL = 11.99, ORU = 9.99, MAX = 10;
+  var qty = 1;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var scene = $("scene"), tOff = $("t-off"), tOn = $("t-on");
+  function setBlocked(on) {
+    scene.classList.toggle("blocked", on);
+    tOn.setAttribute("aria-pressed", on); tOff.setAttribute("aria-pressed", !on);
+  }
+  tOff.onclick = function () { setBlocked(false); };
+  tOn.onclick = function () { setBlocked(true); };
+
+  var email = $("email");
+  function isOru(v) { return /^[^\s@]+@oru\.edu$/i.test(v.trim()); }
+  function money(n) { return "$" + n.toFixed(2); }
+  function unit() { return isOru(email.value) ? ORU : FULL; }
+
+  function render() {
+    var v = email.value, oru = isOru(v), u = unit();
+    $("price").textContent = money(u);
+    $("was").hidden = !oru; $("badge").hidden = !oru;
+    $("qty").textContent = qty;
+    $("total").textContent = money(u * qty);
+    var hint = $("hint");
+    if (oru) { hint.textContent = "ORU price applied. $2 off each strip."; hint.className = "hint ok"; }
+    else if (v.trim() && /@/.test(v)) { hint.textContent = "That's not an @oru.edu address, so the price is $11.99."; hint.className = "hint"; }
+    else { hint.textContent = "Use your ORU email to get $2 off each strip."; hint.className = "hint"; }
+    $("orderBtn").textContent = "Pre-order " + qty + (qty > 1 ? " strips" : " strip") + " · " + money(u * qty);
+  }
+  $("minus").onclick = function () { if (qty > 1) { qty--; render(); } };
+  $("plus").onclick = function () { if (qty < MAX) { qty++; render(); } };
+  email.addEventListener("input", render);
+
+  function orderCode() {
+    var c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s = "";
+    for (var i = 0; i < 5; i++) s += c[Math.floor(Math.random() * c.length)];
+    return "LO-" + s;
+  }
+  function check(form) {
+    var bad = null;
+    Array.prototype.forEach.call(form.querySelectorAll("[required]"), function (el) {
+      var ok = el.value.trim() !== "" && (el.type !== "email" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
+      el.setAttribute("aria-invalid", ok ? "false" : "true");
+      if (!ok && !bad) bad = el;
+    });
+    if (bad) bad.focus();
+    return !bad;
+  }
+  function send(payload) {
+    return fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+      if (!r.ok || String(j.success) === "false") throw new Error(j.message || "Send failed");
+      return j;
+    }); });
+  }
+
+  $("orderForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target, err = $("orderErr");
+    err.hidden = true;
+    if (!check(f)) { err.textContent = "Fill in the highlighted fields. Email needs to be a real address."; err.hidden = false; return; }
+    if (f._honey.value) return;
+    var code = orderCode(), u = unit(), btn = $("orderBtn");
+    btn.disabled = true; btn.textContent = "Sending…";
+    send({
+      _subject: "LIGHTS OUT ORDER " + code,
+      _template: "table",
+      _captcha: "false",
+      type: "order",
+      order_id: code,
+      name: f.name.value.trim(),
+      email: f.email.value.trim(),
+      phone: f.phone.value.trim(),
+      hall: f.hall.value.trim(),
+      room: f.room.value.trim(),
+      quantity: qty,
+      unit_price: u.toFixed(2),
+      total: (u * qty).toFixed(2),
+      oru_price: isOru(f.email.value) ? "yes" : "no",
+      submitted_at: new Date().toISOString()
+    }).then(function () {
+      $("orderCode").textContent = code;
+      $("orderSummary").textContent = qty + (qty > 1 ? " strips" : " strip") + " · " + money(u * qty) + " · " + f.hall.value.trim() + " " + f.room.value.trim();
+      f.hidden = true; $("orderDone").hidden = false;
+    }).catch(function () {
+      err.textContent = "Your order didn't go through. Check your connection and try again.";
+      err.hidden = false; btn.disabled = false; render();
+    });
+  });
+
+  $("qForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target, err = $("qErr"), btn = $("qBtn");
+    err.hidden = true;
+    if (!check(f)) { err.textContent = "Fill in your name, email and question."; err.hidden = false; return; }
+    if (f._honey.value) return;
+    btn.disabled = true; btn.textContent = "Sending…";
+    send({
+      _subject: "LIGHTS OUT QUESTION from " + f.name.value.trim(),
+      _template: "table",
+      _captcha: "false",
+      type: "question",
+      name: f.name.value.trim(),
+      email: f.email.value.trim(),
+      question: f.question.value.trim(),
+      submitted_at: new Date().toISOString()
+    }).then(function () { f.hidden = true; $("qDone").hidden = false; })
+      .catch(function () { err.textContent = "Your question didn't send. Try again in a minute."; err.hidden = false; btn.disabled = false; btn.textContent = "Send question"; });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
