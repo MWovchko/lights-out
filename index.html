@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DormDarker | DarkDorms.com</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2307081a%27/%3E%3Cpath d=%27M21 22a9 9 0 1 1-6-15 7 7 0 0 0 6 15z%27 fill=%27%23ffd23f%27/%3E%3C/svg%3E">
+<meta name="description" content="DormDarker is a strip that slides under your ORU dorm door and blocks the hallway light. Preorder for $10.99 (regularly $12.99).">
+<link rel="canonical" href="https://darkdorms.com/">
+<meta name="theme-color" content="#07081a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;800&display=swap">
+<!-- Stripe.js must load straight from Stripe (PCI requirement); never bundle or self-host it. -->
+<style>
+:root{
+  --bg:#07081a; --panel:#10122b; --line:#23264d;
+  --text:#e6e8ff; --muted:#9ea3d4; --sun:#ffd23f; --ok:#7ee0a8;
+  --f-display:"Bricolage Grotesque","Arial Black",sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--f-display);font-weight:800;line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance}
+p{margin:0}
+.col{max-width:520px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px;border-radius:6px}
+
+header{padding:20px 0}
+.logo{font:800 20px var(--f-display);display:flex;align-items:center;gap:8px}
+.logo i{width:18px;height:18px;border-radius:50%;background:var(--sun);-webkit-mask:radial-gradient(circle at 70% 35%,transparent 45%,#000 46%);mask:radial-gradient(circle at 70% 35%,transparent 45%,#000 46%)}
+
+.hero{padding-block:36px 56px;display:grid;gap:20px}
+.hero h1{font-size:clamp(44px,13vw,68px)}
+.hero p{font-size:19px;color:var(--muted);max-width:32ch}
+.hero p b{color:var(--text)}
+
+/* the door: hallway light leaks under it, then a DormDarker strip slides in */
+.stage{position:relative;height:230px;overflow:hidden;border-radius:16px;background:#0c0d24}
+.door{position:absolute;left:50%;bottom:34px;width:120px;height:180px;margin-left:-60px;background:linear-gradient(90deg,#1d1f45,#262a5a 60%,#1d1f45);border:3px solid #33386e;border-bottom:none;border-radius:4px 4px 0 0;z-index:2}
+.door .plate{position:absolute;top:18px;left:50%;transform:translateX(-50%);font:800 10px var(--f-body);letter-spacing:.06em;background:var(--text);color:var(--bg);padding:2px 7px;border-radius:3px;white-space:nowrap}
+.door .knob{position:absolute;right:14px;top:96px;width:10px;height:10px;border-radius:50%;background:#7b80b8}
+.gap{position:absolute;left:50%;bottom:28px;width:120px;height:7px;margin-left:-60px;overflow:hidden;z-index:3;background:#fff6c2;animation:gap 5s ease-in-out infinite}
+.gap i{position:absolute;inset:0;background:repeating-linear-gradient(90deg,#1b1d3c 0 6px,#2b2f5e 6px 9px);transform:translateX(-110%);animation:slide 5s cubic-bezier(.3,1.3,.5,1) infinite}
+.spill{position:absolute;left:50%;bottom:0;width:420px;height:70px;margin-left:-210px;background:radial-gradient(50% 100% at 50% 0%,#ffd23fcc,#ffd23f33 45%,transparent 75%);z-index:1;animation:spill 5s ease-in-out infinite}
+.floor{position:absolute;left:0;right:0;bottom:0;height:28px;border-top:1px solid var(--line);background:#090a1e}
+.zz{position:absolute;right:22%;top:30px;font:800 22px var(--f-display);color:var(--muted);opacity:0;animation:zz 5s ease-in-out infinite;z-index:3}
+@keyframes slide{0%,30%{transform:translateX(-110%)}45%,88%{transform:none}100%{transform:translateX(-110%)}}
+@keyframes gap{0%,38%{box-shadow:0 0 18px 6px #ffd23f99}45%,88%{box-shadow:none}100%{box-shadow:0 0 18px 6px #ffd23f99}}
+@keyframes spill{0%,36%{opacity:1}46%,88%{opacity:0}100%{opacity:1}}
+@keyframes zz{0%,48%{opacity:0;transform:none}58%,84%{opacity:1;transform:translateY(-6px)}92%,100%{opacity:0}}
+
+.btn{display:inline-flex;gap:6px;justify-content:center;align-items:center;font:800 18px var(--f-body);color:var(--bg);background:var(--sun);border:none;border-radius:14px;padding:16px 24px;text-decoration:none;cursor:pointer;width:100%}
+.btn:active{transform:translateY(2px)}
+.btn:disabled{opacity:.6}
+
+section{padding:48px 0;border-top:1px solid var(--line)}
+section h2{font-size:32px;margin-bottom:20px}
+
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:16px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:36px 1fr;gap:14px;counter-increment:s}
+.steps li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--sun)}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:15px}
+
+.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:20px}
+.price strong{font:800 52px/1 var(--f-display);color:var(--sun)}
+.price s{font:800 26px/1 var(--f-display);color:var(--muted);text-decoration-thickness:3px;text-decoration-color:#ff9a9a}
+.price span{color:var(--muted);font-size:15px;flex-basis:100%}
+
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-weight:600;font-size:15px}
+input{width:100%;font:400 17px var(--f-body);color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:13px 14px}
+input:focus{outline:none;border-color:var(--sun)}
+input::placeholder{color:#62679a}
+.row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.qty{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:4px}
+.qty button{width:48px;height:44px;border:none;background:none;color:var(--text);font:800 22px var(--f-body);cursor:pointer;border-radius:8px}
+.qty button:disabled{opacity:.3}
+.qty output{font-weight:800;font-size:20px}
+.oru{font-size:14px;color:var(--muted)}
+.oru.on{color:var(--ok);font-weight:600}
+.err{color:#ff9a9a;font-size:14px;font-weight:600}
+.fine{font-size:13px;color:var(--muted);text-align:center}
+
+.done{display:grid;gap:14px;text-align:center;padding:10px 0}
+.done h3{font:800 30px var(--f-display);margin:0}
+.done p{color:var(--muted)}
+#checkout-form{background:#fff;border-radius:14px;padding:16px;text-align:left;min-height:120px}
+.pay-slot{border:2px dashed var(--sun);border-radius:14px;padding:16px;display:grid;gap:4px}
+.pay-slot strong{font-size:13px;letter-spacing:.08em;color:var(--sun)}
+.pay-slot p{font-size:14px}
+
+footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+footer p:first-child{font:800 24px var(--f-display);color:var(--text);margin-bottom:8px}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.gap,.gap i,.spill,.zz{animation:none}.gap i{transform:none}.spill{opacity:0}.zz{opacity:1}}
+</style>
+</head>
+<body>
+
+<header><div class="col"><span class="logo"><i aria-hidden="true"></i>DormDarker</span></div></header>
+
+<main>
+  <div class="col hero">
+    <h1>Sleep in the dark. Even in a dorm.</h1>
+    <p>The hallway light leaks under your door all night. <b>DormDarker</b> is a strip that slides into the gap and blocks it.</p>
+    <div class="stage" aria-hidden="true">
+      <span class="zz">z z z</span>
+      <div class="door"><span class="plate">ROOM 214</span><span class="knob"></span></div>
+      <div class="gap"><i></i></div>
+      <div class="spill"></div>
+      <div class="floor"></div>
+    </div>
+    <a class="btn" href="#order">Preorder for <s style="opacity:.6;margin:0 6px">$12.99</s> $10.99</a>
+  </div>
+
+  <section>
+    <div class="col">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li><div><b>Preorder below</b><span>It takes about a minute.</span></div></li>
+        <li><div><b>We bring it to your room</b><span>A fellow ORU student drops it off.</span></div></li>
+        <li><div><b>Slide it under your door</b><span>Lights out, sleep tight.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="order">
+    <div class="col">
+      <h2>Get yours</h2>
+      <div class="price"><s aria-label="Regular price $12.99">$12.99</s><strong>$10.99</strong><span>preorder price, per strip</span></div>
+
+      <div id="formBody" style="display:grid;gap:14px">
+        <a class="btn" id="buyBtn" href="#order"><span id="btnLabel">Preorder</span></a>
+        <p class="fine">You'll pay with secure Stripe checkout. It asks for your name, phone, dorm and room, and you can pick how many strips.</p>
+        <p class="err" id="err" role="alert" hidden></p>
+      </div>
+      <div class="done" id="paid" hidden>
+        <h3>Paid. Lights out soon 🌙</h3>
+        <p id="paidMsg">Thanks! Stripe emailed your receipt, and we'll text you to set up drop-off at your room.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="col">
+    <p>Tonight, you actually sleep.</p>
+    <p>For students, by a student · DarkDorms.com</p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   ORDER SETTINGS
+   PAYMENT_LINK: the live Stripe Payment Link URL (https://buy.stripe.com/...).
+   Copy it from Stripe > Payment links > your $10.99 DormDarker link > Copy link.
+   Stripe collects name, phone, dorm, room and quantity on its page, and the
+   order email goes out from Stripe only after someone pays.
+   ============================================================ */
+var PAYMENT_LINK = "https://buy.stripe.com/dRm5kEdrI0Kcay33ao1oI00";  /* e.g. "https://buy.stripe.com/..." */
+
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+  var btn = $("buyBtn");
+  if (PAYMENT_LINK) {
+    btn.href = PAYMENT_LINK;
+  } else {
+    btn.addEventListener("click", function(e){
+      e.preventDefault();
+      $("err").textContent = "Checkout isn't connected yet. Check back soon!";
+      $("err").hidden = false;
+    });
+  }
+  /* back from Stripe (set the Payment Link's confirmation page to redirect to
+     https://darkdorms.com/?checkout=complete#order) */
+  if (/[?&]checkout=complete/.test(location.search)) {
+    $("formBody").hidden = true; $("paid").hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
