@@ -3,185 +3,194 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>DarkDorms</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2307081a%27/%3E%3Cpath d=%27M21 22a9 9 0 1 1-6-15 7 7 0 0 0 6 15z%27 fill=%27%23ffd23f%27/%3E%3C/svg%3E">
-<meta name="description" content="DarkDorms is a strip that slides under your ORU dorm door and blocks the hallway light. Preorder for $10.99 (regularly $12.99).">
+<title>DarkDorms | Block Dorm Hallway Light | ORU</title>
+<meta name="description" content="A strip that slides under your ORU dorm door and blocks the hallway light. Preorder for $10.99 (regularly $12.99).">
 <link rel="canonical" href="https://darkdorms.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DarkDorms">
+<meta property="og:url" content="https://darkdorms.com/">
+<meta property="og:title" content="DarkDorms | Block Dorm Hallway Light | ORU">
+<meta property="og:description" content="A strip that slides under your ORU dorm door and blocks the hallway light. Preorder for $10.99 (regularly $12.99).">
+<meta property="og:image" content="https://darkdorms.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="DarkDorms logo beside a dorm door with a dark strip under it. Text: Sleep in the dark. Even in a dorm. $10.99 preorder.">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#07081a">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;800&display=swap">
-<!-- Stripe.js must load straight from Stripe (PCI requirement); never bundle or self-host it. -->
-<style>
-:root{
-  --bg:#07081a; --panel:#10122b; --line:#23264d;
-  --text:#e6e8ff; --muted:#9ea3d4; --sun:#ffd23f; --ok:#7ee0a8;
-  --f-display:"Bricolage Grotesque","Arial Black",sans-serif;
-  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
-h1,h2{font-family:var(--f-display);font-weight:800;line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance}
-p{margin:0}
-.col{max-width:520px;margin:0 auto;padding:0 20px}
-:focus-visible{outline:3px solid var(--sun);outline-offset:3px;border-radius:6px}
-
-header{padding:20px 0}
-.logo{font:800 20px var(--f-display);display:flex;align-items:center;gap:8px}
-.logo i{width:18px;height:18px;border-radius:50%;background:var(--sun);-webkit-mask:radial-gradient(circle at 70% 35%,transparent 45%,#000 46%);mask:radial-gradient(circle at 70% 35%,transparent 45%,#000 46%)}
-
-.hero{padding-block:36px 56px;display:grid;gap:20px}
-.hero h1{font-size:clamp(44px,13vw,68px)}
-.hero p{font-size:19px;color:var(--muted);max-width:32ch}
-.hero p b{color:var(--text)}
-
-/* the door: hallway light leaks under it, then a DarkDorms strip slides in */
-.stage{position:relative;height:230px;overflow:hidden;border-radius:16px;background:#0c0d24}
-.door{position:absolute;left:50%;bottom:34px;width:120px;height:180px;margin-left:-60px;background:linear-gradient(90deg,#1d1f45,#262a5a 60%,#1d1f45);border:3px solid #33386e;border-bottom:none;border-radius:4px 4px 0 0;z-index:2}
-.door .plate{position:absolute;top:18px;left:50%;transform:translateX(-50%);font:800 10px var(--f-body);letter-spacing:.06em;background:var(--text);color:var(--bg);padding:2px 7px;border-radius:3px;white-space:nowrap}
-.door .knob{position:absolute;right:14px;top:96px;width:10px;height:10px;border-radius:50%;background:#7b80b8}
-.gap{position:absolute;left:50%;bottom:28px;width:120px;height:7px;margin-left:-60px;overflow:hidden;z-index:3;background:#fff6c2;animation:gap 5s ease-in-out infinite}
-.gap i{position:absolute;inset:0;background:repeating-linear-gradient(90deg,#1b1d3c 0 6px,#2b2f5e 6px 9px);transform:translateX(-110%);animation:slide 5s cubic-bezier(.3,1.3,.5,1) infinite}
-.spill{position:absolute;left:50%;bottom:0;width:420px;height:70px;margin-left:-210px;background:radial-gradient(50% 100% at 50% 0%,#ffd23fcc,#ffd23f33 45%,transparent 75%);z-index:1;animation:spill 5s ease-in-out infinite}
-.floor{position:absolute;left:0;right:0;bottom:0;height:28px;border-top:1px solid var(--line);background:#090a1e}
-.zz{position:absolute;right:22%;top:30px;font:800 22px var(--f-display);color:var(--muted);opacity:0;animation:zz 5s ease-in-out infinite;z-index:3}
-@keyframes slide{0%,30%{transform:translateX(-110%)}45%,88%{transform:none}100%{transform:translateX(-110%)}}
-@keyframes gap{0%,38%{box-shadow:0 0 18px 6px #ffd23f99}45%,88%{box-shadow:none}100%{box-shadow:0 0 18px 6px #ffd23f99}}
-@keyframes spill{0%,36%{opacity:1}46%,88%{opacity:0}100%{opacity:1}}
-@keyframes zz{0%,48%{opacity:0;transform:none}58%,84%{opacity:1;transform:translateY(-6px)}92%,100%{opacity:0}}
-
-.btn{display:inline-flex;gap:6px;justify-content:center;align-items:center;font:800 18px var(--f-body);color:var(--bg);background:var(--sun);border:none;border-radius:14px;padding:16px 24px;text-decoration:none;cursor:pointer;width:100%}
-.btn:active{transform:translateY(2px)}
-.btn:disabled{opacity:.6}
-
-section{padding:48px 0;border-top:1px solid var(--line)}
-section h2{font-size:32px;margin-bottom:20px}
-
-.steps{list-style:none;padding:0;margin:0;display:grid;gap:16px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:36px 1fr;gap:14px;counter-increment:s}
-.steps li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--sun)}
-.steps b{display:block}
-.steps span{color:var(--muted);font-size:15px}
-
-.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:20px}
-.price strong{font:800 52px/1 var(--f-display);color:var(--sun)}
-.price s{font:800 26px/1 var(--f-display);color:var(--muted);text-decoration-thickness:3px;text-decoration-color:#ff9a9a}
-.price span{color:var(--muted);font-size:15px;flex-basis:100%}
-
-form{display:grid;gap:14px}
-label{display:grid;gap:6px;font-weight:600;font-size:15px}
-input{width:100%;font:400 17px var(--f-body);color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:13px 14px}
-input:focus{outline:none;border-color:var(--sun)}
-input::placeholder{color:#62679a}
-.row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
-.qty{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:4px}
-.qty button{width:48px;height:44px;border:none;background:none;color:var(--text);font:800 22px var(--f-body);cursor:pointer;border-radius:8px}
-.qty button:disabled{opacity:.3}
-.qty output{font-weight:800;font-size:20px}
-.oru{font-size:14px;color:var(--muted)}
-.oru.on{color:var(--ok);font-weight:600}
-.err{color:#ff9a9a;font-size:14px;font-weight:600}
-.fine{font-size:13px;color:var(--muted);text-align:center}
-
-.done{display:grid;gap:14px;text-align:center;padding:10px 0}
-.done h3{font:800 30px var(--f-display);margin:0}
-.done p{color:var(--muted)}
-#checkout-form{background:#fff;border-radius:14px;padding:16px;text-align:left;min-height:120px}
-.pay-slot{border:2px dashed var(--sun);border-radius:14px;padding:16px;display:grid;gap:4px}
-.pay-slot strong{font-size:13px;letter-spacing:.08em;color:var(--sun)}
-.pay-slot p{font-size:14px}
-
-footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
-footer p:first-child{font:800 24px var(--f-display);color:var(--text);margin-bottom:8px}
-
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.gap,.gap i,.spill,.zz{animation:none}.gap i{transform:none}.spill{opacity:0}.zz{opacity:1}}
-</style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-
-<header><div class="col"><span class="logo"><i aria-hidden="true"></i>DarkDorms</span></div></header>
+<header class="site"><div class="col">
+  <a class="logo" href="/"><img src="/favicon.svg" alt="" width="24" height="24">DarkDorms</a>
+  <nav class="top" aria-label="Main">
+    <a href="#how">How it works</a>
+    <a href="#order">Price</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a class="btn sm hdr-cta" href="#order">Preorder $10.99</a>
+</div></header>
 
 <main>
-  <div class="col hero">
+  <div class="col hero" id="hero">
     <h1>Sleep in the dark. Even in a dorm.</h1>
-    <p>The hallway light leaks under your door all night. <b>DarkDorms</b> is a strip that slides into the gap and blocks it.</p>
-    <div class="stage" aria-hidden="true">
-      <span class="zz">z z z</span>
-      <div class="door"><span class="plate">ROOM 214</span><span class="knob"></span></div>
-      <div class="gap"><i></i></div>
-      <div class="spill"></div>
-      <div class="floor"></div>
+    <p class="lede">The hallway light leaks under your dorm door all night. <b>DarkDorms is a strip that slides into the gap and blocks it,</b> so your room is dark when you turn off the light.</p>
+    <div class="ctas" id="heroCtas">
+      <a class="btn" href="#order" data-buy id="heroBuy">Preorder for <s>$12.99</s> $10.99</a>
+      <a class="btn pink" href="#alerts">Text me when they're back</a>
     </div>
-    <a class="btn" href="#order">Preorder for <s style="opacity:.6;margin:0 6px">$12.99</s> $10.99</a>
+    <p class="status" data-paused><i aria-hidden="true"></i>Preorders are paused for a few days while we restock.</p>
+    <figure class="stage" role="img" aria-label="Animation: hallway light glows under a dorm door marked Room 214, then a DarkDorms strip slides into the gap, the light disappears, and z z z appears.">
+      <span class="zz" aria-hidden="true">z z z</span>
+      <div class="door" aria-hidden="true"><span class="plate">ROOM 214</span><span class="knob"></span></div>
+      <div class="gap" aria-hidden="true"><i></i></div>
+      <div class="spill" aria-hidden="true"></div>
+      <div class="floor" aria-hidden="true"></div>
+    </figure>
   </div>
 
-  <section>
-    <div class="col">
-      <h2>How it works</h2>
-      <ol class="steps">
-        <li><div><b>Preorder below</b><span>It takes about a minute.</span></div></li>
-        <li><div><b>We bring it to your room</b><span>A fellow ORU student drops it off.</span></div></li>
-        <li><div><b>Slide it under your door</b><span>Lights out, sleep tight.</span></div></li>
-      </ol>
-    </div>
-  </section>
+  <section id="problem"><div class="col">
+    <p class="kicker">The problem</p>
+    <h2>The hallway light never turns off.</h2>
+    <ul class="pains">
+      <li><b>What you see</b>A bright bar of light under your door at 2 AM.</li>
+      <li><b>How it feels</b>You're lying awake, annoyed, with an 8 AM tomorrow.</li>
+      <li><b>Why it's wrong</b>Your room should be dark when you turn off your light.</li>
+    </ul>
+  </div></section>
 
-  <section id="order">
-    <div class="col">
-      <h2>Get yours</h2>
+  <section id="guide"><div class="col narrow">
+    <p class="kicker">Who we are</p>
+    <h2>We have the same doors.</h2>
+    <div class="prose">
+      <p>DarkDorms is made <b>for students, by a student</b>. We know the towel jammed under the door and the eye mask that slips off by 3 AM.</p>
+      <p>So we made one thing that does one job: a strip sized for ORU dorm doors, <b>dropped off at your room by a fellow ORU student</b>.</p>
+    </div>
+  </div></section>
+
+  <section id="how"><div class="col narrow">
+    <p class="kicker">How it works</p>
+    <h2>Three steps to a dark room.</h2>
+    <ol class="steps">
+      <li><div><b>Preorder below</b><span>About a minute on secure Stripe checkout.</span></div></li>
+      <li><div><b>We bring it to your room</b><span>A fellow ORU student texts you and drops it off.</span></div></li>
+      <li><div><b>Slide it under your door</b><span>Lights out, sleep tight.</span></div></li>
+    </ol>
+  </div></section>
+
+  <section id="order"><div class="col split">
+    <div>
+      <p class="kicker">Get yours</p>
+      <h2>One strip. One dark room.</h2>
+      <div class="prose">
+        <p>Hallway light comes in through the gap under your door. DarkDorms fills that gap. You slide it under the door and leave it there.</p>
+        <p>Preorder price is <b>$10.99</b> for everyone. Regular price will be $12.99.</p>
+      </div>
+    </div>
+    <div class="card" id="buyCard">
       <div class="price"><s aria-label="Regular price $12.99">$12.99</s><strong>$10.99</strong><span>preorder price, per strip</span></div>
-
-      <div id="formBody" style="display:grid;gap:14px">
-        <a class="btn" id="buyBtn" href="#order"><span id="btnLabel">Preorder</span></a>
-        <p class="fine">You'll pay with secure Stripe checkout. It asks for your name, phone, dorm and room, and you can pick how many strips.</p>
-        <p class="err" id="err" role="alert" hidden></p>
-      </div>
-      <div class="done" id="paid" hidden>
-        <h3>Paid. Lights out soon 🌙</h3>
-        <p id="paidMsg">Thanks! Stripe emailed your receipt, and we'll text you to set up drop-off at your room.</p>
-      </div>
+      <ul class="incl">
+        <li>One DarkDorms strip sized for ORU dorm doors</li>
+        <li>Dropped off at your room by an ORU student</li>
+        <li>Receipt from Stripe by email</li>
+      </ul>
+      <a class="btn" href="#order" data-buy id="orderBuy">Preorder for $10.99</a>
+      <p class="paused" id="pausedNote" data-paused><b>Preorders are paused.</b> We're restocking and will turn checkout back on soon. Leave your number below and we'll text you.</p>
+      <p class="fine">Secure checkout by Stripe. It asks for your name, phone, dorm and room. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </div>
-  </section>
+  </div></section>
+
+  <section id="stakes"><div class="col">
+    <p class="kicker">What's at stake</p>
+    <h2>Another semester of 5-hour nights, or a dark room tonight.</h2>
+    <div class="outcomes">
+      <div class="outcome no"><h3>Without DarkDorms</h3><p>Towels under the door, an eye mask that falls off, and walking into your 8 AM on five hours of sleep. Again.</p></div>
+      <div class="outcome yes"><h3>With DarkDorms</h3><p>You turn off the light and the room actually goes dark. You fall asleep faster and wake up for class rested.</p></div>
+    </div>
+  </div></section>
+
+  <section id="alerts"><div class="col narrow">
+    <p class="kicker">Back in stock soon</p>
+    <h2>Get a text when preorders open.</h2>
+    <form id="alertForm" novalidate>
+      <label for="aName">First name
+        <input id="aName" name="name" autocomplete="given-name" placeholder="Jordan" aria-describedby="aNameErr">
+        <span class="ferr" id="aNameErr" hidden></span>
+      </label>
+      <label for="aPhone">Phone number <span class="hint">We'll only text you about DarkDorms.</span>
+        <input id="aPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(918) 555-0142" aria-describedby="aPhoneErr">
+        <span class="ferr" id="aPhoneErr" hidden></span>
+      </label>
+      <label for="aDorm">Dorm <span class="hint">Optional</span>
+        <input id="aDorm" name="dorm" placeholder="e.g. Michael Hall">
+      </label>
+      <button class="btn pink" type="submit" id="alertBtn">Text me when they're back</button>
+      <p id="alertDone" class="fok" role="status" hidden></p>
+      <p class="fine">This opens an email to me@darkdorms.com with your details filled in. Hit send and you're on the list.</p>
+    </form>
+  </div></section>
+
+  <section id="faq"><div class="col narrow">
+    <p class="kicker">Questions</p>
+    <h2>Before you order.</h2>
+    <div class="faq">
+      <details><summary>Will it fit my door?</summary><p>It's sized for ORU dorm doors.</p></details>
+      <details><summary>When will I get it?</summary><p>We text you to set up drop-off at your room.</p></details>
+      <details><summary>Can I get a refund?</summary><p>See our <a href="/terms">terms</a>, or email me@darkdorms.com.</p></details>
+      <details><summary>Who do I contact?</summary><p>Email me@darkdorms.com and a real student answers.</p></details>
+    </div>
+  </div></section>
+
+  <section id="final"><div class="col final">
+    <h2>Tonight, you actually sleep.</h2>
+    <a class="btn" href="#order" data-buy>Preorder for <s>$12.99</s> $10.99</a>
+  </div></section>
 </main>
 
-<footer>
-  <div class="col">
-    <p>Tonight, you actually sleep.</p>
-    <p>For students, by a student · DarkDorms.com</p>
+<div class="sticky" id="sticky" aria-hidden="true">
+  <div class="p"><s>$12.99</s><b>$10.99</b></div>
+  <a class="btn" href="#order" data-buy tabindex="-1">Preorder</a>
+</div>
+
+<footer><div class="col">
+  <div class="fgrid">
+    <div>
+      <p class="brandline">DarkDorms</p>
+      <p>For students, by a student.</p>
+    </div>
+    <div>
+      <h3>Contact</h3>
+      <address>
+        <span>me@darkdorms.com</span>
+      </address>
+    </div>
+    <div>
+      <h3>Site</h3>
+      <ul>
+        <li><a href="/#how">How it works</a></li>
+        <li><a href="/privacy">Privacy policy</a></li>
+        <li><a href="/terms">Terms of sale</a></li>
+        <li><a href="#" id="cookieLink">Cookie settings</a></li>
+      </ul>
+    </div>
   </div>
-</footer>
+  <p>© 2026 DarkDorms · darkdorms.com</p>
+</div></footer>
 
-<script>
-/* ============================================================
-   ORDER SETTINGS
-   PAYMENT_LINK: the live Stripe Payment Link URL (https://buy.stripe.com/...).
-   Copy it from Stripe > Payment links > your $10.99 DarkDorms link > Copy link.
-   Stripe collects name, phone, dorm, room and quantity on its page, and the
-   order email goes out from Stripe only after someone pays.
-   ============================================================ */
-var PAYMENT_LINK = "https://buy.stripe.com/dRm5kEdrI0Kcay33ao1oI00";  /* e.g. "https://buy.stripe.com/..." */
-
-(function(){
-  var $ = function(id){return document.getElementById(id)};
-  var btn = $("buyBtn");
-  if (PAYMENT_LINK) {
-    btn.href = PAYMENT_LINK;
-  } else {
-    btn.addEventListener("click", function(e){
-      e.preventDefault();
-      $("err").textContent = "Checkout isn't connected yet. Check back soon!";
-      $("err").hidden = false;
-    });
-  }
-  /* back from Stripe (set the Payment Link's confirmation page to redirect to
-     https://darkdorms.com/?checkout=complete#order) */
-  if (/[?&]checkout=complete/.test(location.search)) {
-    $("formBody").hidden = true; $("paid").hidden = false;
-  }
-})();
-</script>
+<div class="cookie" id="cookie" role="dialog" aria-labelledby="cookieTitle" hidden>
+  <p><b id="cookieTitle">Cookies, quickly.</b> We use one analytics cookie to see which parts of the page help. No ads, no selling your data. <a href="/privacy">Privacy</a></p>
+  <div class="row">
+    <button class="btn ghost" type="button" id="ckNo">Decline</button>
+    <button class="btn" type="button" id="ckYes">Accept</button>
+  </div>
+</div>
+<script src="/site.js"></script>
 </body>
 </html>
