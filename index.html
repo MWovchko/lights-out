@@ -634,7 +634,7 @@ cv.addEventListener("mouseleave",()=>{ hover=null; tip.hidden=true; });
 cv.addEventListener("click",e=>{ const p=toLogical(e), h=hit(p);
   if(!h){ tip.hidden=true; hover=null; return; }
   if(e.pointerType==="touch"||matchMedia("(hover: none)").matches){ hover=h; tip.innerHTML=tipHTML(h); tip.hidden=false; placeTip(p); }
-  if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")){ select(h.id); if(openAsksFor(h.id).length){ openBubble=h.id; tip.hidden=true; buildBubbles(); } }
+  if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")){ select(h.id,{scroll:!openAsksFor(h.id).length}); if(openAsksFor(h.id).length){ openBubble=h.id; tip.hidden=true; buildBubbles(); } }
   if(h.type==="board") document.getElementById("board").scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
 });
 
@@ -669,7 +669,7 @@ function renderRoster(){
   allAgentsCache.forEach(a=>{ const li=document.createElement("li"); const b=document.createElement("button"); b.type="button"; b.id="r-"+a.id; if(selected===a.id) b.classList.add("sel");
     b.appendChild(portrait(a)); const t=document.createElement("div"); t.className="t"; t.innerHTML=`<b>${esc(a.name)}</b><span>${esc(a.role)} · ${esc(a.statusText)}</span>`; b.appendChild(t);
     const p=document.createElement("span"); p.className="pill "+a.status; p.textContent=STLABEL[a.status]; b.appendChild(p);
-    b.addEventListener("click",()=>select(a.id)); li.appendChild(b); ul.appendChild(li); });
+    b.addEventListener("click",()=>select(a.id,{scroll:true})); li.appendChild(b); ul.appendChild(li); });
 }
 function checkPrompt(a){ return a.thread
   ? `Check on ${a.name}'s work in my Website Builder project (thread "${a.threadTitle}"). Give me a two-line status: what's done since last time and what you need from me.`
@@ -684,7 +684,7 @@ Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorm
 
 Work on the task, keep a checklist, tell me what you need from me, and save lasting facts to project memory so ${c.name} can pick up later.`; }
 let confirmDel=false;
-function select(id){
+function select(id, opts){
   selected=id; confirmDel=false; const a=agentById(id); const d=document.getElementById("detail"); if(!a){ d.hidden=true; return; }
   const custom_=custom.find(c=>c.id===id);
   d.innerHTML=`<h2>${esc(a.name)} <span class="pill ${a.status}">${STLABEL[a.status]}</span></h2>
@@ -710,7 +710,7 @@ function select(id){
   const st=document.getElementById("stSel"); if(st) st.addEventListener("change",()=>{ custom_.status=st.value; save(); refresh(); select(id); });
   const del=document.getElementById("delBtn"); if(del) del.addEventListener("click",()=>{ if(!confirmDel){ confirmDel=true; del.textContent="Tap again to remove"; return; } custom=custom.filter(c=>c.id!==id); save(); selected=null; d.hidden=true; rebuild(); toast(`${a.name} moved out`); });
   renderRoster();
-  if(window.innerWidth<980) d.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+  if(opts&&opts.scroll&&window.innerWidth<980) d.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
 }
 function toast(msg){ document.querySelectorAll(".toast").forEach(n=>n.remove()); const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status"); document.body.appendChild(t); setTimeout(()=>t.remove(),3200); }
 function copy(text, fallbackPreId){
@@ -841,7 +841,7 @@ function positionBubbles(){
     db=d; renderAll();
     db.collection("asks").onSnapshot(snap=>{
       asks=snap.docs.map(s=>Object.assign({id:s.id},s.data())).sort((x,y)=>(x.order||0)-(y.order||0));
-      refresh(); if(selected) select(selected); renderBoard();
+      const sy=window.scrollY, sx=window.scrollX; refresh(); if(selected) select(selected); renderBoard(); window.scrollTo(sx, sy); requestAnimationFrame(()=>window.scrollTo(sx, sy));
     },()=>{});
   }catch(e){ renderAll(); }
 })();
@@ -869,7 +869,7 @@ function loadData(first){
 }
 loadData(true).then(()=>{ tick(); requestAnimationFrame(t=>{ lastT=t; render(t); }); });
 setInterval(()=>loadData(false), 60000);
-window.addEventListener("island:pick", e=>select(e.detail));
+window.addEventListener("island:pick", e=>select(e.detail,{scroll:true}));
 window.addEventListener("island:ready", ()=>{ if(allAgentsCache.length) window.Island.update(allAgentsCache,{updated:DATA_UPDATED}); });
 })();
 </script>
