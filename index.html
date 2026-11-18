@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="stylesheet" href="/island.css">
-<title>DarkDorms Island</title>
+<title>Maxwell's Archipelago</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;600&display=swap">
@@ -108,6 +108,8 @@ form input:focus,form textarea:focus,form select:focus{outline:none;border-color
 .note{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--parchment);font-family:var(--display);padding:8px 14px;border-radius:4px;border:2px solid var(--gold);z-index:20}
 @media (prefers-reduced-motion: reduce){.btn:active{transform:none}}
+.isle-tabs{display:none;margin:0 0 8px}
+@media (max-width: 760px){ .isle-tabs{display:inline-flex} }
 /* Thought bubbles + asks */
 .frame{overflow:visible}
 canvas#map{border-radius:2px}
@@ -150,8 +152,8 @@ canvas#map{border-radius:2px}
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>DarkDorms Island</h1>
-      <p class="sub">Every agent working on the business, living on one island. Hover a villager or a building to see what they're doing.</p>
+      <h1>Maxwell's Archipelago</h1>
+      <p class="sub">DarkDorms Island and Home Isle: every agent working for you is a villager. Hover or tap a villager or building to see what they're doing.</p>
     </div>
     <div class="clock">
       <a class="btn ghost" href="/island" style="font-size:13px;padding:4px 9px;box-shadow:0 2px 0 var(--wood-dk)">Open island window</a>
@@ -165,8 +167,12 @@ canvas#map{border-radius:2px}
   </header>
 
   <section class="stage">
+    <div class="seg isle-tabs" id="isleTabs" role="group" aria-label="Island">
+      <button type="button" data-isle="dd" aria-pressed="true">DarkDorms Island</button>
+      <button type="button" data-isle="home" aria-pressed="false">Home Isle</button>
+    </div>
     <div class="frame" id="frame">
-      <canvas id="map" width="608" height="384" aria-label="Pixel island map of agents"></canvas>
+      <canvas id="map" width="928" height="384" aria-label="Pixel map of DarkDorms Island and Home Isle"></canvas>
       <div id="tip" hidden></div>
       <div id="bubbles"></div>
     </div>
@@ -205,6 +211,7 @@ canvas#map{border-radius:2px}
         <div class="f"><label for="nName">Name</label><input id="nName" maxlength="24" required placeholder="e.g. Rosie"></div>
         <div class="f"><label for="nRole">Role</label><input id="nRole" maxlength="40" required placeholder="e.g. Campus marketer"></div>
         <div class="f"><label for="nTask">First task</label><textarea id="nTask" maxlength="600" required placeholder="e.g. Plan 5 TikTok ideas showing a hallway light leak before and after a DarkDorms strip."></textarea></div>
+        <div class="f"><label for="nIsle">Island</label><select id="nIsle"><option value="dd">DarkDorms Island (DarkDorms work)</option><option value="home">Home Isle (everything else)</option></select></div>
         <div class="f"><label>Shirt color</label>
           <div class="swatches" id="swatches"></div>
         </div>
@@ -225,7 +232,8 @@ canvas#map{border-radius:2px}
 "use strict";
 const PROJECT = "https://claude.ai/code/project/chan_01DWJNahrsmHXUPwCMnYHJf4?thread=";
 const STORE = "darkdormsIsland.v1";
-const T = 16, W = 38, H = 24;
+const T = 16, W = 58, H = 24;
+const MAIN_W = 38; /* DarkDorms Island spans x 0..37; Home Isle x 38..57 */
 
 /* ---------- Business snapshot (Nov 17, 2026) ---------- */
 let BIZ = { stock: 6, sold: 3, profit: -31.61, toBreakEven: 4, salesPaused: true };
@@ -275,6 +283,7 @@ let AGENTS = [
 ];
 const MAYOR = {x:16,y:3,w:5,h:3,kind:"mayor",roof:"#8a3b2f",wall:"#f3e4c2",label:"Your House"};
 const PLAZA = {x:19,y:11};
+const HPLAZA = {x:48,y:12}; /* Home Isle square */
 const ORCH = {x:23,y:9,w:6,h:5};
 const HALL = {x:22,y:4,w:4,h:3,kind:"hall",roof:"#5a4a8a",wall:"#efe3c8",label:"Leadership Hall"};
 const TRACK = {x:29,y:15,w:4,h:3};
@@ -301,8 +310,11 @@ function hashStr(s){ let h=2166136261; for(const c of s){ h^=c.charCodeAt(0); h=
 
 /* ---------- Terrain ---------- */
 const cx=19, cy=11.8, rx=17.5, ry=10.8;
-function dist(x,y){ const dx=(x+.5-cx)/rx, dy=(y+.5-cy)/ry, a=Math.atan2(dy,dx);
+function distMain(x,y){ const dx=(x+.5-cx)/rx, dy=(y+.5-cy)/ry, a=Math.atan2(dy,dx);
   const v=Math.cbrt(Math.abs(dx)**3+Math.abs(dy)**3); return v*(1+0.05*Math.sin(a*5+1.3)+0.035*Math.sin(a*9+0.4)); }
+function distHome(x,y){ const dx=(x+.5-48.5)/7.4, dy=(y+.5-12)/7.6, a=Math.atan2(dy,dx);
+  const v=Math.hypot(dx,dy); return v*(1+0.06*Math.sin(a*4+2.1)+0.04*Math.sin(a*7+0.9)); }
+function dist(x,y){ return Math.min(distMain(x,y), distHome(x,y)); }
 const terr=[]; // 0 deep 1 shallow 2 sand 3 grass
 for(let y=0;y<H;y++){ terr[y]=[]; for(let x=0;x<W;x++){ const d=dist(x,y); terr[y][x]= d<0.8?3 : d<0.9?2 : d<1.0?1 : 0; } }
 const isGrass=(x,y)=>y>=0&&y<H&&x>=0&&x<W&&terr[y][x]===3;
@@ -319,18 +331,19 @@ function buildWorld(){
   for(let y=TRACK.y-1;y<=TRACK.y+TRACK.h;y++) for(let x=TRACK.x-1;x<=TRACK.x+TRACK.w;x++) reserved.add(key(x,y));
   // plaza
   for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-2;x<=PLAZA.x+2;x++) if(Math.abs(x-PLAZA.x)+Math.abs(y-PLAZA.y)<=3) reserved.add(key(x,y));
+  for(let y=HPLAZA.y-2;y<=HPLAZA.y+2;y++) for(let x=HPLAZA.x-2;x<=HPLAZA.x+3;x++) reserved.add(key(x,y));
   // dock path
   for(let y=PLAZA.y;y<=20;y++){ if(isLand(PLAZA.x,y)) pathT.add(key(PLAZA.x,y)); }
-  const addPath=h=>{
+  const addPath=(h,C)=>{ C=C||PLAZA;
     const dx=h.x+Math.floor(h.w/2), dy=h.y+h.h;
     let x=dx, y=dy; pathT.add(key(x,y));
-    const sx=Math.sign(PLAZA.x-x); while(x!==PLAZA.x){ x+=sx; pathT.add(key(x,y)); }
-    const sy=Math.sign(PLAZA.y-y); while(y!==PLAZA.y){ y+=sy; pathT.add(key(x,y)); }
+    const sx=Math.sign(C.x-x); while(x!==C.x){ x+=sx; pathT.add(key(x,y)); }
+    const sy=Math.sign(C.y-y); while(y!==C.y){ y+=sy; pathT.add(key(x,y)); }
   };
-  houses.forEach(addPath);
+  houses.forEach(h=>addPath(h));
   // custom lots: placed after the main paths so no path runs through a cottage
   lots=[];
-  [...extras, ...custom].forEach(c=>{ const spot=findSpot(c.id); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house); });
+  [...extras, ...custom].forEach(c=>{ const C=c.island==="home"?HPLAZA:PLAZA; const spot=findSpot(c.id,C); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house,C); });
   // trees
   trees=[]; const r=rng(7);
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){
@@ -340,21 +353,30 @@ function buildWorld(){
     const v=r(); if(v<p) trees.push({x:x*T+8+Math.floor(r()*4-2), y:y*T+14, kind: v<p*0.35?"bush":(r()<0.5?"oak":"pine"), seed:Math.floor(r()*1e6)});
   }
 }
-function findSpot(id){
+function findSpot(id,C){ C=C||PLAZA;
   // spiral outward from plaza for a free 3x2 grass lot with a 1-tile margin and a door tile below
-  const order=[]; for(let y=1;y<H-2;y++) for(let x=1;x<W-3;x++) order.push({x,y,d:Math.hypot(x+1.5-PLAZA.x,(y+1-PLAZA.y)*1.4)});
+  const order=[]; for(let y=1;y<H-2;y++) for(let x=1;x<W-3;x++) order.push({x,y,d:Math.hypot(x+1.5-C.x,(y+1-C.y)*1.4)});
   order.sort((a,b)=>a.d-b.d);
   for(const o of order){
     let ok=true;
     for(let y=o.y-1;y<=o.y+2&&ok;y++) for(let x=o.x-1;x<=o.x+3&&ok;x++){ if(!isGrass(x,y)||reserved.has(key(x,y))||pathT.has(key(x,y))) ok=false; }
     if(ok) return {x:o.x,y:o.y};
   }
-  const r=rng(hashStr(id)); return {x:10+Math.floor(r()*16), y:19};
+  const r=rng(hashStr(id)); return C===HPLAZA?{x:44+Math.floor(r()*6), y:16}:{x:10+Math.floor(r()*16), y:19};
 }
 
 /* ---------- Canvas ---------- */
 const cv=document.getElementById("map"), ctx=cv.getContext("2d");
 cv.width=W*T; cv.height=H*T;
+let VX=0, VIEW="all";
+const narrowMQ=window.matchMedia("(max-width: 760px)");
+function setView(v){
+  VIEW=narrowMQ.matches?(v==="home"?"home":"dd"):"all";
+  const x0=VIEW==="home"?MAIN_W:0, w=VIEW==="all"?W:(VIEW==="home"?W-MAIN_W:MAIN_W);
+  VX=x0*T; if(cv.width!==w*T){ cv.width=w*T; ctx.imageSmoothingEnabled=false; }
+  document.querySelectorAll("#isleTabs button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.isle===VIEW)));
+  if(typeof positionBubbles==="function") positionBubbles();
+}
 ctx.imageSmoothingEnabled=false;
 const base=document.createElement("canvas"); base.width=cv.width; base.height=cv.height; const bx=base.getContext("2d");
 
@@ -384,13 +406,20 @@ function drawTerrain(){
     if(!pathT.has(key(x,y+1))&&!isPlaza(x,y+1)) px(bx,X,Y+T-1,T,1,"#e0bf86");
   });
   // plaza stones
-  for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-3;x<=PLAZA.x+3;x++){ if(!isPlaza(x,y)) continue; const X=x*T,Y=y*T;
+  for(const C of [PLAZA,HPLAZA]) for(let y=C.y-2;y<=C.y+2;y++) for(let x=C.x-3;x<=C.x+3;x++){ if(!isPlaza(x,y)) continue; const X=x*T,Y=y*T;
     px(bx,X,Y,T,T,"#b9ab95"); for(let sy=0;sy<T;sy+=5) for(let sx=((sy/5)%2)*4;sx<T;sx+=8){ px(bx,X+sx,Y+sy,7,4,"#cbbfa9"); px(bx,X+sx,Y+sy+4,7,1,"#998c78"); } }
+  // bridge between the islands (row 9)
+  { let x=33; while(x<W&&isLand(x,9)) x++; const x0=x; while(x<W&&!isLand(x,9)) x++; const x1=x;
+    for(let bx2=x0;bx2<x1;bx2++){ const X=bx2*T, Y=9*T; px(bx,X,Y+3,T,10,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+i,Y+3,1,10,"#5e3b22"); px(bx,X,Y+2,T,1,"#4a2f1c"); px(bx,X,Y+13,T,1,"#4a2f1c"); if(bx2%2===0){ px(bx,X+7,Y-2,2,5,"#4a2f1c"); px(bx,X+7,Y+13,2,4,"#4a2f1c"); } } }
+  // island name banners
+  const banner=(txt,cxp,yp)=>{ bx.font="bold 8px monospace"; const w=Math.ceil(bx.measureText(txt).width)+10; const x=Math.round(cxp-w/2); px(bx,x,yp,w,12,"#4a2f1c"); px(bx,x+1,yp+1,w-2,10,"#f4e7c6"); bx.fillStyle="#4a2f1c"; bx.fillText(txt,x+5,yp+9); };
+  banner("DARKDORMS ISLAND",13*T,1*T+2); banner("HOME ISLE",48.5*T,3*T+6);
   // dock
   for(let y=19;y<H;y++){ if(terr[y][PLAZA.x]>=2 && y<20) continue; const X=PLAZA.x*T, Y=y*T;
     px(bx,X+1,Y,T-2,T,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+1,Y+i,T-2,1,"#5e3b22"); px(bx,X,Y+T-3,2,4,"#4a2f1c"); px(bx,X+T-2,Y+T-3,2,4,"#4a2f1c"); }
 }
-function isPlaza(x,y){ return Math.abs(x-PLAZA.x)*0.75+Math.abs(y-PLAZA.y)<=2.3; }
+function isPlaza(x,y){ return Math.abs(x-PLAZA.x)*0.75+Math.abs(y-PLAZA.y)<=2.3 || Math.abs(x-HPLAZA.x)*0.75+Math.abs(y-HPLAZA.y)<=1.6; }
+function centerFor(ag){ return ag&&ag.island==="home"?HPLAZA:PLAZA; }
 
 /* ---------- Pixel icons for signs ---------- */
 const ICONS={
@@ -494,7 +523,7 @@ function drawVillager(c,x,y,look,frame,dir,status,t,scale){
 let actors=[];
 function allAgents(){ return [...AGENTS, ...[...extras, ...custom].map(c=>({
   id:c.id, name:c.name, role:c.role, status:c.status||"new", statusText:c.statusText||({new:"Just moved in. Paste the prompt to start",working:"Working",waiting:"Waiting on you",done:"Done",scheduled:"Scheduled"})[c.status||"new"],
-  task:c.task, latest:c.latest!=null?c.latest:(c.status==="new"||!c.status?"Prompt ready to copy.":""), needs:c.needs||[], thread:c.thread||null, threadTitle:c.threadTitle||"Not started yet", custom:!c.extra, created:c.created,
+  island:c.island||"dd", task:c.task, latest:c.latest!=null?c.latest:(c.status==="new"||!c.status?"Prompt ready to copy.":""), needs:c.needs||[], thread:c.thread||null, threadTitle:c.threadTitle||"Not started yet", custom:!c.extra, created:c.created,
   house:c._house, look:{shirt:c.color,pants:"#3a3a48",hair:["#2a1d16","#7a3b1f","#d8b04a","#c4572d","#3a2418"][hashStr(c.id)%5],skin:["#f2c9a0","#c98d63","#e8bf98","#8d5a3b","#f4d1b0"][hashStr(c.id+"s")%5],acc:"tie"} }))]; }
 function withAsks(list){
   if(!asks) return list;
@@ -524,7 +553,7 @@ function stepActor(a,dt){
   if(d<1){ a.wait = (a.agent.status==="scheduled"?2600:a.agent.status==="waiting"?1800:900)+a.r()*2200;
     // choose next target: mostly near home; working agents sometimes visit the plaza
     for(let i=0;i<12;i++){ let nx,ny;
-      if(busy && a.r()<0.3){ nx=(PLAZA.x+.5)*T+(a.r()*48-24); ny=(PLAZA.y+.5)*T+(a.r()*36-18); }
+      if(busy && a.r()<0.3){ const C=centerFor(a.agent); nx=(C.x+.5)*T+(a.r()*48-24); ny=(C.y+.5)*T+(a.r()*36-18); }
       else { const R=a.agent.status==="scheduled"?22:34; nx=a.home.x+(a.r()*2-1)*R; ny=a.home.y+(a.r()*2-1)*R*0.6; }
       if(walkable(nx,ny)){ a.tx=nx; a.ty=ny; break; } }
     return; }
@@ -545,9 +574,10 @@ function render(t){
   const dt=Math.min(60,t-lastT); lastT=t;
   if(!reduce) actors.forEach(a=>stepActor(a,dt));
   const sky=skyState(), night=sky==="night";
+  ctx.setTransform(1,0,0,1,-VX,0);
   ctx.drawImage(base,0,0);
   // water shimmer
-  if(!reduce){ ctx.fillStyle="rgba(220,240,250,.35)"; for(let i=0;i<40;i++){ const sx=(i*97 + t/40*(i%3+1))%cv.width, sy=(i*53)%cv.height; const tx=Math.floor(sx/T), ty=Math.floor(sy/T); if(ty<H&&tx<W&&terr[ty][tx]<=1 && !(tx===PLAZA.x&&ty>=19)) ctx.fillRect(sx|0,sy|0,3,1); } }
+  if(!reduce){ ctx.fillStyle="rgba(220,240,250,.35)"; for(let i=0;i<40;i++){ const sx=(i*97 + t/40*(i%3+1))%base.width, sy=(i*53)%base.height; const tx=Math.floor(sx/T), ty=Math.floor(sy/T); if(ty<H&&tx<W&&terr[ty][tx]<=1 && !(tx===PLAZA.x&&ty>=19)) ctx.fillRect(sx|0,sy|0,3,1); } }
   // drawables sorted by base y
   const items=[];
   const houses=[{h:MAYOR,id:"mayor"},{h:HALL,id:"hall"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
@@ -567,6 +597,8 @@ function render(t){
   // stock crates by shop
   const shop=AGENTS.find(a=>a.id==="webb").house;
   items.push({y:(shop.y+shop.h)*T, draw:()=>drawCrates((shop.x+shop.w)*T+3,(shop.y+shop.h)*T-2)});
+  // Home Isle signpost
+  items.push({y:(HPLAZA.y+1)*T, draw:()=>drawHomeSign((HPLAZA.x+2)*T+2,(HPLAZA.y+1)*T-2)});
   // boat
   items.push({y:22*T, draw:()=>drawBoat((PLAZA.x+1)*T+3, 21*T+4, t)});
   // lamps
@@ -577,11 +609,12 @@ function render(t){
   items.sort((a,b)=>a.y-b.y).forEach(i=>i.draw());
   positionBubbles();
   // tint
-  if(sky==="night"){ ctx.fillStyle="rgba(18,24,70,.45)"; ctx.fillRect(0,0,cv.width,cv.height); glows(t); }
-  else if(sky==="dusk"){ ctx.fillStyle="rgba(240,120,60,.14)"; ctx.fillRect(0,0,cv.width,cv.height); }
-  else if(sky==="dawn"){ ctx.fillStyle="rgba(255,190,150,.10)"; ctx.fillRect(0,0,cv.width,cv.height); }
+  if(sky==="night"){ ctx.fillStyle="rgba(18,24,70,.45)"; ctx.fillRect(0,0,base.width,base.height); glows(t); }
+  else if(sky==="dusk"){ ctx.fillStyle="rgba(240,120,60,.14)"; ctx.fillRect(0,0,base.width,base.height); }
+  else if(sky==="dawn"){ ctx.fillStyle="rgba(255,190,150,.10)"; ctx.fillRect(0,0,base.width,base.height); }
   // smoke from your house
   if(!reduce){ for(let i=0;i<3;i++){ const p=((t/1600)+i/3)%1; ctx.fillStyle=`rgba(235,235,235,${.55*(1-p)})`; ctx.fillRect(MAYOR.x*T+MAYOR.w*T-12+Math.sin(p*6+i)*3, MAYOR.y*T-8-p*18, 3+p*3, 3+p*3); } }
+  ctx.setTransform(1,0,0,1,0,0);
   requestAnimationFrame(render);
 }
 function nameTag(a){
@@ -713,6 +746,10 @@ function trackTip(){
   const r=actors.filter(a=>a.act==="race").map(a=>a.agent.name);
   return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working, studying or resting."}</div>`;
 }
+function drawHomeSign(x,y){ px(ctx,x+5,y-10,2,10,"#6b4428"); px(ctx,x,y-16,12,8,"#4a2f1c"); px(ctx,x+1,y-15,10,6,"#e8cf8f"); px(ctx,x+3,y-13,6,1,"#4a2f1c"); px(ctx,x+3,y-11,4,1,"#4a2f1c");
+  if(hover&&hover.type==="homesign"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-2.5,y-18.5,17,21); } }
+function homeTip(){ const n=allAgentsCache.filter(a=>a.island==="home").length;
+  return `<div class="nm">Home Isle</div><div class="rl">Everything that isn't DarkDorms</div><div class="row">${n?`${n} villager${n>1?"s":""} live here.`:"No villagers yet. When you found a new villager below, pick Home Isle for school, life admin or your next business."}</div><div class="row" style="opacity:.75">Cross the bridge from DarkDorms Island.</div>`; }
 function drawBoat(x,y,t){ const bob=reduce?0:Math.round(Math.sin(t/600)); px(ctx,x,y+bob,14,4,"#7a4a2a"); px(ctx,x+1,y+4+bob,12,1,"#5a3420"); px(ctx,x+6,y-9+bob,1,9,"#4a2f1c"); px(ctx,x+7,y-8+bob,5,6,"#f4e7c6"); }
 function drawLamp(x,y,night){ px(ctx,x,y-12,1,12,"#3a3a44"); px(ctx,x-2,y-15,5,4,night?"#ffd86b":"#d8d0b0"); px(ctx,x-2,y-16,5,1,"#3a3a44"); }
 function glows(t){
@@ -721,12 +758,12 @@ function glows(t){
   spots.forEach(([x,y])=>{ const g=ctx.createRadialGradient(x,y,0,x,y,22); g.addColorStop(0,"rgba(255,200,90,.35)"); g.addColorStop(1,"rgba(255,200,90,0)"); ctx.fillStyle=g; ctx.fillRect(x-22,y-22,44,44); });
   ctx.globalCompositeOperation="source-over";
   // fireflies
-  if(!reduce){ for(let i=0;i<14;i++){ const fx=(Math.sin(t/2000+i*1.7)*0.5+0.5)*cv.width*0.7+cv.width*0.15, fy=(Math.cos(t/2600+i*2.3)*0.5+0.5)*cv.height*0.6+cv.height*0.2; if(Math.sin(t/300+i)>0.2){ ctx.fillStyle="rgba(255,240,140,.9)"; ctx.fillRect(fx|0,fy|0,1,1);} } }
+  if(!reduce){ for(let i=0;i<14;i++){ const fx=(Math.sin(t/2000+i*1.7)*0.5+0.5)*base.width*0.7+base.width*0.15, fy=(Math.cos(t/2600+i*2.3)*0.5+0.5)*base.height*0.6+base.height*0.2; if(Math.sin(t/300+i)>0.2){ ctx.fillStyle="rgba(255,240,140,.9)"; ctx.fillRect(fx|0,fy|0,1,1);} } }
 }
 
 /* ---------- Hit testing & tooltip ---------- */
 const tip=document.getElementById("tip"), frame=document.getElementById("frame");
-function toLogical(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height, cx:e.clientX-r.left, cy:e.clientY-r.top, rw:r.width, rh:r.height}; }
+function toLogical(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width+VX, y:(e.clientY-r.top)*cv.height/r.height, cx:e.clientX-r.left, cy:e.clientY-r.top, rw:r.width, rh:r.height}; }
 function hit(p){
   // villagers first (front-most)
   const sorted=actors.filter(a=>a.act!=="race"&&a.act!=="rest").sort((a,b)=>b.y-a.y);
@@ -734,6 +771,7 @@ function hit(p){
   const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T}; if(p.x>=nb.x-2&&p.x<=nb.x+22&&p.y>=nb.y-6&&p.y<=nb.y+16) return {type:"board",id:"board"};
   const shop=AGENTS.find(a=>a.id==="webb").house, crX=(shop.x+shop.w)*T+3, crY=(shop.y+shop.h)*T-2;
   if(p.x>=crX-3&&p.x<=crX+23&&p.y>=crY-15&&p.y<=crY+10) return {type:"crates",id:"crates"};
+  { const hx=(HPLAZA.x+2)*T+2, hy=(HPLAZA.y+1)*T-2; if(p.x>=hx-3&&p.x<=hx+15&&p.y>=hy-19&&p.y<=hy+2) return {type:"homesign",id:"homesign"}; }
   if(p.x>=TRACK.x*T-3&&p.x<=(TRACK.x+TRACK.w)*T+3&&p.y>=TRACK.y*T-10&&p.y<=(TRACK.y+TRACK.h)*T+3) return {type:"track",id:"track"};
   if(p.x>=HALL.x*T-2&&p.x<=(HALL.x+HALL.w)*T+2&&p.y>=HALL.y*T-4&&p.y<=(HALL.y+HALL.h)*T+2) return {type:"hall",id:"hall"};
   if(p.x>=ORCH.x*T-4&&p.x<=(ORCH.x+ORCH.w)*T+4&&p.y>=ORCH.y*T-8&&p.y<=(ORCH.y+ORCH.h)*T+12){ let best=null,bd=1e9; orchardSlots().forEach((sl,i)=>{ const d=Math.abs(p.x-sl.x)+Math.abs(p.y-(sl.y-7)); if(d<bd&&d<=9){bd=d;best=i;} }); return {type:"orchard",id:"orchard",idx:best}; }
@@ -748,6 +786,7 @@ function tipHTML(h){
   if(h.type==="board"){ const n=needsList(); return `<div class="nm">Notice board</div><div class="rl">${n.length} things waiting on you</div><ul>${n.slice(0,8).map(x=>`<li><b>${esc(x.who)}:</b> ${esc(x.what)}</li>`).join("")}</ul>${n.length>8?`<div class="row">…and ${n.length-8} more in the town hall</div>`:""}`; }
   if(h.type==="orchard") return orchardTip(h.idx);
   if(h.type==="hall") return hallTip();
+  if(h.type==="homesign") return homeTip();
   if(h.type==="track") return trackTip();
   if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">${BIZ.salesPaused?"Sales are paused on Stripe while you fix the product.":"Sales are open. Each new sale plants a tree in the orchard."}</div>`;
   if(h.id==="mayor") return `<div class="nm">Your house</div><div class="rl">Maxwell · owner of DarkDorms</div><div class="row">${needsList().length} things on the notice board need you. Tap the board in the square to see them.</div>`;
@@ -816,7 +855,7 @@ Agent name: ${c.name}
 Role: ${c.role}
 First task: ${c.task}
 
-Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorms.com, live on Vercel). Sales are paused on Stripe right now, 6 strips in stock. Follow the project's standing rules: call the product "a strip" (never "foam"), and don't change Stripe, pay, file anything or send messages outside the project without my go-ahead.
+${c.island==="home"?"Context: this is NOT DarkDorms work. It lives on my Home Isle (school, life admin or a future business). Don't change anything for DarkDorms.":`Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorms.com, live on Vercel). Sales are ${BIZ.salesPaused?"paused":"open"}, ${BIZ.stock} strips in stock. Call the product "a strip" (never "foam").`} Follow the project's standing rules and the team values in memory (team-values-and-goals.md): don't change Stripe, pay, file anything or send messages outside the project without my go-ahead. Melvin is chief of staff and texts me by iMessage.
 
 Work on the task, keep a checklist, tell me what you need from me, and save lasting facts to project memory so ${c.name} can pick up later.`; }
 let confirmDel=false;
@@ -863,13 +902,14 @@ document.getElementById("newForm").addEventListener("submit",e=>{
   const name=document.getElementById("nName").value.trim(), role=document.getElementById("nRole").value.trim(), task=document.getElementById("nTask").value.trim();
   if(!name||!role||!task) return;
   const color=(document.querySelector('input[name="nColor"]:checked')||{}).value||SWATCH[5];
-  const c={id:"c"+Date.now().toString(36), name, role, task, color, status:"new", created:new Date().toISOString()};
+  const island=(document.getElementById("nIsle")||{}).value==="home"?"home":"dd";
+  const c={id:"c"+Date.now().toString(36), name, role, task, color, island, status:"new", created:new Date().toISOString()};
   custom.push(c); save(); rebuild();
   const txt=newPrompt(c);
   document.getElementById("newPromptTxt").textContent=txt; document.getElementById("newPrompt").hidden=false;
   document.getElementById("copyNew").onclick=()=>copy(txt,"newPromptTxt");
   e.target.reset(); document.getElementById("sw5").checked=true;
-  toast(`${name} moved in`); select(c.id);
+  setView(island); toast(`${name} moved in on ${island==="home"?"Home Isle":"DarkDorms Island"}`); select(c.id);
 });
 
 /* ---------- Sky buttons & clock ---------- */
@@ -966,7 +1006,8 @@ function positionBubbles(){
     const a=actors.find(z=>z.agent.id===el.dataset.agent); if(!a) return;
     const below = el.classList.contains("open") && a.y/cv.height < 0.62;
     el.classList.toggle("below", below);
-    el.style.left=(a.x/cv.width*100)+"%";
+    const vx=a.x-VX; el.style.display=(vx<0||vx>cv.width)?"none":"";
+    el.style.left=(vx/cv.width*100)+"%";
     el.style.top=((below? a.y+2 : a.y-22)/cv.height*100)+"%";
   });
 }
@@ -1000,7 +1041,7 @@ function applyData(d){
   extras=[];
   d.agents.forEach(j=>{ const a=known.get(j.id);
     if(a){ ["name","role","status","statusText","task","latest","needs","thread","threadTitle"].forEach(k=>{ if(j[k]!==undefined) a[k]=j[k]; }); }
-    else extras.push({id:j.id,name:j.name,role:j.role,task:j.task,status:j.status,statusText:j.statusText,latest:j.latest||"",needs:j.needs||[],thread:j.thread||null,threadTitle:j.threadTitle||"",color:j.color||"#4f7fd6",extra:true}); });
+    else extras.push({id:j.id,island:j.island||"dd",name:j.name,role:j.role,task:j.task,status:j.status,statusText:j.statusText,latest:j.latest||"",needs:j.needs||[],thread:j.thread||null,threadTitle:j.threadTitle||"",color:j.color||"#4f7fd6",extra:true}); });
   const retired=new Set(d.retired||[]); AGENTS=AGENTS.filter(a=>!retired.has(a.id));
   return true;
 }
@@ -1009,7 +1050,10 @@ function loadData(first){
 }
 loadData(true).then(()=>{ tick(); requestAnimationFrame(t=>{ lastT=t; render(t); }); });
 setInterval(()=>loadData(false), 60000);
-window.addEventListener("island:pick", e=>select(e.detail,{scroll:true}));
+window.addEventListener("island:pick", e=>{ const a=agentById(e.detail); if(a) setView(a.island==="home"?"home":"dd"); select(e.detail,{scroll:true}); });
+document.querySelectorAll("#isleTabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.isle)));
+narrowMQ.addEventListener&&narrowMQ.addEventListener("change",()=>setView(VIEW==="home"?"home":"dd"));
+setView("dd");
 window.addEventListener("island:ready", ()=>{ if(allAgentsCache.length) window.Island.update(allAgentsCache,{updated:DATA_UPDATED}); });
 })();
 </script>
