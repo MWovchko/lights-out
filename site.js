@@ -7,7 +7,7 @@
    discount link here. Set the link's confirmation page to redirect to
    https://darkdorms.com/thank-you
    ============================================================ */
-var SALES_PAUSED = true;
+var SALES_PAUSED = false;
 var PAYMENT_LINK = "https://buy.stripe.com/dRm5kEdrI0Kcay33ao1oI00";
 var CONTACT_EMAIL = "me@darkdorms.com";
 
