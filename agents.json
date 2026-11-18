@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T04:47:29+00:00",
+  "updated": "2026-11-18T04:52:12+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -16,7 +16,7 @@
       "status": "scheduled",
       "statusText": "Next weekly books Sun 7:13 PM",
       "task": "Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
-      "latest": "3 strips sold, 1 refunded test. Profit \u2212$31.61. 4 more sales to break even.",
+      "latest": "3 strips sold, 1 refunded test. Profit −$31.61. 4 more sales to break even.",
       "needs": [
         "Submit the Oklahoma sales tax permit on OkTAP (needs your SSN and signature)"
       ],
@@ -54,13 +54,11 @@
       "name": "Wren",
       "role": "Tailor (strip covers)",
       "color": "#202024",
-      "status": "waiting",
-      "statusText": "Waiting on your fabric prices",
+      "status": "working",
+      "statusText": "Working with your answers",
       "task": "Working out a black cloth cover that wraps the whole strip so it stops looking cheap.",
       "latest": "Plan: black panne velvet, a 6 in by 36 in piece per strip, about 4 strips per yard.",
-      "needs": [
-        "Send the Hobby Lobby black fabric prices you saw"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4RxkkotLRJKQKwCVkDHkweL",
       "threadTitle": "Cover strips in black cloth"
     },
@@ -69,14 +67,11 @@
       "name": "Otis",
       "role": "Archivist (vault)",
       "color": "#6b4f8f",
-      "status": "waiting",
-      "statusText": "Waiting on your OK on the Mac",
+      "status": "working",
+      "statusText": "Working with your answers",
       "task": "Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
       "latest": "Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
-      "needs": [
-        "Approve the new Obsidian Vault Sync prompt on your Mac",
-        "Save the sync-my-vault skill card"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4Sr3FpzkbBrAmRb8q1PsYwL",
       "threadTitle": "Point agents at new darkdorms vault"
     },
@@ -85,18 +80,11 @@
       "name": "Webb",
       "role": "Shopkeeper (website)",
       "color": "#e9b949",
-      "status": "waiting",
-      "statusText": "Site live, preorders open",
+      "status": "working",
+      "statusText": "Working with your answers",
       "task": "Runs darkdorms.com on Vercel: the StoryBrand page, privacy, terms, thank-you page and the Stripe preorder button.",
       "latest": "Preorders are back on (Nov 17, 10:47 PM). The Preorder button goes to the live $10.99 Stripe link.",
-      "needs": [
-        "Mailing address for the footer",
-        "Refund window",
-        "Delivery time",
-        "A real product photo",
-        "Review the draft privacy and terms pages",
-        "Turn on Vercel Analytics"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN",
       "threadTitle": "Preview launch checklist on DarkDorms site"
     }
