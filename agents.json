@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T08:21:45.830875+00:00",
+  "updated": "2026-11-18T19:05:12.858143+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -120,6 +120,156 @@
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN",
       "threadTitle": "Preview launch checklist on DarkDorms site"
+    },
+    {
+      "id": "ivy",
+      "name": "Ivy",
+      "role": "Idea keeper (product lead)",
+      "color": "#2a9d8f",
+      "status": "done",
+      "statusText": "Idea board ready. Pin more ideas anytime",
+      "task": "Keeps the Business Budgeting idea board: writes each idea up clearly, has the team review it, and gives the overall go or no-go.",
+      "latest": "Pinned 6 ideas (3 yours, 3 from the team). Team verdict: viable as an app on a partner bank, no new bank needed.",
+      "house": {
+        "x": 70,
+        "y": 6,
+        "w": 4,
+        "h": 3,
+        "kind": "bulb",
+        "roof": "#e9b949",
+        "wall": "#f3e4c2",
+        "label": "Idea Hall"
+      },
+      "look": {
+        "acc": "book",
+        "hair": "#c4572d",
+        "skin": "#f4d1b0",
+        "pants": "#3b3a4a"
+      },
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
+      "threadTitle": "Research business budgeting bank app"
+    },
+    {
+      "id": "bram",
+      "name": "Bram",
+      "role": "Banker (banks and rules)",
+      "color": "#355c7d",
+      "status": "done",
+      "statusText": "Reviewed all 6 ideas",
+      "task": "Works out the banking side: sponsor banks vs a charter, who holds the money, and the rules a budgeting card company must follow.",
+      "latest": "You don't need to start a bank: partner with a sponsor bank through a card platform. A charter is 2 to 4 years and $2M+.",
+      "house": {
+        "x": 65,
+        "y": 9,
+        "w": 4,
+        "h": 3,
+        "kind": "vault",
+        "roof": "#4b6f8f",
+        "wall": "#e3d3b0",
+        "label": "The Vault"
+      },
+      "look": {
+        "acc": "tie",
+        "hair": "#2a1d16",
+        "skin": "#c98d63",
+        "pants": "#2c2c3a"
+      },
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
+      "threadTitle": "Research business budgeting bank app"
+    },
+    {
+      "id": "tess",
+      "name": "Tess",
+      "role": "Card engineer (tech)",
+      "color": "#c8423a",
+      "status": "done",
+      "statusText": "Reviewed all 6 ideas",
+      "task": "Designs how the card asks the budget app before paying (real-time authorization with Stripe Issuing or Lithic) and how bank accounts connect.",
+      "latest": "Stripe Issuing sends every swipe to the app, which has 2 seconds to approve or decline. The card must be ours, funded from their bank.",
+      "house": {
+        "x": 75,
+        "y": 8,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#6b6b78",
+        "wall": "#efe3c8",
+        "label": "Card Workshop"
+      },
+      "look": {
+        "acc": "glasses",
+        "hair": "#3a2418",
+        "skin": "#e8bf98",
+        "pants": "#33333f"
+      },
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
+      "threadTitle": "Research business budgeting bank app"
+    },
+    {
+      "id": "rhea",
+      "name": "Rhea",
+      "role": "Market scout (competitors)",
+      "color": "#8a63c9",
+      "status": "done",
+      "statusText": "Reviewed all 6 ideas",
+      "task": "Studies competitors (Relay, Ramp, Brex, BILL Divvy, Mercury, Qube) and who would buy a debt-free budgeting card.",
+      "latest": "Ramp, Brex and Divvy all sell credit. No live debit-only card declines when a budget runs out. Qube did it for families, then lost its bank.",
+      "house": {
+        "x": 65,
+        "y": 14,
+        "w": 4,
+        "h": 3,
+        "kind": "shop",
+        "roof": "#8a63c9",
+        "wall": "#f1dfc0",
+        "label": "Market Stall"
+      },
+      "look": {
+        "acc": "hat",
+        "hair": "#d8b04a",
+        "skin": "#f0c49a",
+        "pants": "#4a3a2a"
+      },
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
+      "threadTitle": "Research business budgeting bank app"
+    },
+    {
+      "id": "cole",
+      "name": "Cole",
+      "role": "Money planner (business model)",
+      "color": "#b5651d",
+      "status": "done",
+      "statusText": "Reviewed all 6 ideas",
+      "task": "Works out costs, pricing and how the app makes money (card fees plus a monthly plan), and how to start it debt-free.",
+      "latest": "Start small and debt-free: test the card on DarkDorms itself before spending on a full launch (vendor estimate $150k+ for a full banking MVP).",
+      "house": {
+        "x": 74,
+        "y": 14,
+        "w": 4,
+        "h": 3,
+        "kind": "bank",
+        "roof": "#b5651d",
+        "wall": "#efe0bd",
+        "label": "Counting Room"
+      },
+      "look": {
+        "acc": "cap",
+        "hair": "#7a3b1f",
+        "skin": "#d9a27a",
+        "pants": "#3a3a48"
+      },
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
+      "threadTitle": "Research business budgeting bank app"
     }
   ],
   "retired": [],
@@ -127,5 +277,158 @@
     "title": "Why Your Team Is Busy But Nothing Gets Done (EntreLeadership)",
     "oneLine": "Busy isn't productive: measure what gets finished, find work that's sitting still, fix the worst jam, own the system.",
     "date": "2026-11-17"
+  },
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "Budget-first company card",
+      "by": "Maxwell",
+      "date": "Nov 18",
+      "overall": "go",
+      "summary": "When the company card is swiped, the purchase goes to the budgeting app first. The app approves or declines it against the budget, then the bank pays.",
+      "verdicts": [
+        {
+          "agent": "tess",
+          "call": "go",
+          "note": "Card platforms are built for this. Stripe Issuing sends each purchase to our app, which answers yes or no within 2 seconds (Lithic allows 6). The card has to be ours, not their old bank's card."
+        },
+        {
+          "agent": "bram",
+          "call": "go",
+          "note": "No new bank needed. The card platform's sponsor bank holds the money and the license; we make the yes or no call."
+        },
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "Ramp, Brex and Divvy sell credit cards. A debit card that stops at the budget line is open ground."
+        },
+        {
+          "agent": "cole",
+          "call": "caution",
+          "note": "Money comes from a share of card fees plus a monthly plan. Get Stripe's and Lithic's real prices before promising anything."
+        }
+      ],
+      "next": "Try it on DarkDorms first: one company card with one budget rule."
+    },
+    {
+      "id": "i2",
+      "title": "Limits on the whole bank account",
+      "by": "Maxwell",
+      "date": "Nov 18",
+      "overall": "caution",
+      "summary": "Set limits on one bank account so transfers and bills, not just card swipes, must fit the budget.",
+      "verdicts": [
+        {
+          "agent": "tess",
+          "call": "caution",
+          "note": "Card swipes are easy to stop. Transfers and checks can only be stopped if the money sits in an account our partner runs, not at Chase or another outside bank."
+        },
+        {
+          "agent": "bram",
+          "call": "caution",
+          "note": "Holding the business's main account brings more bank rules. Start with card spending, add accounts later."
+        },
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "Relay shows owners like a separate account per purpose. Hard limits on those would set us apart."
+        }
+      ],
+      "next": "Phase 2, after the card works."
+    },
+    {
+      "id": "i3",
+      "title": "Start our own bank?",
+      "by": "Maxwell",
+      "date": "Nov 18",
+      "overall": "stop",
+      "summary": "Would the app need its own bank to sit between the card and the banking system?",
+      "verdicts": [
+        {
+          "agent": "bram",
+          "call": "stop",
+          "note": "No. A charter takes 2 to 4 years and $2M to $5M+ (vendor estimate). A sponsor bank gives us the same card rails in weeks."
+        },
+        {
+          "agent": "cole",
+          "call": "stop",
+          "note": "That money would mean investors or loans. A sponsor bank lets us start debt-free."
+        }
+      ],
+      "next": "Revisit only if the app grows big enough that partner fees hurt."
+    },
+    {
+      "id": "i4",
+      "title": "Envelopes that refill from sales",
+      "by": "Ivy",
+      "date": "Nov 18",
+      "overall": "go",
+      "summary": "Every deposit splits into envelopes (taxes, inventory, payroll, owner pay). The card can only spend what is in the matching envelope.",
+      "verdicts": [
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "Relay sells up to 20 accounts to Profit First fans. Pairing envelopes with declines at the swipe is new."
+        },
+        {
+          "agent": "cole",
+          "call": "go",
+          "note": "Makes the tax set-aside automatic, like Penny's 25% rule for DarkDorms."
+        },
+        {
+          "agent": "tess",
+          "call": "go",
+          "note": "Envelopes are balances in our app; the yes or no check just reads them."
+        }
+      ],
+      "next": "Make envelopes the heart of the first version."
+    },
+    {
+      "id": "i5",
+      "title": "Over budget? Text the owner",
+      "by": "Ivy",
+      "date": "Nov 18",
+      "overall": "caution",
+      "summary": "When a worker's purchase is over budget, the owner gets a text and can say yes or no.",
+      "verdicts": [
+        {
+          "agent": "tess",
+          "call": "caution",
+          "note": "The card network waits only about 2 seconds, too short for a text. So: decline, text the owner, and a Yes raises the limit so the worker can retry."
+        },
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "Small teams want this. It works like the Yes and No buttons on this island."
+        }
+      ],
+      "next": "Design the decline, text, retry loop."
+    },
+    {
+      "id": "i6",
+      "title": "Built for debt-free owners",
+      "by": "Ivy",
+      "date": "Nov 18",
+      "overall": "go",
+      "summary": "Sell to owners who run their business debt-free (EntreLeadership and Profit First crowds), churches and nonprofits.",
+      "verdicts": [
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "These owners already avoid credit cards, and the big players all push credit."
+        },
+        {
+          "agent": "cole",
+          "call": "caution",
+          "note": "It's a niche. Test demand with a simple waitlist page before building."
+        }
+      ],
+      "next": "Draft a one-page waitlist site when you're ready."
+    }
+  ],
+  "ideaVerdict": {
+    "call": "Viable as an app on a partner bank, not as a new bank. Start with the budget-first debit card and envelopes.",
+    "next": "Test it debt-free on DarkDorms: ask Stripe for Issuing access for DarkDorms, build one budget rule, and put up a waitlist page.",
+    "report": "https://claude.ai/artifact/Ws8cgWap7HunphqazA3eF5"
   }
 }

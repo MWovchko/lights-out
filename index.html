@@ -108,7 +108,23 @@ form input:focus,form textarea:focus,form select:focus{outline:none;border-color
 .note{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--parchment);font-family:var(--display);padding:8px 14px;border-radius:4px;border:2px solid var(--gold);z-index:20}
 @media (prefers-reduced-motion: reduce){.btn:active{transform:none}}
-.isle-tabs{display:none;margin:0 0 8px}
+.isle-tabs{display:inline-flex;flex-wrap:wrap;margin:0 0 8px}
+@media (max-width: 760px){ .isle-tabs [data-isle="all"]{display:none} }
+.idea{background:#fff8e2;border:2px solid #d8c592;border-left:6px solid var(--c,#4f8fd6);border-radius:4px;padding:8px 10px;margin-top:8px;font-size:13px}
+.idea h3{font-family:var(--display);font-size:15px;margin:0;color:var(--wood-dk);display:inline}
+.idea summary{cursor:pointer;list-style-position:outside}
+.idea summary .vd{margin-left:6px;vertical-align:1px}
+body:not(.fs) .frame{max-width:calc(var(--ar, 3.4) * 74vh);margin-inline:auto}
+.idea .by{font-size:12px;color:var(--ink-soft)}
+.idea p{margin:5px 0 0}
+.vds{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}
+.vds li{font-size:12.5px;line-height:1.35}
+.vd{font-family:var(--display);font-size:11.5px;padding:1px 6px;border-radius:3px;color:#fff;margin-right:4px;white-space:nowrap}
+.vd.go{background:#2f8a4a}.vd.caution{background:#b5650d}.vd.stop{background:#a8382b}.vd.pending{background:#8d8178}
+.idea .nx{margin-top:6px;font-size:12.5px}
+.verdict{background:#e8f1e0;border:2px solid #9cc38a;border-radius:4px;padding:8px 10px;font-size:13px}
+.idea-add{margin-top:10px;display:grid;gap:6px}
+.idea-add input{font:inherit;font-size:13px;width:100%;padding:7px 9px;border:2px solid #cdb886;border-radius:4px;background:#fffdf6;color:var(--ink)}
 /* Full screen village */
 #fsBack{display:none}
 body.fs{overflow:hidden}
@@ -120,7 +136,6 @@ body.fs .isle-tabs{display:inline-flex;position:fixed;z-index:12;left:12px;botto
 body.fs #fsExit{display:block;position:fixed;z-index:12;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 body.fs .toast{z-index:40}
 .ask-m.mel{color:#2f5e9e;font-style:italic}
-@media (max-width: 760px){ .isle-tabs{display:inline-flex} }
 /* Thought bubbles + asks */
 .frame{overflow:visible}
 canvas#map{border-radius:2px}
@@ -175,7 +190,7 @@ canvas#map{border-radius:2px}
   <header class="top">
     <div>
       <h1>Maxwell's Archipelago</h1>
-      <p class="sub">DarkDorms Island and Home Isle: every agent working for you is a villager. Hover or tap a villager or building to see what they're doing.</p>
+      <p class="sub">DarkDorms Island, Home Isle and Business Budgeting Isle: every agent working for you is a villager. Hover or tap a villager or building to see what they're doing.</p>
     </div>
     <div class="clock">
       <a class="btn ghost" href="/island" style="font-size:13px;padding:4px 9px;box-shadow:0 2px 0 var(--wood-dk)">Open island window</a>
@@ -192,11 +207,13 @@ canvas#map{border-radius:2px}
   <div id="fsBack"></div><button type="button" class="btn" id="fsExit">Exit full screen</button>
   <section class="stage">
     <div class="seg isle-tabs" id="isleTabs" role="group" aria-label="Island">
+      <button type="button" data-isle="all" aria-pressed="false">All islands</button>
       <button type="button" data-isle="dd" aria-pressed="true">DarkDorms Island</button>
       <button type="button" data-isle="home" aria-pressed="false">Home Isle</button>
+      <button type="button" data-isle="bb" aria-pressed="false">Business Budgeting</button>
     </div>
     <div class="frame" id="frame">
-      <canvas id="map" width="928" height="384" aria-label="Pixel map of DarkDorms Island and Home Isle"></canvas>
+      <canvas id="map" width="928" height="384" aria-label="Pixel map of DarkDorms Island, Home Isle and Business Budgeting Isle"></canvas>
       <div id="tip" hidden></div>
       <div id="bubbles"></div>
     </div>
@@ -224,6 +241,17 @@ canvas#map{border-radius:2px}
       <p class="board-note" id="boardNote"></p>
     </div>
 
+    <div class="panel" id="ideaPanel">
+      <h2>Idea board <small>Business Budgeting Isle</small></h2>
+      <div id="ideaVerdict"></div>
+      <div id="ideas"></div>
+      <form class="idea-add" id="ideaForm" autocomplete="off">
+        <input id="ideaIn" maxlength="600" placeholder="Pin a new idea for the team to review" aria-label="New idea">
+        <div class="btns" style="margin-top:0"><button class="btn" type="submit">Pin to the board</button></div>
+      </form>
+      <p class="board-note" id="ideaNote"></p>
+    </div>
+
     <div class="panel">
       <h2>Villagers <small id="rosterCount"></small></h2>
       <ul class="roster" id="roster"></ul>
@@ -235,7 +263,7 @@ canvas#map{border-radius:2px}
         <div class="f"><label for="nName">Name</label><input id="nName" maxlength="24" required placeholder="e.g. Rosie"></div>
         <div class="f"><label for="nRole">Role</label><input id="nRole" maxlength="40" required placeholder="e.g. Campus marketer"></div>
         <div class="f"><label for="nTask">First task</label><textarea id="nTask" maxlength="600" required placeholder="e.g. Plan 5 TikTok ideas showing a hallway light leak before and after a DarkDorms strip."></textarea></div>
-        <div class="f"><label for="nIsle">Island</label><select id="nIsle"><option value="dd">DarkDorms Island (DarkDorms work)</option><option value="home">Home Isle (everything else)</option></select></div>
+        <div class="f"><label for="nIsle">Island</label><select id="nIsle"><option value="dd">DarkDorms Island (DarkDorms work)</option><option value="home">Home Isle (everything else)</option><option value="bb">Business Budgeting Isle (the budgeting app business)</option></select></div>
         <div class="f"><label>Shirt color</label>
           <div class="swatches" id="swatches"></div>
         </div>
@@ -256,8 +284,10 @@ canvas#map{border-radius:2px}
 "use strict";
 const PROJECT = "https://claude.ai/code/project/chan_01DWJNahrsmHXUPwCMnYHJf4?thread=";
 const STORE = "darkdormsIsland.v1";
-const T = 16, W = 58, H = 24;
-const MAIN_W = 38; /* DarkDorms Island spans x 0..37; Home Isle x 38..57 */
+const T = 16, W = 82, H = 24;
+const MAIN_W = 38; /* DarkDorms Island spans x 0..37; Home Isle x 38..57; Business Budgeting Isle x 58..81 */
+const ISLES = { all:{x0:0,w:82}, dd:{x0:0,w:38,name:"DarkDorms Island"}, home:{x0:38,w:20,name:"Home Isle"}, bb:{x0:58,w:24,name:"Business Budgeting Isle"} };
+const isleOf = v => v==="home"||v==="bb" ? v : "dd";
 
 /* ---------- Business snapshot (Nov 17, 2026) ---------- */
 let BIZ = { stock: 6, sold: 3, profit: -31.61, toBreakEven: 4, salesPaused: true };
@@ -308,6 +338,9 @@ let AGENTS = [
 const MAYOR = {x:16,y:3,w:5,h:3,kind:"mayor",roof:"#8a3b2f",wall:"#f3e4c2",label:"Your House"};
 const PLAZA = {x:19,y:11};
 const HPLAZA = {x:48,y:12}; /* Home Isle square */
+const BPLAZA = {x:71,y:12}; /* Business Budgeting Isle square (idea board) */
+const PLAZAS = {dd:null, home:HPLAZA, bb:BPLAZA};
+let IDEAS = [], IDEA_VERDICT = null;
 const ORCH = {x:23,y:9,w:6,h:5};
 const HALL = {x:22,y:4,w:4,h:3,kind:"hall",roof:"#5a4a8a",wall:"#efe3c8",label:"Leadership Hall"};
 const TRACK = {x:29,y:15,w:4,h:3};
@@ -318,6 +351,7 @@ function activity(ag){
   if(typeof openAsksFor==="function"&&openAsksFor(ag.id).length) return null;
   if(skyState()==="night") return "rest";
   const block=Math.floor(Date.now()/(15*60000));
+  if(ag.island==="bb"||ag.island==="home") return ["race","rest"][(block+hashStr(ag.id))%2]; /* Leadership Hall is on DarkDorms Island */
   return ["study","race","rest"][(block+hashStr(ag.id))%3];
 } /* sales orchard: one tree per sale */
 const SWATCH = ["#d9534f","#e58f3a","#e9c43a","#5cae5c","#3fa8a0","#4f7fd6","#8a63c9","#d46fa8","#f2f2f2","#2a2a2a"];
@@ -338,7 +372,9 @@ function distMain(x,y){ const dx=(x+.5-cx)/rx, dy=(y+.5-cy)/ry, a=Math.atan2(dy,
   const v=Math.cbrt(Math.abs(dx)**3+Math.abs(dy)**3); return v*(1+0.05*Math.sin(a*5+1.3)+0.035*Math.sin(a*9+0.4)); }
 function distHome(x,y){ const dx=(x+.5-48.5)/7.4, dy=(y+.5-12)/7.6, a=Math.atan2(dy,dx);
   const v=Math.hypot(dx,dy); return v*(1+0.06*Math.sin(a*4+2.1)+0.04*Math.sin(a*7+0.9)); }
-function dist(x,y){ return Math.min(distMain(x,y), distHome(x,y)); }
+function distBudget(x,y){ const dx=(x+.5-70.5)/10.5, dy=(y+.5-12)/9.5, a=Math.atan2(dy,dx);
+  return Math.hypot(dx,dy)*(1+0.05*Math.sin(a*5+0.7)+0.03*Math.sin(a*8+2.2)); }
+function dist(x,y){ return Math.min(distMain(x,y), distHome(x,y), distBudget(x,y)); }
 const terr=[]; // 0 deep 1 shallow 2 sand 3 grass
 for(let y=0;y<H;y++){ terr[y]=[]; for(let x=0;x<W;x++){ const d=dist(x,y); terr[y][x]= d<0.8?3 : d<0.9?2 : d<1.0?1 : 0; } }
 const isGrass=(x,y)=>y>=0&&y<H&&x>=0&&x<W&&terr[y][x]===3;
@@ -355,7 +391,9 @@ function buildWorld(){
   for(let y=TRACK.y-1;y<=TRACK.y+TRACK.h;y++) for(let x=TRACK.x-1;x<=TRACK.x+TRACK.w;x++) reserved.add(key(x,y));
   // plaza
   for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-2;x<=PLAZA.x+2;x++) if(Math.abs(x-PLAZA.x)+Math.abs(y-PLAZA.y)<=3) reserved.add(key(x,y));
-  for(let y=HPLAZA.y-2;y<=HPLAZA.y+2;y++) for(let x=HPLAZA.x-2;x<=HPLAZA.x+3;x++) reserved.add(key(x,y));
+  for(const C of [HPLAZA,BPLAZA]) for(let y=C.y-2;y<=C.y+2;y++) for(let x=C.x-2;x<=C.x+3;x++) reserved.add(key(x,y));
+  // road from Home Isle's square east to the second bridge, and on to the budgeting square
+  for(let x=HPLAZA.x+2;x<BPLAZA.x;x++) if(isLand(x,12)) pathT.add(key(x,12));
   // dock path
   for(let y=PLAZA.y;y<=20;y++){ if(isLand(PLAZA.x,y)) pathT.add(key(PLAZA.x,y)); }
   const addPath=(h,C)=>{ C=C||PLAZA;
@@ -367,7 +405,8 @@ function buildWorld(){
   houses.forEach(h=>addPath(h));
   // custom lots: placed after the main paths so no path runs through a cottage
   lots=[];
-  [...extras, ...custom].forEach(c=>{ const C=c.island==="home"?HPLAZA:PLAZA; const spot=findSpot(c.id,C); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house,C); });
+  extras.filter(c=>c.house).forEach(c=>{ c._house=Object.assign({kind:"cottage",wall:"#f0e2c4",roof:c.color,label:c.name+"'s House"},c.house); markHouse(c._house); lots.push(c._house); addPath(c._house,PLAZAS[c.island]||PLAZA); });
+  [...extras.filter(c=>!c.house), ...custom].forEach(c=>{ const C=PLAZAS[c.island]||PLAZA; const spot=findSpot(c.id,C); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house,C); });
   // trees
   trees=[]; const r=rng(7);
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){
@@ -386,7 +425,7 @@ function findSpot(id,C){ C=C||PLAZA;
     for(let y=o.y-1;y<=o.y+2&&ok;y++) for(let x=o.x-1;x<=o.x+3&&ok;x++){ if(!isGrass(x,y)||reserved.has(key(x,y))||pathT.has(key(x,y))) ok=false; }
     if(ok) return {x:o.x,y:o.y};
   }
-  const r=rng(hashStr(id)); return C===HPLAZA?{x:44+Math.floor(r()*6), y:16}:{x:10+Math.floor(r()*16), y:19};
+  const r=rng(hashStr(id)); return C===HPLAZA?{x:44+Math.floor(r()*6), y:16}:C===BPLAZA?{x:66+Math.floor(r()*8), y:17}:{x:10+Math.floor(r()*16), y:19};
 }
 
 /* ---------- Canvas ---------- */
@@ -395,8 +434,9 @@ cv.width=W*T; cv.height=H*T;
 let VX=0, VIEW="all";
 const narrowMQ=window.matchMedia("(max-width: 760px)");
 function setView(v){
-  VIEW=narrowMQ.matches?(v==="home"?"home":"dd"):"all";
-  const x0=VIEW==="home"?MAIN_W:0, w=VIEW==="all"?W:(VIEW==="home"?W-MAIN_W:MAIN_W);
+  VIEW = ISLES[v] ? v : "all"; if(narrowMQ.matches&&VIEW==="all") VIEW="dd";
+  try{ localStorage.setItem(STORE+".view", VIEW); }catch(e){}
+  const x0=ISLES[VIEW].x0, w=ISLES[VIEW].w;
   VX=x0*T; if(cv.width!==w*T){ cv.width=w*T; ctx.imageSmoothingEnabled=false; }
   document.querySelectorAll("#isleTabs button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.isle===VIEW)));
   document.documentElement.style.setProperty("--ar", (cv.width/cv.height).toFixed(4));
@@ -431,20 +471,20 @@ function drawTerrain(){
     if(!pathT.has(key(x,y+1))&&!isPlaza(x,y+1)) px(bx,X,Y+T-1,T,1,"#e0bf86");
   });
   // plaza stones
-  for(const C of [PLAZA,HPLAZA]) for(let y=C.y-2;y<=C.y+2;y++) for(let x=C.x-3;x<=C.x+3;x++){ if(!isPlaza(x,y)) continue; const X=x*T,Y=y*T;
+  for(const C of [PLAZA,HPLAZA,BPLAZA]) for(let y=C.y-2;y<=C.y+2;y++) for(let x=C.x-3;x<=C.x+3;x++){ if(!isPlaza(x,y)) continue; const X=x*T,Y=y*T;
     px(bx,X,Y,T,T,"#b9ab95"); for(let sy=0;sy<T;sy+=5) for(let sx=((sy/5)%2)*4;sx<T;sx+=8){ px(bx,X+sx,Y+sy,7,4,"#cbbfa9"); px(bx,X+sx,Y+sy+4,7,1,"#998c78"); } }
   // bridge between the islands (row 9)
-  { let x=33; while(x<W&&isLand(x,9)) x++; const x0=x; while(x<W&&!isLand(x,9)) x++; const x1=x;
-    for(let bx2=x0;bx2<x1;bx2++){ const X=bx2*T, Y=9*T; px(bx,X,Y+3,T,10,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+i,Y+3,1,10,"#5e3b22"); px(bx,X,Y+2,T,1,"#4a2f1c"); px(bx,X,Y+13,T,1,"#4a2f1c"); if(bx2%2===0){ px(bx,X+7,Y-2,2,5,"#4a2f1c"); px(bx,X+7,Y+13,2,4,"#4a2f1c"); } } }
+  for(const [sx,row] of [[33,9],[52,12]]){ let x=sx; while(x<W&&isLand(x,row)) x++; const x0=x; while(x<W&&!isLand(x,row)) x++; const x1=x;
+    for(let bx2=x0;bx2<x1;bx2++){ const X=bx2*T, Y=row*T; px(bx,X,Y+3,T,10,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+i,Y+3,1,10,"#5e3b22"); px(bx,X,Y+2,T,1,"#4a2f1c"); px(bx,X,Y+13,T,1,"#4a2f1c"); if(bx2%2===0){ px(bx,X+7,Y-2,2,5,"#4a2f1c"); px(bx,X+7,Y+13,2,4,"#4a2f1c"); } } }
   // island name banners
   const banner=(txt,cxp,yp)=>{ bx.font="bold 8px monospace"; const w=Math.ceil(bx.measureText(txt).width)+10; const x=Math.round(cxp-w/2); px(bx,x,yp,w,12,"#4a2f1c"); px(bx,x+1,yp+1,w-2,10,"#f4e7c6"); bx.fillStyle="#4a2f1c"; bx.fillText(txt,x+5,yp+9); };
-  banner("DARKDORMS ISLAND",13*T,1*T+2); banner("HOME ISLE",48.5*T,3*T+6);
+  banner("DARKDORMS ISLAND",13*T,1*T+2); banner("HOME ISLE",48.5*T,3*T+6); banner("BUSINESS BUDGETING ISLE",70.5*T,1*T+6);
   // dock
   for(let y=19;y<H;y++){ if(terr[y][PLAZA.x]>=2 && y<20) continue; const X=PLAZA.x*T, Y=y*T;
     px(bx,X+1,Y,T-2,T,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+1,Y+i,T-2,1,"#5e3b22"); px(bx,X,Y+T-3,2,4,"#4a2f1c"); px(bx,X+T-2,Y+T-3,2,4,"#4a2f1c"); }
 }
-function isPlaza(x,y){ return Math.abs(x-PLAZA.x)*0.75+Math.abs(y-PLAZA.y)<=2.3 || Math.abs(x-HPLAZA.x)*0.75+Math.abs(y-HPLAZA.y)<=1.6; }
-function centerFor(ag){ return ag&&ag.island==="home"?HPLAZA:PLAZA; }
+function isPlaza(x,y){ return Math.abs(x-PLAZA.x)*0.75+Math.abs(y-PLAZA.y)<=2.3 || Math.abs(x-HPLAZA.x)*0.75+Math.abs(y-HPLAZA.y)<=1.6 || Math.abs(x-BPLAZA.x)*0.75+Math.abs(y-BPLAZA.y)<=1.6; }
+function centerFor(ag){ return (ag&&PLAZAS[ag.island])||PLAZA; }
 
 /* ---------- Pixel icons for signs ---------- */
 const ICONS={
@@ -457,6 +497,9 @@ const ICONS={
   mayor:["..#..",".###.","#####",".#.#.",".###."],
   hall:["..#..","#####","..#..","..#..","..#.."],
   cottage:["..#..",".###.","#####",".#.#."],
+  bulb:[".###.","#...#","#...#",".#.#.",".###.",".###."],
+  gear:["#.#.#",".###.","##.##",".###.","#.#.#"],
+  vault:["#####","#...#","#.#.#","#...#","#####"],
 };
 function icon(c,name,x,y,col){ const g=ICONS[name]; if(!g) return; g.forEach((row,j)=>{ [...row].forEach((ch,i)=>{ if(ch==="#") px(c,x+i,y+j,1,1,col); }); }); }
 
@@ -549,7 +592,7 @@ let actors=[];
 function allAgents(){ return [...AGENTS, ...[...extras, ...custom].map(c=>({
   id:c.id, name:c.name, role:c.role, status:c.status||"new", statusText:c.statusText||({new:"Just moved in. Paste the prompt to start",working:"Working",waiting:"Waiting on you",done:"Done",scheduled:"Scheduled"})[c.status||"new"],
   island:c.island||"dd", task:c.task, latest:c.latest!=null?c.latest:(c.status==="new"||!c.status?"Prompt ready to copy.":""), needs:c.needs||[], thread:c.thread||null, threadTitle:c.threadTitle||"Not started yet", custom:!c.extra, created:c.created,
-  house:c._house, look:{shirt:c.color,pants:"#3a3a48",hair:["#2a1d16","#7a3b1f","#d8b04a","#c4572d","#3a2418"][hashStr(c.id)%5],skin:["#f2c9a0","#c98d63","#e8bf98","#8d5a3b","#f4d1b0"][hashStr(c.id+"s")%5],acc:"tie"} }))]; }
+  house:c._house, look:c.look?Object.assign({shirt:c.color,pants:"#3a3a48",hair:"#2a1d16",skin:"#e8bf98",acc:"tie"},c.look):{shirt:c.color,pants:"#3a3a48",hair:["#2a1d16","#7a3b1f","#d8b04a","#c4572d","#3a2418"][hashStr(c.id)%5],skin:["#f2c9a0","#c98d63","#e8bf98","#8d5a3b","#f4d1b0"][hashStr(c.id+"s")%5],acc:"tie"} }))]; }
 function withAsks(list){
   if(!asks) return list;
   return list.map(a=>{ const open=asks.filter(x=>x.agent===a.id&&x.status==="open"); const b=Object.assign({},a,{needs:open.map(x=>x.text)});
@@ -622,6 +665,8 @@ function render(t){
   // stock crates by shop
   const shop=AGENTS.find(a=>a.id==="webb").house;
   items.push({y:(shop.y+shop.h)*T, draw:()=>drawCrates((shop.x+shop.w)*T+3,(shop.y+shop.h)*T-2)});
+  // Business Budgeting Isle idea board
+  items.push({y:(BPLAZA.y+0.6)*T, draw:()=>drawIdeaBoard(...ideaBoardXY())});
   // Home Isle signpost
   items.push({y:(HPLAZA.y+1)*T, draw:()=>drawHomeSign((HPLAZA.x+2)*T+2,(HPLAZA.y+1)*T-2)});
   // boat
@@ -655,6 +700,22 @@ function drawBoard(x,y,t){
   px(ctx,x,y-4,20,12,"#6b4428"); px(ctx,x+1,y-3,18,10,"#8a5a36");
   const n=needsList().length; for(let i=0;i<Math.min(n,8);i++){ const col=i%4, row=Math.floor(i/4); px(ctx,x+2+col*4,y-2+row*5,3,4,"#fff4cf"); px(ctx,x+3+col*4,y-2+row*5,1,1,"#c23b30"); }
   if(hover&&hover.type==="board"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-1.5,y-5.5,23,23); }
+}
+function ideaBoardXY(){ return [(BPLAZA.x-0.4)*T, (BPLAZA.y-0.9)*T]; }
+function drawIdeaBoard(x,y){
+  px(ctx,x+3,y+10,2,9,"#4a2f1c"); px(ctx,x+23,y+10,2,9,"#4a2f1c");
+  px(ctx,x,y-6,28,17,"#6b4428"); px(ctx,x+1,y-5,26,15,"#8a5a36");
+  const cols={go:"#9be29b",caution:"#f6c77a",stop:"#f2a49c"};
+  IDEAS.slice(0,8).forEach((it,i)=>{ const c=i%4, r=Math.floor(i/4); const nx=x+2+c*6, ny=y-4+r*7; px(ctx,nx,ny,5,6,"#fff4cf"); px(ctx,nx+2,ny,1,1,"#c23b30"); px(ctx,nx,ny+5,5,1,cols[it.overall]||"#d9cfbf"); });
+  px(ctx,x+9,y-11,10,5,"#4a2f1c"); px(ctx,x+10,y-10,8,3,"#e9b949");
+  if(hover&&hover.type==="ideas"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.lineWidth=1; ctx.strokeRect(x-2.5,y-12.5,33,33); }
+}
+function ideasTip(){
+  const n=IDEAS.length, lab={go:"Promising",caution:"Promising, with work",stop:"Not viable"};
+  return `<div class="nm">Idea board</div><div class="rl">Business Budgeting Isle · ${n} idea${n===1?"":"s"} pinned</div>
+    ${IDEA_VERDICT?`<div class="row"><b>Team verdict:</b> ${esc(IDEA_VERDICT.call)}</div>`:""}
+    <ul>${IDEAS.slice(0,7).map(it=>`<li><b>${esc(it.title)}</b>${it.overall?` · ${lab[it.overall]||""}`:""}</li>`).join("")}</ul>
+    <div class="row" style="opacity:.75">Click to read every agent's review in the town hall.</div>`;
 }
 function drawWell(x,y,t,night){
   px(ctx,x-8,y-6,16,10,"#8d8a86"); px(ctx,x-7,y-5,14,3,"#a8a5a0"); px(ctx,x-6,y-4,12,2,"#3f8ea8");
@@ -796,6 +857,7 @@ function hit(p){
   const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T}; if(p.x>=nb.x-2&&p.x<=nb.x+22&&p.y>=nb.y-6&&p.y<=nb.y+16) return {type:"board",id:"board"};
   const shop=AGENTS.find(a=>a.id==="webb").house, crX=(shop.x+shop.w)*T+3, crY=(shop.y+shop.h)*T-2;
   if(p.x>=crX-3&&p.x<=crX+23&&p.y>=crY-15&&p.y<=crY+10) return {type:"crates",id:"crates"};
+  { const [ix,iy]=ideaBoardXY(); if(p.x>=ix-3&&p.x<=ix+31&&p.y>=iy-13&&p.y<=iy+20) return {type:"ideas",id:"ideas"}; }
   { const hx=(HPLAZA.x+2)*T+2, hy=(HPLAZA.y+1)*T-2; if(p.x>=hx-3&&p.x<=hx+15&&p.y>=hy-19&&p.y<=hy+2) return {type:"homesign",id:"homesign"}; }
   if(p.x>=TRACK.x*T-3&&p.x<=(TRACK.x+TRACK.w)*T+3&&p.y>=TRACK.y*T-10&&p.y<=(TRACK.y+TRACK.h)*T+3) return {type:"track",id:"track"};
   if(p.x>=HALL.x*T-2&&p.x<=(HALL.x+HALL.w)*T+2&&p.y>=HALL.y*T-4&&p.y<=(HALL.y+HALL.h)*T+2) return {type:"hall",id:"hall"};
@@ -812,6 +874,7 @@ function tipHTML(h){
   if(h.type==="orchard") return orchardTip(h.idx);
   if(h.type==="hall") return hallTip();
   if(h.type==="homesign") return homeTip();
+  if(h.type==="ideas") return ideasTip();
   if(h.type==="track") return trackTip();
   if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">${BIZ.salesPaused?"Sales are paused on Stripe while you fix the product.":"Sales are open. Each new sale plants a tree in the orchard."}</div>`;
   if(h.id==="mayor") return `<div class="nm">Your house</div><div class="rl">Maxwell · owner of DarkDorms</div><div class="row">${needsList().length} things on the notice board need you. Tap the board in the square to see them.</div>`;
@@ -835,6 +898,7 @@ cv.addEventListener("click",e=>{ const p=toLogical(e), h=hit(p);
   if(!h){ tip.hidden=true; hover=null; return; }
   if(e.pointerType==="touch"||matchMedia("(hover: none)").matches){ hover=h; tip.innerHTML=tipHTML(h); tip.hidden=false; placeTip(p); }
   if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")){ select(h.id,{scroll:!(openAsksFor(h.id).length||db)}); if(openAsksFor(h.id).length||db){ openBubble=h.id; tip.hidden=true; buildBubbles(); const f=bubbleLayer&&bubbleLayer.querySelector(".thought.open input[data-chat]"); if(f&&!openAsksFor(h.id).length) f.focus({preventScroll:true}); const lg=bubbleLayer&&bubbleLayer.querySelector(".thought.open .chat-log"); if(lg) lg.scrollTop=lg.scrollHeight; } }
+  if(h.type==="ideas") document.getElementById("ideaPanel").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
   if(h.type==="board") document.getElementById("board").scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
 });
 
@@ -880,7 +944,7 @@ Agent name: ${c.name}
 Role: ${c.role}
 First task: ${c.task}
 
-${c.island==="home"?"Context: this is NOT DarkDorms work. It lives on my Home Isle (school, life admin or a future business). Don't change anything for DarkDorms.":`Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorms.com, live on Vercel). Sales are ${BIZ.salesPaused?"paused":"open"}, ${BIZ.stock} strips in stock. Call the product "a strip" (never "foam").`} Follow the project's standing rules and the team values in memory (team-values-and-goals.md): don't change Stripe, pay, file anything or send messages outside the project without my go-ahead. Melvin is chief of staff and texts me by iMessage.
+${c.island==="bb"?"Context: this is NOT DarkDorms work. It lives on my Business Budgeting Isle: researching and building a debt-free business budgeting app whose company card checks the budget before the bank pays (see the idea board and the thread \"Research business budgeting bank app\"). Don't change anything for DarkDorms.":c.island==="home"?"Context: this is NOT DarkDorms work. It lives on my Home Isle (school, life admin or a future business). Don't change anything for DarkDorms.":`Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorms.com, live on Vercel). Sales are ${BIZ.salesPaused?"paused":"open"}, ${BIZ.stock} strips in stock. Call the product "a strip" (never "foam").`} Follow the project's standing rules and the team values in memory (team-values-and-goals.md): don't change Stripe, pay, file anything or send messages outside the project without my go-ahead. Melvin is chief of staff and texts me by iMessage.
 
 Work on the task, keep a checklist, tell me what you need from me, and save lasting facts to project memory so ${c.name} can pick up later.`; }
 let confirmDel=false;
@@ -908,7 +972,7 @@ function select(id, opts){
   const txt = custom_ ? newPrompt(custom_) : checkPrompt(a);
   document.getElementById("copyMain").addEventListener("click",()=>copy(txt,"mainPrompt"));
   document.getElementById("closeD").addEventListener("click",()=>{ selected=null; d.hidden=true; renderRoster(); });
-  const mb=document.getElementById("msgBtn"); if(mb) mb.addEventListener("click",()=>{ if(a.island==="home"&&VIEW!=="home") setView("home"); else if(a.island!=="home"&&VIEW==="home") setView("dd"); openBubble=id; buildBubbles(); const st=document.querySelector(".stage"); if(st) st.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"}); const f=bubbleLayer.querySelector(".thought.open input[data-chat]"); if(f) f.focus({preventScroll:true}); });
+  const mb=document.getElementById("msgBtn"); if(mb) mb.addEventListener("click",()=>{ if(VIEW!=="all"&&VIEW!==isleOf(a.island)) setView(isleOf(a.island)); openBubble=id; buildBubbles(); const st=document.querySelector(".stage"); if(st) st.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"}); const f=bubbleLayer.querySelector(".thought.open input[data-chat]"); if(f) f.focus({preventScroll:true}); });
   const st=document.getElementById("stSel"); if(st) st.addEventListener("change",()=>{ custom_.status=st.value; save(); refresh(); select(id); });
   const del=document.getElementById("delBtn"); if(del) del.addEventListener("click",()=>{ if(!confirmDel){ confirmDel=true; del.textContent="Tap again to remove"; return; } custom=custom.filter(c=>c.id!==id); save(); selected=null; d.hidden=true; rebuild(); toast(`${a.name} moved out`); });
   renderRoster();
@@ -929,14 +993,14 @@ document.getElementById("newForm").addEventListener("submit",e=>{
   const name=document.getElementById("nName").value.trim(), role=document.getElementById("nRole").value.trim(), task=document.getElementById("nTask").value.trim();
   if(!name||!role||!task) return;
   const color=(document.querySelector('input[name="nColor"]:checked')||{}).value||SWATCH[5];
-  const island=(document.getElementById("nIsle")||{}).value==="home"?"home":"dd";
+  const island=isleOf((document.getElementById("nIsle")||{}).value);
   const c={id:"c"+Date.now().toString(36), name, role, task, color, island, status:"new", created:new Date().toISOString()};
   custom.push(c); save(); rebuild();
   const txt=newPrompt(c);
   document.getElementById("newPromptTxt").textContent=txt; document.getElementById("newPrompt").hidden=false;
   document.getElementById("copyNew").onclick=()=>copy(txt,"newPromptTxt");
   e.target.reset(); document.getElementById("sw5").checked=true;
-  setView(island); toast(`${name} moved in on ${island==="home"?"Home Isle":"DarkDorms Island"}`); select(c.id);
+  setView(island); toast(`${name} moved in on ${ISLES[island].name}`); select(c.id);
 });
 
 /* ---------- Sky buttons & clock ---------- */
@@ -961,7 +1025,8 @@ function agentBrief(id){
   const a=allAgentsCache.find(z=>z.id===id)||{}; const all=allAgentsCache.map(z=>`${z.name} (${z.role}): ${z.statusText}`).join("; ");
   const myAsks=(asks||[]).filter(x=>x.agent===id).map(x=>`- [${x.status}] ${x.text}${x.melvin?` (Melvin: ${x.melvin})`:""}`).join("\n")||"none";
   const b=BIZ||{};
-  return `You are ${a.name}, ${a.role}, one of the AI agents on Maxwell's team for DarkDorms (dorm door light-blocking strips for college students, sold at darkdorms.com). Maxwell owns the business and is messaging you from his island dashboard. Reply in your own voice, warm and brief (1 to 3 sentences, under 300 characters), plain text, no markdown.
+  const bbCtx = a.island==="bb" ? `You live on Business Budgeting Isle and work on Maxwell's new idea, not DarkDorms: a debt-free business budgeting app whose company card checks the budget before the bank pays. The idea board: ${IDEAS.map(it=>`"${it.title}" (${it.overall||"in review"})`).join("; ")||"empty"}. Team verdict: ${IDEA_VERDICT?IDEA_VERDICT.call:"not yet"}. If Maxwell shares a new idea, thank him, say it's pinned for the team to review, and tag [[CHECK]].\n` : "";
+  return `You are ${a.name}, ${a.role}, one of the AI agents on Maxwell's team (he also runs DarkDorms, dorm door light-blocking strips sold at darkdorms.com). ${bbCtx}Maxwell owns the business and is messaging you from his island dashboard. Reply in your own voice, warm and brief (1 to 3 sentences, under 300 characters), plain text, no markdown.
 Facts you know (use only these, never invent numbers, dates or results):
 - Your job: ${a.task||""}
 - Your status: ${a.status||""}: ${a.statusText||""}
@@ -1160,7 +1225,32 @@ function positionBubbles(){
 })();
 
 /* ---------- Boot ---------- */
-function refresh(){ allAgentsCache=withAsks(allAgents()); makeActors(); renderBoard(); renderRoster(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); buildBubbles(); }
+const openIdeas=new Set();
+document.addEventListener("toggle",e=>{ const d=e.target; if(d&&d.dataset&&d.dataset.idea){ d.open?openIdeas.add(d.dataset.idea):openIdeas.delete(d.dataset.idea); } },true);
+function renderIdeas(){
+  const box=document.getElementById("ideas"); if(!box) return;
+  const nm=id=>{ const a=allAgentsCache.find(z=>z.id===id); return a?`${a.name} (${a.role})`:id; };
+  const lab={go:"Go",caution:"Caution",stop:"Stop",pending:"Reviewing"};
+  const col={go:"#2f8a4a",caution:"#b5650d",stop:"#a8382b"};
+  document.getElementById("ideaVerdict").innerHTML = IDEA_VERDICT ? `<div class="verdict"><b>Team verdict:</b> ${esc(IDEA_VERDICT.call)}${IDEA_VERDICT.next?`<div style="margin-top:4px"><b>First step:</b> ${esc(IDEA_VERDICT.next)}</div>`:""}${IDEA_VERDICT.report?`<div style="margin-top:4px"><a href="${esc(IDEA_VERDICT.report)}" target="_blank" rel="noopener">Read the full research report</a></div>`:""}</div>` : "";
+  const olab={go:"Promising",caution:"Needs work",stop:"Not viable"};
+  box.innerHTML = IDEAS.length ? IDEAS.map((it,i)=>`<details class="idea" style="--c:${col[it.overall]||"#8d8178"}"${openIdeas.has(it.id)?" open":""} data-idea="${esc(it.id)}"><summary><h3>${i+1}. ${esc(it.title)}</h3><span class="vd ${esc(it.overall||"pending")}">${olab[it.overall]||"Reviewing"}</span></summary><div class="by">Pinned by ${esc(it.by||"Maxwell")}${it.date?` · ${esc(it.date)}`:""}</div>
+      <p>${esc(it.summary)}</p>
+      ${(it.verdicts||[]).length?`<ul class="vds">${it.verdicts.map(v=>`<li><span class="vd ${esc(v.call)}">${lab[v.call]||esc(v.call)}</span><b>${esc(nm(v.agent))}:</b> ${esc(v.note)}</li>`).join("")}</ul>`:`<ul class="vds"><li><span class="vd pending">Reviewing</span>The team is looking at this one.</li></ul>`}
+      ${it.next?`<div class="nx"><b>Next:</b> ${esc(it.next)}</div>`:""}</details>`).join("")
+    : `<div class="idea">No ideas pinned yet.</div>`;
+  const note=document.getElementById("ideaNote"); if(note) note.textContent = db ? "Pinning sends your idea to Ivy, who puts it on the board and has the team review it." : "Open your Claude island to pin ideas; this website shows the board read-only.";
+  const f=document.getElementById("ideaForm"); if(f) f.style.display = db ? "" : "none";
+}
+document.getElementById("ideaForm").addEventListener("submit",async e=>{
+  e.preventDefault(); const i=document.getElementById("ideaIn"), text=i.value.trim(); if(!text||!db) return;
+  i.disabled=true;
+  try{ const ref=await db.collection("chats").add({agent:"ivy", text:"New idea for the board: "+text, at:new Date().toISOString(), status:"sent", reply:"", replyAt:null});
+    i.value=""; fastReply(ref, "ivy", "New idea for the board: "+text, document.getElementById("ideaPanel")); toast("Pinned. Ivy is on it."); }
+  catch(err){ toast(err&&err.code==="permission_denied"?"Only the island's owner can pin ideas.":"Couldn't pin that. Check your connection and try again."); }
+  finally{ i.disabled=false; }
+});
+function refresh(){ allAgentsCache=withAsks(allAgents()); makeActors(); renderBoard(); renderRoster(); renderIdeas(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); buildBubbles(); }
 function rebuild(){ buildWorld(); drawTerrain(); refresh(); }
 let LESSON=null;
 /* Live data: agents.json is the source of truth for the built-in agents; the copy above is the fallback. */
@@ -1177,7 +1267,8 @@ function applyData(d){
   extras=[];
   d.agents.forEach(j=>{ const a=known.get(j.id);
     if(a){ ["name","role","status","statusText","task","latest","needs","thread","threadTitle"].forEach(k=>{ if(j[k]!==undefined) a[k]=j[k]; }); }
-    else extras.push({id:j.id,island:j.island||"dd",name:j.name,role:j.role,task:j.task,status:j.status,statusText:j.statusText,latest:j.latest||"",needs:j.needs||[],thread:j.thread||null,threadTitle:j.threadTitle||"",color:j.color||"#4f7fd6",extra:true}); });
+    else extras.push({id:j.id,island:j.island||"dd",name:j.name,role:j.role,task:j.task,status:j.status,statusText:j.statusText,latest:j.latest||"",needs:j.needs||[],thread:j.thread||null,threadTitle:j.threadTitle||"",color:j.color||"#4f7fd6",house:j.house||null,look:j.look||null,extra:true}); });
+  IDEAS = Array.isArray(d.ideas)?d.ideas:[]; IDEA_VERDICT = d.ideaVerdict||null;
   const retired=new Set(d.retired||[]); AGENTS=AGENTS.filter(a=>!retired.has(a.id));
   return true;
 }
@@ -1198,15 +1289,15 @@ loadData(true).then(()=>{ tick(); requestAnimationFrame(t=>{ lastT=t; render(t);
 /* No db (website, island window): check for a new agents.json every 15 seconds, and right away when the tab comes back. */
 setInterval(()=>{ if(!liveDb&&!document.hidden) loadData(false); }, 15000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!liveDb) loadData(false); });
-window.addEventListener("island:pick", e=>{ const a=agentById(e.detail); if(a) setView(a.island==="home"?"home":"dd"); select(e.detail,{scroll:true}); });
+window.addEventListener("island:pick", e=>{ const a=agentById(e.detail); if(a&&VIEW!=="all"&&VIEW!==isleOf(a.island)) setView(isleOf(a.island)); select(e.detail,{scroll:true}); });
 document.querySelectorAll("#isleTabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.isle)));
-narrowMQ.addEventListener&&narrowMQ.addEventListener("change",()=>setView(VIEW==="home"?"home":"dd"));
-setView("dd");
+narrowMQ.addEventListener&&narrowMQ.addEventListener("change",()=>setView(VIEW));
+{ let v0="all"; try{ v0=localStorage.getItem(STORE+".view")||"all"; }catch(e){} setView(v0); }
 function setFS(on){
   document.body.classList.toggle("fs", on);
   try{ if(on){ const el=document.documentElement; if(el.requestFullscreen&&!document.fullscreenElement) el.requestFullscreen().catch(()=>{}); }
        else if(document.fullscreenElement&&document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }catch(e){}
-  if(on){ const cl=document.querySelector("#isleTabs"); if(cl&&!narrowMQ.matches) cl.style.display="none"; else if(cl) cl.style.display=""; }
+
   try{ localStorage.setItem("darkdormsIsland.fs", on?"1":""); }catch(e){}
   setTimeout(positionBubbles, 50);
 }
