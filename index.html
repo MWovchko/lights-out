@@ -279,7 +279,7 @@ const ORCH = {x:23,y:9,w:6,h:5};
 const HALL = {x:22,y:4,w:4,h:3,kind:"hall",roof:"#5a4a8a",wall:"#efe3c8",label:"Leadership Hall"};
 const TRACK = {x:29,y:15,w:4,h:3};
 /* Free time: agents that are scheduled or done (and not waiting on you) study, race or rest. Night is always rest. */
-const ACT_TEXT={study:"Studying leadership at Leadership Hall: serving customers well, owning results, staying debt-free.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
+const ACT_TEXT={study:"Studying this week's leadership lesson at Leadership Hall.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
 function activity(ag){
   if(!(ag.status==="scheduled"||ag.status==="done")) return null;
   if(typeof openAsksFor==="function"&&openAsksFor(ag.id).length) return null;
@@ -706,6 +706,7 @@ function hallTip(){
   const st=actors.filter(a=>a.act==="study").map(a=>a.agent.name);
   return `<div class="nm">Leadership Hall</div><div class="rl">Where the team trains when there's no work</div>
     <div class="row">${st.length?`<b>${esc(st.join(", "))}</b> ${st.length>1?"are":"is"} studying now.`:"Nobody is studying right now."}</div>
+    ${LESSON?`<div class="row"><div class="lbl">This week's lesson</div><b>${esc(LESSON.title)}</b><br>${esc(LESSON.oneLine)}</div>`:""}
     <div class="row"><div class="lbl">On the board</div><ul><li>Serve every customer like Jesus would</li><li>Be honest, even when it costs you</li><li>Do the work well, as if for the Lord</li><li>Own your results, help your teammates</li><li>Stay debt-free and spend wisely</li><li>Rest when the work is done</li></ul></div>`;
 }
 function trackTip(){
@@ -984,6 +985,7 @@ function positionBubbles(){
 /* ---------- Boot ---------- */
 function refresh(){ allAgentsCache=withAsks(allAgents()); makeActors(); renderBoard(); renderRoster(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); buildBubbles(); }
 function rebuild(){ buildWorld(); drawTerrain(); refresh(); }
+let LESSON=null;
 /* Live data: agents.json is the source of truth for the built-in agents; the copy above is the fallback. */
 let DATA_UPDATED = "2026-11-17T20:00:00-06:00", dataSig = "";
 function applyData(d){
@@ -993,6 +995,7 @@ function applyData(d){
   if(d.biz) BIZ=Object.assign({},BIZ,d.biz);
   const after=realSales().length; if(dataSig&&before&&after>before){ sproutIdx=after-1; sproutAt=performance.now(); }
   if(d.updated) DATA_UPDATED=d.updated;
+  if(d.latestLesson) LESSON=d.latestLesson;
   const known=new Map(AGENTS.map(a=>[a.id,a]));
   extras=[];
   d.agents.forEach(j=>{ const a=known.get(j.id);
