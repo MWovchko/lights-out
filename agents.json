@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T06:14:55+00:00",
+  "updated": "2026-11-18T06:21:48.087058+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -48,7 +48,7 @@
       "status": "waiting",
       "statusText": "1 thing for you to confirm",
       "task": "Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
-      "latest": "3 strips sold, 1 refunded test. Profit −$31.61. 4 more sales to break even.",
+      "latest": "3 strips sold, 1 refunded test. Profit \u2212$31.61. 4 more sales to break even.",
       "needs": [
         "Have you submitted the Oklahoma sales tax permit on OkTAP?"
       ],
@@ -100,9 +100,9 @@
       "role": "Archivist (vault)",
       "color": "#6b4f8f",
       "status": "waiting",
-      "statusText": "2 things for you to confirm",
+      "statusText": "Checked: your Mac sync still uses the old folder",
       "task": "Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
-      "latest": "Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
+      "latest": "After your Yes, Otis found the Obsidian Vault Sync task still on Documents/Startup Ideas. Steps are in his thread.",
       "needs": [
         "Have you updated the nightly Obsidian Vault Sync on your Mac? (Claude app: open the task, set the folder to Downloads/darkdorms, paste the new prompt from the vault-move thread)",
         "Have you saved the sync-my-vault skill card in the vault-move thread?"
@@ -115,13 +115,11 @@
       "name": "Webb",
       "role": "Shopkeeper (website)",
       "color": "#e9b949",
-      "status": "waiting",
-      "statusText": "1 thing for you to confirm",
+      "status": "done",
+      "statusText": "Analytics is on and counting visits",
       "task": "Runs darkdorms.com on Vercel: the StoryBrand page, privacy, terms, thank-you page and the Stripe preorder button.",
-      "latest": "Nov 18, 12:05 AM: 24-hour delivery countdown, 50% refund wording and thank-you page are live; Stripe now sends buyers to darkdorms.com/thank-you.",
-      "needs": [
-        "Have you turned on Vercel Analytics? (Vercel, darkdorms project, Analytics tab, Enable)"
-      ],
+      "latest": "Confirmed Vercel Analytics loads on darkdorms.com (counts visitors who accept cookies).",
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN",
       "threadTitle": "Preview launch checklist on DarkDorms site"
     }
