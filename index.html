@@ -543,7 +543,7 @@ function withAsks(list){
   if(!asks) return list;
   return list.map(a=>{ const open=asks.filter(x=>x.agent===a.id&&x.status==="open"); const b=Object.assign({},a,{needs:open.map(x=>x.text)});
     if(open.length){ b.status="waiting"; b.statusText=`${open.length} thing${open.length>1?"s":""} for you to decide`; }
-    else if(a.status==="waiting"){ const done=asks.filter(x=>x.agent===a.id&&x.status!=="open"); if(done.length){ b.status="working"; b.statusText=done.some(x=>!x.relayed)?"Your answers are on their way":"Working with your answers"; } }
+    else if(a.status==="waiting"){ const pend=asks.some(x=>x.agent===a.id&&x.status!=="open"&&!x.relayed); b.status=pend?"working":"done"; b.statusText=pend?"Your answer is on its way":"Nothing waiting on you"; }
     return b; });
 }
 function makeActors(){

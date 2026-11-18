@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T06:05:47+00:00",
+  "updated": "2026-11-18T06:14:55+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -45,12 +45,12 @@
       "name": "Penny",
       "role": "Accountant",
       "color": "#3f8a5f",
-      "status": "scheduled",
-      "statusText": "Next weekly books Sun 7:13 PM",
+      "status": "waiting",
+      "statusText": "1 thing for you to confirm",
       "task": "Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
       "latest": "3 strips sold, 1 refunded test. Profit −$31.61. 4 more sales to break even.",
       "needs": [
-        "Submit the Oklahoma sales tax permit on OkTAP (needs your SSN and signature)"
+        "Have you submitted the Oklahoma sales tax permit on OkTAP?"
       ],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4K4fUZsAnJGrPEmSp3WPb1f",
       "threadTitle": "Track DormDarker income and taxes"
@@ -60,8 +60,8 @@
       "name": "Melvin",
       "role": "Chief of staff",
       "color": "#2f5e9e",
-      "status": "working",
-      "statusText": "On duty",
+      "status": "scheduled",
+      "statusText": "Evening report to you at 8:41 PM",
       "task": "Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
       "latest": "Promoted to chief of staff (Nov 17, 10:59 PM): runs the team, makes small calls, can add or replace helper agents.",
       "needs": [],
@@ -86,8 +86,8 @@
       "name": "Wren",
       "role": "Tailor (strip covers)",
       "color": "#202024",
-      "status": "working",
-      "statusText": "Working with your answers",
+      "status": "done",
+      "statusText": "Cover planned with your $16.78 cloth",
       "task": "Working out a black cloth cover that wraps the whole strip so it stops looking cheap.",
       "latest": "Plan: black panne velvet, a 6 in by 36 in piece per strip, about 4 strips per yard.",
       "needs": [],
@@ -100,12 +100,12 @@
       "role": "Archivist (vault)",
       "color": "#6b4f8f",
       "status": "waiting",
-      "statusText": "Two quick to-dos for you on your Mac",
+      "statusText": "2 things for you to confirm",
       "task": "Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
       "latest": "Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
       "needs": [
-        "On your Mac: open the \"Obsidian Vault Sync\" task in the Claude app, set its folder to Downloads/darkdorms and paste the new prompt (in the vault-move thread)",
-        "Save the sync-my-vault skill card in the vault-move thread"
+        "Have you updated the nightly Obsidian Vault Sync on your Mac? (Claude app: open the task, set the folder to Downloads/darkdorms, paste the new prompt from the vault-move thread)",
+        "Have you saved the sync-my-vault skill card in the vault-move thread?"
       ],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4Sr3FpzkbBrAmRb8q1PsYwL",
       "threadTitle": "Point agents at new darkdorms vault"
@@ -116,11 +116,11 @@
       "role": "Shopkeeper (website)",
       "color": "#e9b949",
       "status": "waiting",
-      "statusText": "Site updated; Analytics waits on you",
+      "statusText": "1 thing for you to confirm",
       "task": "Runs darkdorms.com on Vercel: the StoryBrand page, privacy, terms, thank-you page and the Stripe preorder button.",
       "latest": "Nov 18, 12:05 AM: 24-hour delivery countdown, 50% refund wording and thank-you page are live; Stripe now sends buyers to darkdorms.com/thank-you.",
       "needs": [
-        "Turn on Vercel Analytics: Vercel, darkdorms project, Analytics tab, Enable"
+        "Have you turned on Vercel Analytics? (Vercel, darkdorms project, Analytics tab, Enable)"
       ],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN",
       "threadTitle": "Preview launch checklist on DarkDorms site"
