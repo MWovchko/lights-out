@@ -1,11 +1,33 @@
 {
-  "updated": "2026-11-18T05:00:08+00:00",
+  "updated": "2026-11-18T05:06:27+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
-    "profit": -31.61,
-    "toBreakEven": 4,
-    "salesPaused": false
+    "profit": -48.39,
+    "toBreakEven": 6,
+    "salesPaused": false,
+    "sales": [
+      {
+        "date": "2026-11-13",
+        "amount": 10.99
+      },
+      {
+        "date": "2026-11-13",
+        "amount": 10.99
+      },
+      {
+        "date": "2026-11-13",
+        "amount": 10.99
+      }
+    ],
+    "refunds": 1,
+    "gross": 32.97,
+    "price": 10.99,
+    "costPerStrip": 7.62,
+    "feePerSale": 0.67,
+    "salesTaxRate": 0.08517,
+    "incomeTaxRate": 0.25,
+    "costNote": "Materials so far $76.17 / 10 strips"
   },
   "agents": [
     {

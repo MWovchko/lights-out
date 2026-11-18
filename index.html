@@ -177,7 +177,7 @@ canvas#map{border-radius:2px}
       <span><i class="dot" style="background:var(--st-new)"></i>New, prompt not sent yet</span>
       <span><i class="dot" style="background:var(--st-done)"></i>Done</span>
     </div>
-    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock. The notice board in the square lists everything waiting on you.</p>
+    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. The notice board in the square lists everything waiting on you.</p>
   </section>
 
   <aside>
@@ -275,6 +275,7 @@ let AGENTS = [
 ];
 const MAYOR = {x:16,y:3,w:5,h:3,kind:"mayor",roof:"#8a3b2f",wall:"#f3e4c2",label:"Your House"};
 const PLAZA = {x:19,y:11};
+const ORCH = {x:23,y:9,w:6,h:5}; /* sales orchard: one tree per sale */
 const SWATCH = ["#d9534f","#e58f3a","#e9c43a","#5cae5c","#3fa8a0","#4f7fd6","#8a63c9","#d46fa8","#f2f2f2","#2a2a2a"];
 
 /* ---------- Saved villagers ---------- */
@@ -303,6 +304,7 @@ function buildWorld(){
   const houses=[MAYOR, ...AGENTS.map(a=>a.house)];
   const markHouse=h=>{ for(let y=h.y-1;y<=h.y+h.h;y++) for(let x=h.x-1;x<=h.x+h.w;x++) reserved.add(key(x,y)); };
   houses.forEach(markHouse);
+  for(let y=ORCH.y-1;y<=ORCH.y+ORCH.h;y++) for(let x=ORCH.x-1;x<=ORCH.x+ORCH.w;x++) reserved.add(key(x,y));
   // plaza
   for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-2;x<=PLAZA.x+2;x++) if(Math.abs(x-PLAZA.x)+Math.abs(y-PLAZA.y)<=3) reserved.add(key(x,y));
   // dock path
@@ -496,7 +498,7 @@ function makeActors(){
     return {agent:ag, home, x:p?p.x:home.x, y:p?p.y:home.y, tx:home.x, ty:home.y, wait:Math.random()*2000, frame:0, dir:"down", r:rng(hashStr(ag.id))};
   });
 }
-function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; return true; }
+function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; if(tx>=ORCH.x&&tx<ORCH.x+ORCH.w&&ty>=ORCH.y&&ty<ORCH.y+ORCH.h) return false; return true; }
 function stepActor(a,dt){
   if(openAsksFor(a.agent.id).length){ const dx=a.home.x-a.x, dy=a.home.y-a.y, d=Math.hypot(dx,dy); if(d>1){ const sp=16*dt/1000; a.x+=dx/d*Math.min(sp,d); a.y+=dy/d*Math.min(sp,d); a.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?"left":"right"):(dy<0?"up":"down"); a.frame=Math.floor(performance.now()/180)%2; } else { a.frame=0; a.dir="down"; } return; }
   const busy = a.agent.status==="working" || a.agent.status==="new";
@@ -534,6 +536,9 @@ function render(t){
   const houses=[{h:MAYOR,id:"mayor"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
   houses.forEach(o=>items.push({y:(o.h.y+o.h.h)*T, draw:()=>{ drawHouse(ctx,o.h,night,t); if(hover&&hover.type==="house"&&hover.id===o.id) outline(o.h); }}));
   trees.forEach(tr=>items.push({y:tr.y, draw:()=>drawTree(ctx,tr,t)}));
+  drawOrchardGround();
+  orchardSlots().forEach((sl,i)=>items.push({y:sl.y, draw:()=>drawSaleTree(sl,i,t)}));
+  items.push({y:(ORCH.y+ORCH.h)*T+4, draw:()=>drawOrchardSign(t)});
   // notice board
   const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T};
   items.push({y:nb.y+8, draw:()=>drawBoard(nb.x,nb.y,t)});
@@ -584,6 +589,67 @@ function drawCrates(x,y){
   if(BIZ.salesPaused){ px(ctx,x-1,y+2,23,7,"#4a2f1c"); px(ctx,x,y+3,21,5,"#f4e7c6"); ctx.font="5px monospace"; ctx.fillStyle="#a8382b"; ctx.fillText("PAUSED",x+2,y+7.5); }
   if(hover&&hover.type==="crates"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-2.5,y-14.5,25,25); }
 }
+/* ---------- Sales orchard ---------- */
+const ORCH_COLS=7, ORCH_ROWS=5;
+function realSales(){ return (BIZ.sales||[]).filter(s=>!s.refunded); }
+function orchardSlots(){
+  const list=realSales(), n=Math.min(list.length, ORCH_COLS*ORCH_ROWS), out=[];
+  const x0=ORCH.x*T+8, y0=ORCH.y*T+16, dx=(ORCH.w*T-16)/(ORCH_COLS-1), dy=(ORCH.h*T-20)/(ORCH_ROWS-1);
+  for(let i=0;i<n;i++){ const c=i%ORCH_COLS, r=Math.floor(i/ORCH_COLS); out.push({x:Math.round(x0+c*dx+(r%2?3:0)), y:Math.round(y0+r*dy), sale:list[i]}); }
+  return out;
+}
+let sproutAt=0, sproutIdx=-1;
+function drawOrchardGround(){
+  const x=ORCH.x*T, y=ORCH.y*T, w=ORCH.w*T, h=ORCH.h*T;
+  px(ctx,x,y,w,h,"#7fae4f");
+  for(let r=0;r<ORCH_ROWS;r++) px(ctx,x+3,(y+12+r*((h-20)/(ORCH_ROWS-1)))|0,w-6,4,"#8a6a3f");
+  for(let i=0;i<=w;i+=6){ px(ctx,x+i-1,y-4,2,6,"#c79a5b"); px(ctx,x+i-1,y+h-2,2,6,"#c79a5b"); }
+  for(let j=0;j<=h;j+=6){ px(ctx,x-1,y+j-4,2,6,"#c79a5b"); px(ctx,x+w-1,y+j-4,2,6,"#c79a5b"); }
+  px(ctx,x,y-2,w,1,"#a87d45"); px(ctx,x,y+h,w,1,"#a87d45"); px(ctx,x,y-2,1,h+2,"#a87d45"); px(ctx,x+w-1,y-2,1,h+2,"#a87d45");
+  if(hover&&hover.type==="orchard"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.lineWidth=1; ctx.strokeRect(x-3.5,y-6.5,w+7,h+12); }
+}
+function drawSaleTree(sl,i,t){
+  let k=1; if(i===sproutIdx&&!reduce){ k=Math.max(0,Math.min(1,(t-sproutAt)/1800)); }
+  const sway=reduce?0:Math.round(Math.sin(t/900+i)*0.6), x=sl.x, y=sl.y, s=Math.max(.25,k);
+  ctx.fillStyle="rgba(0,0,0,.18)"; ctx.fillRect(x-4,y-1,8,2);
+  const trunk=Math.round(5*s); px(ctx,x-1,y-trunk,2,trunk,"#6b4428");
+  const cw=Math.round(10*s), ch=Math.round(8*s), top=y-trunk-ch;
+  px(ctx,x-cw/2+sway,top,cw,ch,"#3f8f3f"); px(ctx,x-cw/2+1+sway,top-1,cw-2,1,"#52a64c"); px(ctx,x-cw/2+1+sway,top+1,Math.max(1,cw/2-1),2,"#5cb455");
+  if(k>=1) [["#e0483c",-3,2],["#f2a23a",2,1],["#e0483c",1,5],["#f2a23a",-2,5]].forEach(([c,fx,fy])=>px(ctx,x+fx+sway,top+fy,2,2,c));
+  if(hover&&hover.type==="orchard"&&hover.idx===i){ ctx.strokeStyle="rgba(255,255,255,.95)"; ctx.strokeRect(x-6.5+sway,top-2.5,13,ch+trunk+4); }
+}
+function drawOrchardSign(t){
+  const x=(ORCH.x+ORCH.w/2)*T-14, y=(ORCH.y+ORCH.h)*T+5;
+  px(ctx,x+13,y,2,6,"#6b4428"); px(ctx,x,y-6,28,8,"#4a2f1c"); px(ctx,x+1,y-5,26,6,"#f4e7c6");
+  ctx.font="5px monospace"; ctx.fillStyle="#2f6a2f"; ctx.fillText("ORCHARD",x+3,y-0.5);
+}
+function money(v){ const n=Number(v)||0; return (n<0?"−":"")+"$"+Math.abs(n).toFixed(2); }
+function pct(v){ return (v<0?"−":"")+Math.abs(v*100).toFixed(1)+"%"; }
+/* Unit economics. Price includes Tulsa sales tax; Stripe fee is per sale; cost per strip = materials so far / strips bought. */
+function unitMath(){
+  const price=BIZ.price||10.99, taxRate=BIZ.salesTaxRate!=null?BIZ.salesTaxRate:0.08517, incRate=BIZ.incomeTaxRate!=null?BIZ.incomeTaxRate:0.25;
+  const fee=BIZ.feePerSale!=null?BIZ.feePerSale:Math.round((price*0.029+0.35)*100)/100;
+  const cost=BIZ.costPerStrip!=null?BIZ.costPerStrip:7.62;
+  const salesTax=price-price/(1+taxRate);
+  const gross=price-fee-cost;                 // before any tax
+  const pre=price-salesTax-fee-cost;          // after sales tax
+  const after=pre>0?pre*(1-incRate):pre;      // after income tax set-aside
+  return {price,fee,cost,salesTax,gross,after,grossPct:gross/price,afterPct:after/price,incRate};
+}
+function orchardTip(idx){
+  const sales=realSales(), n=sales.length, u=unitMath();
+  const gross=sales.reduce((a,s)=>a+(s.amount||0),0);
+  const tGross=n*u.gross, tAfter=n*u.after;
+  let one="";
+  if(idx!=null&&sales[idx]){ const s=sales[idx], d=new Date(s.date+"T12:00:00"); one=`<div class="row"><div class="lbl">This tree</div>Sale #${idx+1} · ${money(s.amount)} on ${d.toLocaleDateString([], {month:"short",day:"numeric"})}</div>`; }
+  return `<div class="nm">Sales Orchard</div><div class="rl">One tree for every sale</div>
+    <div class="row"><b>${n}</b> sales · <b>${money(gross)}</b> gross revenue</div>
+    <div class="row">Net profit: <b style="color:${(BIZ.profit||0)<0?"#b23830":"#2f7a45"}">${money(BIZ.profit)}</b> <span style="opacity:.75">(counts all materials bought, sold or not)</span></div>
+    <div class="row"><div class="lbl">Margin, all sales</div>Gross: <b>${money(tGross)}</b> (${pct(u.grossPct)}) · After taxes: <b>${money(tAfter)}</b> (${pct(u.afterPct)})</div>
+    <div class="row"><div class="lbl">Margin per DarkDorms strip</div>${money(u.price)} price − ${money(u.fee)} Stripe − ${money(u.cost)} materials = <b>${money(u.gross)}</b> gross (${pct(u.grossPct)})<br>− ${money(u.salesTax)} sales tax − ${Math.round(u.incRate*100)}% income tax = <b>${money(u.after)}</b> after taxes (${pct(u.afterPct)})</div>
+    ${(BIZ.refunds||0)?`<div class="row" style="opacity:.75">${BIZ.refunds} refunded test order not counted.</div>`:""}${one}
+    ${n>ORCH_COLS*ORCH_ROWS?`<div class="row">The orchard is full: showing ${ORCH_COLS*ORCH_ROWS} of ${n} trees.</div>`:""}`;
+}
 function drawBoat(x,y,t){ const bob=reduce?0:Math.round(Math.sin(t/600)); px(ctx,x,y+bob,14,4,"#7a4a2a"); px(ctx,x+1,y+4+bob,12,1,"#5a3420"); px(ctx,x+6,y-9+bob,1,9,"#4a2f1c"); px(ctx,x+7,y-8+bob,5,6,"#f4e7c6"); }
 function drawLamp(x,y,night){ px(ctx,x,y-12,1,12,"#3a3a44"); px(ctx,x-2,y-15,5,4,night?"#ffd86b":"#d8d0b0"); px(ctx,x-2,y-16,5,1,"#3a3a44"); }
 function glows(t){
@@ -605,6 +671,7 @@ function hit(p){
   const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T}; if(p.x>=nb.x-2&&p.x<=nb.x+22&&p.y>=nb.y-6&&p.y<=nb.y+16) return {type:"board",id:"board"};
   const shop=AGENTS.find(a=>a.id==="webb").house, crX=(shop.x+shop.w)*T+3, crY=(shop.y+shop.h)*T-2;
   if(p.x>=crX-3&&p.x<=crX+23&&p.y>=crY-15&&p.y<=crY+10) return {type:"crates",id:"crates"};
+  if(p.x>=ORCH.x*T-4&&p.x<=(ORCH.x+ORCH.w)*T+4&&p.y>=ORCH.y*T-8&&p.y<=(ORCH.y+ORCH.h)*T+12){ let best=null,bd=1e9; orchardSlots().forEach((sl,i)=>{ const d=Math.abs(p.x-sl.x)+Math.abs(p.y-(sl.y-7)); if(d<bd&&d<=9){bd=d;best=i;} }); return {type:"orchard",id:"orchard",idx:best}; }
   for(const a of actors){ const h=a.agent.house; if(p.x>=h.x*T-2&&p.x<=(h.x+h.w)*T+2&&p.y>=h.y*T-4&&p.y<=(h.y+h.h)*T+2) return {type:"house",id:a.agent.id}; }
   if(p.x>=MAYOR.x*T&&p.x<=(MAYOR.x+MAYOR.w)*T&&p.y>=MAYOR.y*T-8&&p.y<=(MAYOR.y+MAYOR.h)*T) return {type:"house",id:"mayor"};
   return null;
@@ -614,7 +681,8 @@ const STLABEL={working:"Working",waiting:"Waiting on you",scheduled:"Scheduled",
 function agentById(id){ return allAgentsCache.find(a=>a.id===id); }
 function tipHTML(h){
   if(h.type==="board"){ const n=needsList(); return `<div class="nm">Notice board</div><div class="rl">${n.length} things waiting on you</div><ul>${n.slice(0,8).map(x=>`<li><b>${esc(x.who)}:</b> ${esc(x.what)}</li>`).join("")}</ul>${n.length>8?`<div class="row">…and ${n.length-8} more in the town hall</div>`:""}`; }
-  if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">Sales are paused on Stripe while you fix the product. Next buy planned: 150 strips for $232.48.</div>`;
+  if(h.type==="orchard") return orchardTip(h.idx);
+  if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">${BIZ.salesPaused?"Sales are paused on Stripe while you fix the product.":"Sales are open. Each new sale plants a tree in the orchard."}</div>`;
   if(h.id==="mayor") return `<div class="nm">Your house</div><div class="rl">Maxwell · owner of DarkDorms</div><div class="row">${needsList().length} things on the notice board need you. Tap the board in the square to see them.</div>`;
   const a=agentById(h.id); if(!a) return "";
   return `<div class="nm">${esc(a.name)}</div><div class="rl">${esc(a.role)} · ${esc(a.house.label)}</div>
@@ -645,7 +713,7 @@ function renderStats(){
   document.getElementById("stats").innerHTML=`
    <div class="stat"><b>${BIZ.stock}</b><span>strips in stock</span></div>
    <div class="stat"><b>${BIZ.sold}</b><span>sold (real customers)</span></div>
-   <div class="stat neg"><b>−$${Math.abs(BIZ.profit).toFixed(2)}</b><span>profit so far</span></div>
+   <div class="stat ${BIZ.profit<0?"neg":""}"><b>${money(BIZ.profit)}</b><span>net profit so far</span></div>
    <div class="stat warn"><b>${BIZ.toBreakEven}</b><span>sales to break even</span></div>
    ${BIZ.salesPaused?`<div class="stat warn" style="grid-column:1/-1"><b style="font-size:17px">Sales paused</b><span>Both Stripe links are off. Customers see “sold out for now.”</span></div>`:`<div class="stat" style="grid-column:1/-1"><b style="font-size:17px;color:#2f7a45">Sales open</b><span>The preorder button on darkdorms.com takes payments.</span></div>`}`;
   const as=document.getElementById("asOf"); if(as){ const d=new Date(DATA_UPDATED); as.textContent="updated "+d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }
@@ -854,7 +922,9 @@ let DATA_UPDATED = "2026-11-17T20:00:00-06:00", dataSig = "";
 function applyData(d){
   if(!d||!Array.isArray(d.agents)) return false;
   const sig=JSON.stringify(d); if(sig===dataSig) return false; dataSig=sig;
+  const before=realSales().length;
   if(d.biz) BIZ=Object.assign({},BIZ,d.biz);
+  const after=realSales().length; if(dataSig&&before&&after>before){ sproutIdx=after-1; sproutAt=performance.now(); }
   if(d.updated) DATA_UPDATED=d.updated;
   const known=new Map(AGENTS.map(a=>[a.id,a]));
   extras=[];
