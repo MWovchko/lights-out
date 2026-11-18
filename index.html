@@ -150,7 +150,8 @@ canvas#map{border-radius:2px}
 .ask-b button:focus-visible,.ask-b a:focus-visible{outline:3px solid var(--st-scheduled);outline-offset:2px}
 .ask-s{margin-top:6px;font-size:12.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ask-s .tag{font-family:var(--display);font-size:12px;padding:1px 7px;border-radius:3px;color:#fff}
-.ask-s .tag.approved{background:#2f8a4a}.ask-s .tag.declined{background:#a8382b}
+.ask-s .tag.approved{background:#2f8a4a}.ask-s .tag.declined{background:#a8382b}.ask-s .tag.check{background:#2f6fb0}
+.ask-b .idk{background:#e6eefb;color:#1f4f86}.ask-b .idk:hover{background:#d3e1f6}
 .ask-s button{font:inherit;font-size:12px;background:none;border:0;text-decoration:underline;color:var(--ink-soft);cursor:pointer;padding:0}
 .ask-err{color:#a8382b;font-size:12px;margin-top:4px}
 .board .grp{list-style:none;display:grid;gap:6px}
@@ -848,7 +849,7 @@ function renderBoard(){
     : `<li style="border-left-color:var(--st-working)">Nothing is waiting on you right now.</li>`;
   restoreDrafts(ul);
   document.getElementById("boardNote").textContent = db
-    ? "Only things Melvin (chief of staff) decided need you show up here. Press Yes or No: Claude is woken right away and passes it to the agent, who acts on it within a minute or two."
+    ? "Only things Melvin (chief of staff) decided need you show up here. Press Yes, No, or IDK, check for me: Claude is woken right away and passes it to the agent, who acts on it (or looks into it and reports back) within a minute or two."
     : "On this website the buttons open your Claude island, where your answer is saved and sent to the agent.";
 }
 function portrait(a){ const c=document.createElement("canvas"); c.width=17; c.height=17; const g=c.getContext("2d"); g.imageSmoothingEnabled=false; drawVillager(g,8.5,16.5,a.look,0,"down",null,0); return c; }
@@ -949,13 +950,13 @@ function askHTML(x,a){
     if(!db){ body=`<div class="ask-b"><a class="link" href="${ARTIFACT_URL}" target="_blank" rel="noopener">Open the archipelago to press Yes or No</a></div>`; }
     else {
       body=`<input data-in="${esc(x.id)}" maxlength="400" placeholder="${esc(x.placeholder|| (kind==="answer"?"Type your answer":"Add a note (optional)"))}" aria-label="${kind==="answer"?"Your answer":"Note"} for: ${esc(x.text)}">
-        <div class="ask-b"><button type="button" class="yes" data-act="approved" data-id="${esc(x.id)}">Yes</button><button type="button" class="no" data-act="declined" data-id="${esc(x.id)}">No</button></div>
+        <div class="ask-b"><button type="button" class="yes" data-act="approved" data-id="${esc(x.id)}">Yes</button><button type="button" class="no" data-act="declined" data-id="${esc(x.id)}">No</button><button type="button" class="idk" data-act="check" data-id="${esc(x.id)}" title="Not sure. The agent looks into it and reports back">IDK, check for me</button></div>
         ${errs[x.id]?`<div class="ask-err">${esc(errs[x.id])}</div>`:""}`;
     }
   } else {
     const who=a?a.name:agentName(x.agent);
     const when=x.relayedAt?new Date(x.relayedAt).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
-    body=`<div class="ask-s"><span class="tag ${x.status}">${x.status==="approved"?"Yes":"No"}</span>
+    body=`<div class="ask-s"><span class="tag ${x.status}">${({approved:"Yes",declined:"No",check:"Checking for you"})[x.status]||"No"}</span>
       <span>${x.relayed?`${esc(who)} got it ${esc(when)}`:`Sending to ${esc(who)}…`}</span>
       ${!x.relayed&&db?`<button type="button" data-act="open" data-id="${esc(x.id)}">Change</button>`:""}</div>
       ${x.note?`<div class="ask-m">You said: ${esc(x.note)}</div>`:""}`;
@@ -984,9 +985,10 @@ function renderAll(){ renderBoard(); buildBubbles(); }
    Last resort: the hourly relay picks it up from the db. */
 const RELAY_TASK="trig_01CcEKFZ4u2V3Xenos7CvJ6w"; let mcp=null, comments=undefined;
 async function kick(act, x, note, el){
-  toast(act==="approved"?"Yes saved. Waking Claude…":"No saved. Waking Claude…");
+  toast(act==="approved"?"Yes saved. Waking Claude…":act==="check"?"Asking them to check. Waking Claude…":"No saved. Waking Claude…");
   const who=agentName(x.agent);
-  const text=`Agent Island decision [ask:${x.id}] for ${who}: ${act==="approved"?"YES":"NO"} to "${x.text}".${note?` Maxwell's note: ${note}`:""} Please pass it to ${who} now.`;
+  const verdict = act==="approved"?"YES":act==="check"?"IDK, CHECK FOR ME (Maxwell isn't sure: look into it yourself, report what you find, and ask again only if it still needs him)":"NO";
+  const text=`Agent Island decision [ask:${x.id}] for ${who}: ${verdict} to "${x.text}".${note?` Maxwell's note: ${note}`:""} Please pass it to ${who} now.`;
   try{ if(comments===undefined) comments=await window.claude.use("comments"); }catch(e){ comments=null; }
   if(comments&&typeof comments.sendToClaude==="function"){
     try{
@@ -1048,6 +1050,12 @@ function positionBubbles(){
       asks=snap.docs.map(s=>Object.assign({id:s.id},s.data())).sort((x,y)=>(x.order||0)-(y.order||0));
       const sy=window.scrollY, sx=window.scrollX; refresh(); if(selected) select(selected); renderBoard(); window.scrollTo(sx, sy); requestAnimationFrame(()=>window.scrollTo(sx, sy));
     },()=>{});
+    /* Live statuses: status/agents holds the same shape as agents.json. Any write shows up here within a second. */
+    db.doc("status/agents").onSnapshot(snap=>{
+      const d=snap&&snap.exists!==false&&typeof snap.data==="function"?snap.data():null;
+      if(!d||!Array.isArray(d.agents)) return;
+      liveDb=true; applyLive(JSON.parse(JSON.stringify(d)));
+    },()=>{});
   }catch(e){ renderAll(); }
 })();
 
@@ -1073,11 +1081,23 @@ function applyData(d){
   const retired=new Set(d.retired||[]); AGENTS=AGENTS.filter(a=>!retired.has(a.id));
   return true;
 }
+let liveDb=false;
+function newer(d){ return !d.updated || !DATA_UPDATED || Date.parse(d.updated)>=Date.parse(DATA_UPDATED); }
+function applyLive(d){
+  if(!newer(d)) return;
+  const sy=window.scrollY, sx=window.scrollX;
+  if(applyData(d)){ renderStats(); rebuild(); if(selected) select(selected); window.scrollTo(sx, sy); requestAnimationFrame(()=>window.scrollTo(sx, sy)); }
+}
 function loadData(first){
-  return fetch("agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ const changed=applyData(d); if(changed||first){ renderStats(); rebuild(); if(selected) select(selected); } }).catch(()=>{ if(first){ renderStats(); rebuild(); } });
+  return fetch("agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
+    if(first){ if(d&&newer(d)) applyData(d); renderStats(); rebuild(); return; }
+    if(d&&!liveDb) applyLive(d);
+  }).catch(()=>{ if(first){ renderStats(); rebuild(); } });
 }
 loadData(true).then(()=>{ tick(); requestAnimationFrame(t=>{ lastT=t; render(t); }); });
-setInterval(()=>loadData(false), 60000);
+/* No db (website, island window): check for a new agents.json every 15 seconds, and right away when the tab comes back. */
+setInterval(()=>{ if(!liveDb&&!document.hidden) loadData(false); }, 15000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!liveDb) loadData(false); });
 window.addEventListener("island:pick", e=>{ const a=agentById(e.detail); if(a) setView(a.island==="home"?"home":"dd"); select(e.detail,{scroll:true}); });
 document.querySelectorAll("#isleTabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.isle)));
 narrowMQ.addEventListener&&narrowMQ.addEventListener("change",()=>setView(VIEW==="home"?"home":"dd"));
