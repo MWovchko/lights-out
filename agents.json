@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T05:55:01+00:00",
+  "updated": "2026-11-18T05:56:47+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -99,11 +99,14 @@
       "name": "Otis",
       "role": "Archivist (vault)",
       "color": "#6b4f8f",
-      "status": "working",
-      "statusText": "Working with your answers",
+      "status": "waiting",
+      "statusText": "Two quick to-dos for you on your Mac",
       "task": "Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
       "latest": "Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
-      "needs": [],
+      "needs": [
+        "On your Mac: open the \"Obsidian Vault Sync\" task in the Claude app, set its folder to Downloads/darkdorms and paste the new prompt (in the vault-move thread)",
+        "Save the sync-my-vault skill card in the vault-move thread"
+      ],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4Sr3FpzkbBrAmRb8q1PsYwL",
       "threadTitle": "Point agents at new darkdorms vault"
     },

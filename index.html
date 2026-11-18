@@ -109,6 +109,16 @@ form input:focus,form textarea:focus,form select:focus{outline:none;border-color
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--parchment);font-family:var(--display);padding:8px 14px;border-radius:4px;border:2px solid var(--gold);z-index:20}
 @media (prefers-reduced-motion: reduce){.btn:active{transform:none}}
 .isle-tabs{display:none;margin:0 0 8px}
+/* Full screen village */
+#fsBack{display:none}
+body.fs{overflow:hidden}
+body.fs #fsBack{display:block;position:fixed;inset:0;background:#1b4a63;z-index:9}
+body.fs .frame{position:fixed;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;
+  width:min(100vw, calc(100vh * var(--ar, 2.4)));width:min(100vw, calc(100dvh * var(--ar, 2.4)));border-width:0;box-shadow:none;border-radius:0}
+body.fs .isle-tabs{display:inline-flex;position:fixed;z-index:12;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+#fsExit{display:none}
+body.fs #fsExit{display:block;position:fixed;z-index:12;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+body.fs .toast{z-index:40}
 .ask-m.mel{color:#2f5e9e;font-style:italic}
 @media (max-width: 760px){ .isle-tabs{display:inline-flex} }
 /* Thought bubbles + asks */
@@ -158,6 +168,7 @@ canvas#map{border-radius:2px}
     </div>
     <div class="clock">
       <a class="btn ghost" href="/island" style="font-size:13px;padding:4px 9px;box-shadow:0 2px 0 var(--wood-dk)">Open island window</a>
+      <button type="button" class="btn ghost" id="fsBtn" style="font-size:13px;padding:4px 9px;box-shadow:0 2px 0 var(--wood-dk)">Full screen</button>
       <span id="clockTxt">--</span>
       <div class="seg" role="group" aria-label="Sky">
         <button type="button" data-sky="auto" aria-pressed="true">Auto</button>
@@ -167,6 +178,7 @@ canvas#map{border-radius:2px}
     </div>
   </header>
 
+  <div id="fsBack"></div><button type="button" class="btn" id="fsExit">Exit full screen</button>
   <section class="stage">
     <div class="seg isle-tabs" id="isleTabs" role="group" aria-label="Island">
       <button type="button" data-isle="dd" aria-pressed="true">DarkDorms Island</button>
@@ -376,6 +388,7 @@ function setView(v){
   const x0=VIEW==="home"?MAIN_W:0, w=VIEW==="all"?W:(VIEW==="home"?W-MAIN_W:MAIN_W);
   VX=x0*T; if(cv.width!==w*T){ cv.width=w*T; ctx.imageSmoothingEnabled=false; }
   document.querySelectorAll("#isleTabs button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.isle===VIEW)));
+  document.documentElement.style.setProperty("--ar", (cv.width/cv.height).toFixed(4));
   if(typeof positionBubbles==="function") positionBubbles();
 }
 ctx.imageSmoothingEnabled=false;
@@ -1069,6 +1082,19 @@ window.addEventListener("island:pick", e=>{ const a=agentById(e.detail); if(a) s
 document.querySelectorAll("#isleTabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.isle)));
 narrowMQ.addEventListener&&narrowMQ.addEventListener("change",()=>setView(VIEW==="home"?"home":"dd"));
 setView("dd");
+function setFS(on){
+  document.body.classList.toggle("fs", on);
+  try{ if(on){ const el=document.documentElement; if(el.requestFullscreen&&!document.fullscreenElement) el.requestFullscreen().catch(()=>{}); }
+       else if(document.fullscreenElement&&document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }catch(e){}
+  if(on){ const cl=document.querySelector("#isleTabs"); if(cl&&!narrowMQ.matches) cl.style.display="none"; else if(cl) cl.style.display=""; }
+  try{ localStorage.setItem("darkdormsIsland.fs", on?"1":""); }catch(e){}
+  setTimeout(positionBubbles, 50);
+}
+document.getElementById("fsBtn").addEventListener("click",()=>setFS(true));
+document.getElementById("fsExit").addEventListener("click",()=>setFS(false));
+document.addEventListener("fullscreenchange",()=>{ if(!document.fullscreenElement&&document.body.classList.contains("fs")&&window.__fsNative) setFS(false); window.__fsNative=!!document.fullscreenElement; });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&document.body.classList.contains("fs")) setFS(false); });
+try{ if(localStorage.getItem("darkdormsIsland.fs")==="1") setFS(true); }catch(e){}
 window.addEventListener("island:ready", ()=>{ if(allAgentsCache.length) window.Island.update(allAgentsCache,{updated:DATA_UPDATED}); });
 })();
 </script>
