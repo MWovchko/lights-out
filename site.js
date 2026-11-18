@@ -37,10 +37,16 @@ var CONTACT_EMAIL = "me@darkdorms.com";
   var analyticsLoaded=false;
   function loadAnalytics(){
     if(analyticsLoaded) return; analyticsLoaded=true;
-    window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};
-    var s=document.createElement("script"); s.defer=true; s.src="/_vercel/insights/script.js"; document.head.appendChild(s);
+    // Load @vercel/analytics using dynamic import
+    import('/js/analytics.mjs').then(function(module){
+      module.inject();
+    }).catch(function(err){
+      console.warn('Failed to load analytics:', err);
+    });
   }
-  function track(name){ if(analyticsLoaded && window.va) window.va("event",{name:name}); }
+  function track(name){ 
+    if(analyticsLoaded && window.va) window.va("event",{name:name}); 
+  }
 
   /* ---------- preorder buttons: loading state ---------- */
   document.querySelectorAll("[data-buy]").forEach(function(b){
