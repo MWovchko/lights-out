@@ -60,7 +60,7 @@ function spotlight(changes){
   const a=changes[0];
   views.forEach(v=>{
     if(v.mode==="notch"){
-      v.spot.innerHTML=`<div style="--c:${ph(a).c}"><b>${esc(a.name)}</b> is now <b>${ph(a).label.toLowerCase()}</b>${changes.length>1?` (+${changes.length-1} more)`:""}<br><span style="color:var(--is-mute)">${esc(a.statusText||"")}</span></div>`;
+      v.spot.innerHTML=`<div style="--c:${ph(a).c}"><b>${esc(a.name)}</b>: ${ph(a).label}${changes.length>1?` (+${changes.length-1} more)`:""}<br><span style="color:var(--is-mute)">${esc(a.statusText||"")}</span></div>`;
       v.root.classList.add("spot"); clearTimeout(v.spotT); v.spotT=setTimeout(()=>v.root.classList.remove("spot"),6000);
     }
     v.spotId=a.id; clearTimeout(v.hiT); v.hiT=setTimeout(()=>{ v.spotId=null; render(); },6000);

@@ -59,7 +59,7 @@ const view=Island.mountPanel(panel,{});
 function customAgents(){ try{ const v=JSON.parse(localStorage.getItem(STORE)||"[]"); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
 let last=null;
 function pull(){
-  return fetch("/agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d) last=d; }).catch(()=>{}).then(()=>{
+  return fetch("agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d) last=d; }).catch(()=>{}).then(()=>{
     const d=last||{agents:[]};
     const retired=new Set(d.retired||[]);
     const list=d.agents.filter(a=>!retired.has(a.id)).map(a=>Object.assign({},a));
