@@ -1,0 +1,53 @@
+/* Agent Island: a notch-style status panel for the DarkDorms agents. Shared by the village page (floating notch) and /island (window). */
+:root{
+  --is-bg:#0b0d10; --is-bg-2:#15181d; --is-line:#262b33; --is-fg:#f2f3f5; --is-mute:#9aa3ad;
+  --is-need:#f5a524; --is-work:#3ecf6e; --is-sched:#5aa2ff; --is-new:#c084fc; --is-done:#7d8590;
+  --is-font:"Rubik", system-ui, -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+  --is-display:"Pixelify Sans", "SF Mono", ui-monospace, monospace;
+}
+.isl{font-family:var(--is-font);color:var(--is-fg);font-size:13px;line-height:1.35}
+.isl *{box-sizing:border-box}
+.isl button{font:inherit;color:inherit}
+
+/* Notch (floating at the top of the village page) */
+#notch{position:fixed;top:calc(8px + env(safe-area-inset-top, 0px));left:50%;transform:translateX(-50%);z-index:30;width:auto;max-width:calc(100vw - 24px)}
+.isl-notch{background:var(--is-bg);border-radius:22px;box-shadow:0 8px 30px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06);overflow:hidden;transition:width .28s cubic-bezier(.3,.9,.3,1),border-radius .28s;width:300px;max-width:100%}
+.isl-notch.open{width:400px;border-radius:24px}
+.isl-pill{display:flex;align-items:center;gap:10px;height:40px;padding:0 14px 0 12px;width:100%;background:transparent;border:0;cursor:pointer;text-align:left}
+.isl-pill:focus-visible{outline:2px solid var(--is-sched);outline-offset:-3px;border-radius:22px}
+.isl-dots{display:flex;gap:3px;flex:none}
+.isl-dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.isl-dot.working{animation:islPulse 1.4s ease-in-out infinite}
+.isl-dot.waiting{box-shadow:0 0 0 2px rgba(245,165,36,.25)}
+@keyframes islPulse{50%{opacity:.35;transform:scale(.8)}}
+.isl-sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.isl-sum .need{color:var(--is-need)}
+.isl-count{font-family:var(--is-display);font-size:13px;color:var(--is-mute);flex:none;font-variant-numeric:tabular-nums}
+.isl-spot{padding:0 14px 10px;display:none}
+.isl-notch.spot .isl-spot{display:block}
+.isl-spot div{background:var(--is-bg-2);border-radius:12px;padding:8px 10px;border-left:3px solid var(--c)}
+.isl-body{display:none;border-top:1px solid var(--is-line)}
+.isl-notch.open .isl-body{display:block}
+.isl-notch.open .isl-spot{display:none}
+
+/* Shared list */
+.isl-list{list-style:none;margin:0;padding:6px;display:grid;gap:2px;max-height:min(60vh,460px);overflow:auto}
+.isl-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:8px;border-radius:12px;background:transparent;border:0;cursor:pointer;text-align:left}
+.isl-row:hover,.isl-row:focus-visible{background:var(--is-bg-2);outline:none}
+.isl-row.hi{background:#1d2128;box-shadow:inset 0 0 0 1px var(--c)}
+.isl-av{width:30px;height:30px;border-radius:9px;background:var(--av);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);font-family:var(--is-display);font-size:15px;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.4);position:relative}
+.isl-av::after{content:"";position:absolute;right:-2px;bottom:-2px;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px var(--is-bg)}
+.isl-main{min-width:0}
+.isl-name{font-weight:600;display:flex;gap:6px;align-items:baseline;min-width:0}
+.isl-name span{font-weight:400;color:var(--is-mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.isl-st{color:var(--is-mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.isl-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:color-mix(in srgb, var(--c) 18%, transparent);color:var(--c);white-space:nowrap}
+.isl-detail{padding:0 8px 10px 48px;color:#d5d9de;font-size:12.5px;display:none}
+.isl-detail.show{display:block}
+.isl-detail ul{margin:4px 0 0;padding-left:16px}
+.isl-detail .ev{color:var(--is-mute);font-size:11.5px;margin-top:6px}
+.isl-detail a{color:var(--is-sched)}
+.isl-foot{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 14px 12px;color:var(--is-mute);font-size:11.5px;flex-wrap:wrap}
+.isl-foot a,.isl-foot button{color:var(--is-fg);background:var(--is-bg-2);border:1px solid var(--is-line);border-radius:999px;padding:4px 10px;text-decoration:none;cursor:pointer;font-size:12px}
+@media (prefers-reduced-motion: reduce){.isl-notch{transition:none}.isl-dot.working{animation:none}}
+@media (max-width:460px){.isl-notch{width:250px}.isl-notch.open{width:calc(100vw - 24px)}}

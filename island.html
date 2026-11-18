@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="robots" content="noindex, nofollow">
+<title>Agent Island</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Rubik:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/island.css">
+<style>
+  html,body{height:100%}
+  body{margin:0;background:var(--is-bg);color:var(--is-fg);color-scheme:dark;
+    padding-left:max(12px, env(safe-area-inset-left, 0px));padding-right:max(12px, env(safe-area-inset-right, 0px));padding-block:max(10px, env(safe-area-inset-top, 0px)) 12px}
+  .panel{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:10px;min-height:100%}
+  .head{display:flex;align-items:center;gap:10px;padding:6px 4px 0;-webkit-app-region:drag}
+  .head h1{font-family:var(--is-display);font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}
+  .head .sp{flex:1}
+  .head a,.head button{-webkit-app-region:no-drag}
+  .sum{background:var(--is-bg-2);border:1px solid var(--is-line);border-radius:16px;padding:10px 12px;font-size:13px}
+  .isl-list{max-height:none;padding:0}
+  .card{background:var(--is-bg-2);border:1px solid var(--is-line);border-radius:18px;padding:6px}
+  .tools{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font:inherit;font-size:12px;color:var(--is-fg);background:#1d2128;border:1px solid var(--is-line);border-radius:999px;padding:5px 11px;text-decoration:none;cursor:pointer}
+  .chip:hover{border-color:#3a414b}
+  .chip:focus-visible{outline:2px solid var(--is-sched);outline-offset:2px}
+  .foot{color:var(--is-mute);font-size:11.5px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:0 4px}
+  .help{color:var(--is-mute);font-size:12px;padding:0 4px;line-height:1.5}
+  .help[hidden]{display:none}
+  .help b{color:var(--is-fg)}
+</style>
+</head>
+<body>
+<main class="panel isl" id="panel">
+  <div class="head">
+    <h1>Agent Island</h1><span class="sp"></span>
+    <div class="tools">
+      <button class="chip" type="button" id="float" hidden>Float on top</button>
+      <button class="chip" type="button" id="notify" hidden>Alert me</button>
+      <a class="chip" href="/">Village</a>
+    </div>
+  </div>
+  <div class="sum" data-sum>Loading your agents…</div>
+  <div class="card"><ul class="isl-list" data-list></ul></div>
+  <div class="foot"><span data-upd></span><span>Checks for changes every minute</span></div>
+  <p class="help" id="installHelp"><b>Keep it as a window on your Mac:</b> in Chrome, click the install icon at the right end of the address bar (or ⋮ menu, Cast, save and share, Install page as app). In Safari, choose File, Add to Dock. It then opens from your Dock as its own window.</p>
+</main>
+<script src="/island.js"></script>
+<script>
+(() => {
+"use strict";
+const STORE="darkdormsIsland.v1";
+const panel=document.getElementById("panel");
+const view=Island.mountPanel(panel,{});
+function customAgents(){ try{ const v=JSON.parse(localStorage.getItem(STORE)||"[]"); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+let last=null;
+function pull(){
+  return fetch("/agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d) last=d; }).catch(()=>{}).then(()=>{
+    const d=last||{agents:[]};
+    const retired=new Set(d.retired||[]);
+    const list=d.agents.filter(a=>!retired.has(a.id)).map(a=>Object.assign({},a));
+    customAgents().forEach(c=>list.push({id:c.id,name:c.name,role:c.role,color:c.color,status:c.status||"new",
+      statusText:({new:"Just moved in. Paste the prompt to start",working:"Working",waiting:"Waiting on you",done:"Done"})[c.status||"new"],
+      task:c.task,latest:"",needs:c.needs||[],thread:null,custom:true}));
+    Island.update(list,{updated:d.updated});
+    document.title = (list.filter(a=>a.status==="waiting").length ? `(${list.filter(a=>a.status==="waiting").length}) ` : "") + "Agent Island";
+  });
+}
+pull(); setInterval(pull,60000);
+window.addEventListener("storage",e=>{ if(e.key===STORE) pull(); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) pull(); });
+
+// Installed window? Hide the install help.
+if(matchMedia("(display-mode: standalone)").matches || navigator.standalone) document.getElementById("installHelp").hidden=true;
+
+// Always-on-top mini window (Chrome and Edge: Document Picture-in-Picture)
+const fl=document.getElementById("float");
+if("documentPictureInPicture" in window){
+  fl.hidden=false;
+  fl.addEventListener("click", async()=>{
+    try{
+      const pip=await documentPictureInPicture.requestWindow({width:380,height:520});
+      [...document.querySelectorAll('link[rel="stylesheet"],style')].forEach(n=>pip.document.head.appendChild(n.cloneNode(true)));
+      pip.document.title="Agent Island";
+      const box=pip.document.createElement("main"); box.className="panel isl";
+      box.innerHTML=`<div class="sum" data-sum></div><div class="card"><ul class="isl-list" data-list></ul></div><div class="foot"><span data-upd></span></div>`;
+      pip.document.body.appendChild(box);
+      Island.mountPanel(box,{}); pull();
+    }catch(e){ fl.textContent="Couldn't float"; }
+  });
+}
+// Desktop alerts when someone starts needing you
+const nb=document.getElementById("notify");
+if("Notification" in window && Notification.permission!=="granted" && Notification.permission!=="denied"){
+  nb.hidden=false; nb.addEventListener("click",()=>Notification.requestPermission().then(p=>{ nb.textContent=p==="granted"?"Alerts on":"Alerts off"; setTimeout(()=>nb.hidden=true,1500); }));
+}
+if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>

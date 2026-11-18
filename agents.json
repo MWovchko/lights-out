@@ -1,0 +1,105 @@
+{
+  "updated": "2026-11-17T20:00:00-06:00",
+  "biz": {
+    "stock": 6,
+    "sold": 3,
+    "profit": -31.61,
+    "toBreakEven": 4,
+    "salesPaused": true
+  },
+  "agents": [
+    {
+      "id": "penny",
+      "name": "Penny",
+      "role": "Accountant",
+      "color": "#3f8a5f",
+      "status": "scheduled",
+      "statusText": "Next weekly books Sun 7:13 PM",
+      "task": "Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
+      "latest": "3 strips sold, 1 refunded test. Profit −$31.61. 4 more sales to break even.",
+      "needs": [
+        "Submit the Oklahoma sales tax permit on OkTAP (needs your SSN and signature)"
+      ],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4K4fUZsAnJGrPEmSp3WPb1f",
+      "threadTitle": "Track DormDarker income and taxes"
+    },
+    {
+      "id": "melvin",
+      "name": "Melvin",
+      "role": "Messenger",
+      "color": "#2f5e9e",
+      "status": "working",
+      "statusText": "On duty",
+      "task": "Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
+      "latest": "Your ORU Outlook won't forward mail to him, so orders reach him through me@darkdorms.com instead.",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4EKuCknhiBbJukLidxxjn22",
+      "threadTitle": "Connect Melvin to Outlook"
+    },
+    {
+      "id": "scout",
+      "name": "Scout",
+      "role": "Researcher",
+      "color": "#a8742c",
+      "status": "scheduled",
+      "statusText": "Rechecks Walmart black cloth Fri Nov 20, 10 AM",
+      "task": "Researches suppliers and prices on Tuesdays and Fridays and files the findings in your darkdorms vault.",
+      "latest": "Best cover idea: black panne velvet around the whole strip, about $1.30 a strip. Walmart's black blackout cloth is out of stock.",
+      "needs": [],
+      "thread": null,
+      "threadTitle": "Scheduled task (Tue + Fri)"
+    },
+    {
+      "id": "wren",
+      "name": "Wren",
+      "role": "Tailor (strip covers)",
+      "color": "#202024",
+      "status": "waiting",
+      "statusText": "Waiting on your fabric prices",
+      "task": "Working out a black cloth cover that wraps the whole strip so it stops looking cheap.",
+      "latest": "Plan: black panne velvet, a 6 in by 36 in piece per strip, about 4 strips per yard.",
+      "needs": [
+        "Send the Hobby Lobby black fabric prices you saw"
+      ],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4RxkkotLRJKQKwCVkDHkweL",
+      "threadTitle": "Cover strips in black cloth"
+    },
+    {
+      "id": "otis",
+      "name": "Otis",
+      "role": "Archivist (vault)",
+      "color": "#6b4f8f",
+      "status": "waiting",
+      "statusText": "Waiting on your OK on the Mac",
+      "task": "Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
+      "latest": "Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
+      "needs": [
+        "Approve the new Obsidian Vault Sync prompt on your Mac",
+        "Save the sync-my-vault skill card"
+      ],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4Sr3FpzkbBrAmRb8q1PsYwL",
+      "threadTitle": "Point agents at new darkdorms vault"
+    },
+    {
+      "id": "webb",
+      "name": "Webb",
+      "role": "Shopkeeper (website)",
+      "color": "#e9b949",
+      "status": "waiting",
+      "statusText": "Site live, sales paused",
+      "task": "Runs darkdorms.com on Vercel: the StoryBrand page, privacy, terms, thank-you page and the Stripe preorder button.",
+      "latest": "Both Stripe payment links are paused while you fix the product. Customers see “sold out for now.”",
+      "needs": [
+        "Mailing address for the footer",
+        "Refund window",
+        "Delivery time",
+        "A real product photo",
+        "Review the draft privacy and terms pages",
+        "Turn on Vercel Analytics"
+      ],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN",
+      "threadTitle": "Preview launch checklist on DarkDorms site"
+    }
+  ],
+  "retired": []
+}

@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123447">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="stylesheet" href="/island.css">
+<title>DarkDorms Island</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;600&display=swap">
+<style>
+/* Layout: the island canvas is the hero; a wooden "town hall" sidebar holds the notice board, roster and the new-villager form. One deliberate look (night sea + parchment), not theme-switched. */
+:root{
+  color-scheme: light;
+  --sea:#123447; --sea-2:#1b4a63;
+  --wood:#5b3d2b; --wood-dk:#3a261b; --wood-lt:#7a5539;
+  --parchment:#f4e7c6; --parchment-2:#ead9ae; --ink:#2b1f17; --ink-soft:#6b5644;
+  --leaf:#4e9a4e; --gold:#e9b949;
+  --st-working:#3fa45e; --st-waiting:#e8962e; --st-scheduled:#4f8fd6; --st-done:#8d8178; --st-new:#b06fd6;
+  --display:"Pixelify Sans", "Courier New", monospace;
+  --body:"Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--sea);color:var(--parchment);font-family:var(--body);font-size:14px;line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:64px 28px}
+.wrap{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:980px){.wrap{grid-template-columns:minmax(0,1fr)}}
+header.top{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,40px);margin:0;letter-spacing:.5px;color:var(--gold);text-shadow:3px 3px 0 var(--wood-dk);text-wrap:balance}
+.sub{color:#b9d3df;margin:2px 0 0;font-size:14px}
+.clock{font-family:var(--display);font-size:15px;color:#cfe3ec;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:2px solid var(--wood-dk);background:var(--wood);border-radius:4px;overflow:hidden}
+.seg button{font-family:var(--display);font-size:13px;background:transparent;color:var(--parchment);border:0;padding:5px 9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+
+.stage{position:relative;min-width:0}
+.frame{position:relative;border:4px solid var(--wood-dk);border-radius:6px;background:var(--sea-2);box-shadow:0 0 0 4px var(--wood),0 10px 0 4px rgba(0,0,0,.25);overflow:hidden}
+canvas#map{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default;touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;font-size:13px;color:#cfe3ec}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}
+.hint{font-size:12.5px;color:#9fbccb;margin-top:6px}
+
+/* Tooltip */
+#tip{position:absolute;z-index:5;pointer-events:none;width:270px;max-width:calc(100% - 16px);background:var(--parchment);color:var(--ink);border:3px solid var(--wood-dk);border-radius:5px;box-shadow:0 4px 0 rgba(0,0,0,.3);padding:10px 12px;font-size:13px}
+#tip .nm{font-family:var(--display);font-size:18px;font-weight:700;line-height:1.1}
+#tip .rl{color:var(--ink-soft);font-size:12.5px;margin-bottom:6px}
+#tip .row{margin-top:6px}
+#tip .lbl{font-family:var(--display);font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-soft)}
+#tip ul{margin:4px 0 0;padding-left:18px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--display);font-size:12px;padding:2px 7px;border-radius:3px;color:#fff;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.pill.working{background:var(--st-working)} .pill.waiting{background:var(--st-waiting);color:var(--ink)} .pill.scheduled{background:var(--st-scheduled)} .pill.done{background:var(--st-done)} .pill.new{background:var(--st-new)}
+
+/* Sidebar */
+aside{display:grid;gap:16px;min-width:0}
+.panel{background:var(--parchment);color:var(--ink);border:4px solid var(--wood-dk);border-radius:6px;box-shadow:0 0 0 3px var(--wood-lt) inset;padding:14px 14px 16px;min-width:0}
+.panel h2{font-family:var(--display);font-size:19px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--wood-dk)}
+.panel h2 small{font-family:var(--body);font-size:12px;color:var(--ink-soft);font-weight:400}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat{background:var(--parchment-2);border:2px solid #cdb886;border-radius:4px;padding:7px 9px}
+.stat b{display:block;font-family:var(--display);font-size:22px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--ink-soft)}
+.stat.neg b{color:#a8382b} .stat.warn b{color:#a5620f}
+.board{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.board li{background:#fff8e2;border:2px solid #d8c592;border-left:6px solid var(--st-waiting);border-radius:3px;padding:6px 9px;font-size:13px}
+.board li .who{font-family:var(--display);font-size:12.5px;color:var(--ink-soft);display:block}
+.roster{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.roster button{width:100%;text-align:left;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;background:#fff8e2;border:2px solid #d8c592;border-radius:4px;padding:6px 8px;cursor:pointer;font:inherit;color:inherit}
+.roster button:hover,.roster button.sel{border-color:var(--wood);background:#fff3cf}
+.roster button:focus-visible{outline:3px solid var(--st-scheduled);outline-offset:1px}
+.roster canvas{width:34px;height:34px;image-rendering:pixelated;background:#cfe7b9;border-radius:3px}
+.roster .t{min-width:0}
+.roster .t b{font-family:var(--display);font-size:15px;display:block;line-height:1.1}
+.roster .t span{font-size:12px;color:var(--ink-soft);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+#detail[hidden]{display:none!important}
+.detail .task{margin:6px 0 0;font-size:13.5px}
+.detail dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:10px 0 0;font-size:13px}
+.detail dt{font-family:var(--display);color:var(--ink-soft);font-size:12px;padding-top:1px}
+.detail dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{font-family:var(--display);font-size:14px;border:2px solid var(--wood-dk);background:var(--gold);color:var(--ink);padding:6px 11px;border-radius:4px;cursor:pointer;box-shadow:0 3px 0 var(--wood-dk);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--wood-dk)}
+.btn.ghost{background:#fff8e2}
+.btn.danger{background:#f1c9bf}
+.btn:focus-visible{outline:3px solid var(--st-scheduled);outline-offset:2px}
+
+form .f{display:grid;gap:4px;margin-bottom:10px}
+form label{font-family:var(--display);font-size:13px;color:var(--wood-dk)}
+form input,form textarea,form select{font:inherit;font-size:14px;color:var(--ink);background:#fffaf0;border:2px solid #cdb886;border-radius:4px;padding:7px 9px;width:100%}
+form textarea{min-height:76px;resize:vertical}
+form input:focus,form textarea:focus,form select:focus{outline:none;border-color:var(--wood)}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.swatches input{position:absolute;opacity:0;width:1px;height:1px}
+.swatches label{width:26px;height:26px;border-radius:4px;border:2px solid var(--wood-dk);cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+.swatches input:checked+label{outline:3px solid var(--ink);outline-offset:2px}
+.swatches input:focus-visible+label{outline:3px solid var(--st-scheduled);outline-offset:2px}
+.prompt{margin-top:12px}
+.prompt[hidden]{display:none!important}
+.prompt pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#2b1f17;color:#f4e7c6;font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:4px;max-height:260px;overflow:auto;margin:6px 0 0}
+.note{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--parchment);font-family:var(--display);padding:8px 14px;border-radius:4px;border:2px solid var(--gold);z-index:20}
+@media (prefers-reduced-motion: reduce){.btn:active{transform:none}}
+</style>
+</head>
+<body>
+<div id="notch"></div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>DarkDorms Island</h1>
+      <p class="sub">Every agent working on the business, living on one island. Hover a villager or a building to see what they're doing.</p>
+    </div>
+    <div class="clock">
+      <a class="btn ghost" href="/island" style="font-size:13px;padding:4px 9px;box-shadow:0 2px 0 var(--wood-dk)">Open island window</a>
+      <span id="clockTxt">--</span>
+      <div class="seg" role="group" aria-label="Sky">
+        <button type="button" data-sky="auto" aria-pressed="true">Auto</button>
+        <button type="button" data-sky="day" aria-pressed="false">Day</button>
+        <button type="button" data-sky="night" aria-pressed="false">Night</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="stage">
+    <div class="frame" id="frame">
+      <canvas id="map" width="608" height="384" aria-label="Pixel island map of agents"></canvas>
+      <div id="tip" hidden></div>
+    </div>
+    <div class="legend" aria-label="Status key">
+      <span><i class="dot" style="background:var(--st-working)"></i>Working</span>
+      <span><i class="dot" style="background:var(--st-waiting)"></i>Waiting on you (! bubble)</span>
+      <span><i class="dot" style="background:var(--st-scheduled)"></i>Scheduled (z bubble)</span>
+      <span><i class="dot" style="background:var(--st-new)"></i>New, prompt not sent yet</span>
+      <span><i class="dot" style="background:var(--st-done)"></i>Done</span>
+    </div>
+    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock. The notice board in the square lists everything waiting on you.</p>
+  </section>
+
+  <aside>
+    <div class="panel detail" id="detail" hidden aria-live="polite"></div>
+
+    <div class="panel">
+      <h2>Town ledger <small id="asOf">as of Nov 17, 2026</small></h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Notice board <small id="boardCount"></small></h2>
+      <ul class="board" id="board"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Villagers <small id="rosterCount"></small></h2>
+      <ul class="roster" id="roster"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Found a new villager</h2>
+      <form id="newForm" autocomplete="off">
+        <div class="f"><label for="nName">Name</label><input id="nName" maxlength="24" required placeholder="e.g. Rosie"></div>
+        <div class="f"><label for="nRole">Role</label><input id="nRole" maxlength="40" required placeholder="e.g. Campus marketer"></div>
+        <div class="f"><label for="nTask">First task</label><textarea id="nTask" maxlength="600" required placeholder="e.g. Plan 5 TikTok ideas showing a hallway light leak before and after a DarkDorms strip."></textarea></div>
+        <div class="f"><label>Shirt color</label>
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <div class="btns"><button class="btn" type="submit">Build their house</button></div>
+      </form>
+      <div class="prompt" id="newPrompt" hidden>
+        <label class="lbl" style="font-family:var(--display);font-size:13px;color:var(--wood-dk)">Paste this to Claude to start the work</label>
+        <pre id="newPromptTxt"></pre>
+        <div class="btns"><button class="btn" type="button" id="copyNew">Copy prompt</button></div>
+      </div>
+      <p class="note">New villagers are saved in this browser only. They move in right away; the work starts when you paste the prompt into your project chat.</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+"use strict";
+const PROJECT = "https://claude.ai/code/project/chan_01DWJNahrsmHXUPwCMnYHJf4?thread=";
+const STORE = "darkdormsIsland.v1";
+const T = 16, W = 38, H = 24;
+
+/* ---------- Business snapshot (Nov 17, 2026) ---------- */
+let BIZ = { stock: 6, sold: 3, profit: -31.61, toBreakEven: 4, salesPaused: true };
+
+/* ---------- Agents ---------- */
+let AGENTS = [
+  { id:"penny", name:"Penny", role:"Accountant", status:"scheduled", statusText:"Next weekly books Sun 7:13 PM",
+    task:"Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
+    latest:"3 strips sold, 1 refunded test. Profit −$31.61. 4 more sales to break even.",
+    needs:["Submit the Oklahoma sales tax permit on OkTAP (needs your SSN and signature)"],
+    thread:"cmsg_01DWJNahrsmHXUPwCMnYHJf4K4fUZsAnJGrPEmSp3WPb1f", threadTitle:"Track DormDarker income and taxes",
+    house:{x:6,y:5,w:4,h:3,kind:"bank",roof:"#3f7d5a",wall:"#efe0bd",label:"Counting House"},
+    look:{shirt:"#3f8a5f",pants:"#3b3a4a",hair:"#7a3b1f",skin:"#f2c9a0",acc:"glasses"} },
+  { id:"melvin", name:"Melvin", role:"Messenger", status:"working", statusText:"On duty",
+    task:"Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
+    latest:"Your ORU Outlook won't forward mail to him, so orders reach him through me@darkdorms.com instead.",
+    needs:[], thread:"cmsg_01DWJNahrsmHXUPwCMnYHJf4EKuCknhiBbJukLidxxjn22", threadTitle:"Connect Melvin to Outlook",
+    house:{x:28,y:5,w:4,h:3,kind:"post",roof:"#b2473b",wall:"#e9d6b0",label:"Post Office"},
+    look:{shirt:"#2f5e9e",pants:"#2c2c3a",hair:"#2a1d16",skin:"#c98d63",acc:"cap"} },
+  { id:"scout", name:"Scout", role:"Researcher", status:"scheduled", statusText:"Rechecks Walmart black cloth Fri Nov 20, 10 AM",
+    task:"Researches suppliers and prices on Tuesdays and Fridays and files the findings in your darkdorms vault.",
+    latest:"Best cover idea: black panne velvet around the whole strip, about $1.30 a strip. Walmart's black blackout cloth is out of stock.",
+    needs:[], thread:null, threadTitle:"Scheduled task (Tue + Fri)",
+    house:{x:31,y:10,w:2,h:4,kind:"tower",roof:"#6a4a8a",wall:"#d9c9a5",label:"Lookout Tower"},
+    look:{shirt:"#a8742c",pants:"#4a3a2a",hair:"#d8b04a",skin:"#f0c49a",acc:"hat"} },
+  { id:"wren", name:"Wren", role:"Tailor (strip covers)", status:"waiting", statusText:"Waiting on your fabric prices",
+    task:"Working out a black cloth cover that wraps the whole strip so it stops looking cheap.",
+    latest:"Plan: black panne velvet, a 6 in by 36 in piece per strip, about 4 strips per yard.",
+    needs:["Send the Hobby Lobby black fabric prices you saw"],
+    thread:"cmsg_01DWJNahrsmHXUPwCMnYHJf4RxkkotLRJKQKwCVkDHkweL", threadTitle:"Cover strips in black cloth",
+    house:{x:5,y:11,w:4,h:3,kind:"tailor",roof:"#c26b8a",wall:"#f1dfc0",label:"Tailor's Workshop"},
+    look:{shirt:"#202024",pants:"#5b3d6b",hair:"#c4572d",skin:"#f4d1b0",acc:"scarf"} },
+  { id:"otis", name:"Otis", role:"Archivist (vault)", status:"waiting", statusText:"Waiting on your OK on the Mac",
+    task:"Moving every agent over to the new darkdorms Obsidian vault in Downloads/darkdorms.",
+    latest:"Penny is moved. The nightly Obsidian Vault Sync task still points at the old folder.",
+    needs:["Approve the new Obsidian Vault Sync prompt on your Mac","Save the sync-my-vault skill card"],
+    thread:"cmsg_01DWJNahrsmHXUPwCMnYHJf4Sr3FpzkbBrAmRb8q1PsYwL", threadTitle:"Point agents at new darkdorms vault",
+    house:{x:9,y:15,w:4,h:3,kind:"archive",roof:"#4b6f8f",wall:"#e3d3b0",label:"Archive"},
+    look:{shirt:"#6b4f8f",pants:"#33333f",hair:"#9a9a9a",skin:"#e8bf98",acc:"book"} },
+  { id:"webb", name:"Webb", role:"Shopkeeper (website)", status:"waiting", statusText:"Site live, sales paused",
+    task:"Runs darkdorms.com on Vercel: the StoryBrand page, privacy, terms, thank-you page and the Stripe preorder button.",
+    latest:"Both Stripe payment links are paused while you fix the product. Customers see “sold out for now.”",
+    needs:["Mailing address for the footer","Refund window","Delivery time","A real product photo","Review the draft privacy and terms pages","Turn on Vercel Analytics"],
+    thread:"cmsg_01DWJNahrsmHXUPwCMnYHJf46DBcc3bbcwAtcwBshM48vN", threadTitle:"Preview launch checklist on DarkDorms site",
+    house:{x:23,y:15,w:4,h:3,kind:"shop",roof:"#1f1f2b",wall:"#efe3c8",label:"DarkDorms Shop"},
+    look:{shirt:"#e9b949",pants:"#2a2a38",hair:"#3a2418",skin:"#d9a27a",acc:"apron"} },
+];
+const MAYOR = {x:16,y:3,w:5,h:3,kind:"mayor",roof:"#8a3b2f",wall:"#f3e4c2",label:"Your House"};
+const PLAZA = {x:19,y:11};
+const SWATCH = ["#d9534f","#e58f3a","#e9c43a","#5cae5c","#3fa8a0","#4f7fd6","#8a63c9","#d46fa8","#f2f2f2","#2a2a2a"];
+
+/* ---------- Saved villagers ---------- */
+function load(){ try{ const v = JSON.parse(localStorage.getItem(STORE)||"[]"); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(custom)); }catch(e){} }
+let custom = load();
+let extras = []; // agents listed in agents.json that have no hand-built house
+
+/* ---------- RNG ---------- */
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function hashStr(s){ let h=2166136261; for(const c of s){ h^=c.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0; }
+
+/* ---------- Terrain ---------- */
+const cx=19, cy=11.8, rx=17.5, ry=10.8;
+function dist(x,y){ const dx=(x+.5-cx)/rx, dy=(y+.5-cy)/ry, a=Math.atan2(dy,dx);
+  const v=Math.cbrt(Math.abs(dx)**3+Math.abs(dy)**3); return v*(1+0.05*Math.sin(a*5+1.3)+0.035*Math.sin(a*9+0.4)); }
+const terr=[]; // 0 deep 1 shallow 2 sand 3 grass
+for(let y=0;y<H;y++){ terr[y]=[]; for(let x=0;x<W;x++){ const d=dist(x,y); terr[y][x]= d<0.8?3 : d<0.9?2 : d<1.0?1 : 0; } }
+const isGrass=(x,y)=>y>=0&&y<H&&x>=0&&x<W&&terr[y][x]===3;
+const isLand=(x,y)=>y>=0&&y<H&&x>=0&&x<W&&terr[y][x]>=2;
+
+let reserved, pathT, trees, lots;
+function key(x,y){return x+","+y;}
+function buildWorld(){
+  reserved=new Set(); pathT=new Set();
+  const houses=[MAYOR, ...AGENTS.map(a=>a.house)];
+  const markHouse=h=>{ for(let y=h.y-1;y<=h.y+h.h;y++) for(let x=h.x-1;x<=h.x+h.w;x++) reserved.add(key(x,y)); };
+  houses.forEach(markHouse);
+  // plaza
+  for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-2;x<=PLAZA.x+2;x++) if(Math.abs(x-PLAZA.x)+Math.abs(y-PLAZA.y)<=3) reserved.add(key(x,y));
+  // dock path
+  for(let y=PLAZA.y;y<=20;y++){ if(isLand(PLAZA.x,y)) pathT.add(key(PLAZA.x,y)); }
+  const addPath=h=>{
+    const dx=h.x+Math.floor(h.w/2), dy=h.y+h.h;
+    let x=dx, y=dy; pathT.add(key(x,y));
+    const sx=Math.sign(PLAZA.x-x); while(x!==PLAZA.x){ x+=sx; pathT.add(key(x,y)); }
+    const sy=Math.sign(PLAZA.y-y); while(y!==PLAZA.y){ y+=sy; pathT.add(key(x,y)); }
+  };
+  houses.forEach(addPath);
+  // custom lots: placed after the main paths so no path runs through a cottage
+  lots=[];
+  [...extras, ...custom].forEach(c=>{ const spot=findSpot(c.id); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house); });
+  // trees
+  trees=[]; const r=rng(7);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    if(!isGrass(x,y)||reserved.has(key(x,y))||pathT.has(key(x,y))) continue;
+    if(pathT.has(key(x+1,y))||pathT.has(key(x-1,y))||pathT.has(key(x,y-1))) continue;
+    const d=dist(x,y), p = d>0.62 ? 0.42 : d>0.5 ? 0.12 : 0.04;
+    const v=r(); if(v<p) trees.push({x:x*T+8+Math.floor(r()*4-2), y:y*T+14, kind: v<p*0.35?"bush":(r()<0.5?"oak":"pine"), seed:Math.floor(r()*1e6)});
+  }
+}
+function findSpot(id){
+  // spiral outward from plaza for a free 3x2 grass lot with a 1-tile margin and a door tile below
+  const order=[]; for(let y=1;y<H-2;y++) for(let x=1;x<W-3;x++) order.push({x,y,d:Math.hypot(x+1.5-PLAZA.x,(y+1-PLAZA.y)*1.4)});
+  order.sort((a,b)=>a.d-b.d);
+  for(const o of order){
+    let ok=true;
+    for(let y=o.y-1;y<=o.y+2&&ok;y++) for(let x=o.x-1;x<=o.x+3&&ok;x++){ if(!isGrass(x,y)||reserved.has(key(x,y))||pathT.has(key(x,y))) ok=false; }
+    if(ok) return {x:o.x,y:o.y};
+  }
+  const r=rng(hashStr(id)); return {x:10+Math.floor(r()*16), y:19};
+}
+
+/* ---------- Canvas ---------- */
+const cv=document.getElementById("map"), ctx=cv.getContext("2d");
+cv.width=W*T; cv.height=H*T;
+ctx.imageSmoothingEnabled=false;
+const base=document.createElement("canvas"); base.width=cv.width; base.height=cv.height; const bx=base.getContext("2d");
+
+function px(c,x,y,w,h,col){ c.fillStyle=col; c.fillRect(x|0,y|0,w,h); }
+
+function drawTerrain(){
+  const r=rng(42);
+  bx.fillStyle="#1b4a63"; bx.fillRect(0,0,base.width,base.height);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const t=terr[y][x], X=x*T, Y=y*T;
+    if(t===0){ px(bx,X,Y,T,T,"#1b4a63"); if(r()<.25) px(bx,X+r()*12,Y+r()*14,3,1,"#235a76"); }
+    if(t===1){ px(bx,X,Y,T,T,"#2c7a92"); if(r()<.5) px(bx,X+r()*12,Y+r()*14,3,1,"#3a8ea4"); }
+    if(t===2){ px(bx,X,Y,T,T,"#e8d39a"); for(let i=0;i<5;i++) px(bx,X+r()*15,Y+r()*15,1,1,r()<.5?"#d9bf80":"#f3e2b2"); }
+    if(t===3){ px(bx,X,Y,T,T,((x+y)%2)?"#69ad54":"#6db358");
+      for(let i=0;i<6;i++){ const gx=X+r()*15, gy=Y+r()*14; px(bx,gx,gy,1,2,"#4f9443"); }
+      if(r()<.10){ const fx=X+2+r()*11, fy=Y+2+r()*11, fc=["#f6f1d8","#f2c94c","#e57aa0","#9fb7f0"][Math.floor(r()*4)]; px(bx,fx,fy,1,1,fc); px(bx,fx-1,fy,1,1,fc); px(bx,fx+1,fy,1,1,fc); px(bx,fx,fy-1,1,1,fc); px(bx,fx,fy+1,1,1,"#4f9443"); px(bx,fx,fy,1,1,"#f2c94c"); }
+    }
+    // foam edge where shallow meets sand
+    if(t===1){ const nb=[[0,-1],[0,1],[-1,0],[1,0]]; nb.forEach(([a,b])=>{ if(isLand(x+a,y+b)){ if(b===-1) px(bx,X,Y,T,2,"#cfe9ee"); if(b===1) px(bx,X,Y+T-2,T,2,"#cfe9ee"); if(a===-1) px(bx,X,Y,2,T,"#cfe9ee"); if(a===1) px(bx,X+T-2,Y,2,T,"#cfe9ee"); } }); }
+    // grass edge onto sand
+    if(t===2){ if(isGrass(x,y-1)) { for(let i=0;i<T;i+=2) px(bx,X+i,Y,2,1+((i/2)%2),"#5c9e48"); } }
+  }
+  // paths
+  pathT.forEach(k=>{ const [x,y]=k.split(",").map(Number); if(!isLand(x,y)) return; const X=x*T,Y=y*T;
+    px(bx,X,Y,T,T,"#c9a26b"); for(let i=0;i<5;i++) px(bx,X+r()*14,Y+r()*14,2,1,"#b48b57");
+    if(!pathT.has(key(x,y-1))&&!isPlaza(x,y-1)) px(bx,X,Y,T,1,"#a77f4f");
+    if(!pathT.has(key(x,y+1))&&!isPlaza(x,y+1)) px(bx,X,Y+T-1,T,1,"#e0bf86");
+  });
+  // plaza stones
+  for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-3;x<=PLAZA.x+3;x++){ if(!isPlaza(x,y)) continue; const X=x*T,Y=y*T;
+    px(bx,X,Y,T,T,"#b9ab95"); for(let sy=0;sy<T;sy+=5) for(let sx=((sy/5)%2)*4;sx<T;sx+=8){ px(bx,X+sx,Y+sy,7,4,"#cbbfa9"); px(bx,X+sx,Y+sy+4,7,1,"#998c78"); } }
+  // dock
+  for(let y=19;y<H;y++){ if(terr[y][PLAZA.x]>=2 && y<20) continue; const X=PLAZA.x*T, Y=y*T;
+    px(bx,X+1,Y,T-2,T,"#8a5a36"); for(let i=0;i<T;i+=4) px(bx,X+1,Y+i,T-2,1,"#5e3b22"); px(bx,X,Y+T-3,2,4,"#4a2f1c"); px(bx,X+T-2,Y+T-3,2,4,"#4a2f1c"); }
+}
+function isPlaza(x,y){ return Math.abs(x-PLAZA.x)*0.75+Math.abs(y-PLAZA.y)<=2.3; }
+
+/* ---------- Pixel icons for signs ---------- */
+const ICONS={
+  bank:["..##..",".####.","##.#..",".####.","..#.##",".####.","..##.."],
+  post:["#######","##...##","#.#.#.#","#..#..#","#.....#","#######"],
+  tower:[".###.","#...#","#...#",".###.","..#..",".###."],
+  tailor:["#...#.","##.##.",".###..","..#...",".#.#..","#...#."],
+  archive:["######","#.##.#","#.##.#","#.##.#","#.##.#","######"],
+  shop:["#..#.","##.##","#.#.#","#...#","#...#"],
+  mayor:["..#..",".###.","#####",".#.#.",".###."],
+  cottage:["..#..",".###.","#####",".#.#."],
+};
+function icon(c,name,x,y,col){ const g=ICONS[name]; if(!g) return; g.forEach((row,j)=>{ [...row].forEach((ch,i)=>{ if(ch==="#") px(c,x+i,y+j,1,1,col); }); }); }
+
+/* ---------- Buildings ---------- */
+function shade(hex,amt){ const n=parseInt(hex.slice(1),16); let r=(n>>16)+amt,g=(n>>8&255)+amt,b=(n&255)+amt; r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b)); return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
+function drawHouse(c,h,night,t){
+  const X=h.x*T, Y=h.y*T, Wd=h.w*T, Ht=h.h*T;
+  const roofH = h.kind==="tower" ? Math.round(T*1.2) : Math.round(Ht*0.48);
+  const wallY = Y+roofH, wallH = Ht-roofH;
+  // shadow
+  c.fillStyle="rgba(0,0,0,.18)"; c.fillRect(X+3,Y+Ht-2,Wd,4);
+  // walls
+  px(c,X,wallY,Wd,wallH,h.wall);
+  for(let i=wallY+4;i<Y+Ht;i+=5) px(c,X,i,Wd,1,shade(h.wall,-18));
+  px(c,X,wallY,1,wallH,shade(h.wall,-40)); px(c,X+Wd-1,wallY,1,wallH,shade(h.wall,-40));
+  px(c,X,Y+Ht-2,Wd,2,shade(h.wall,-55));
+  // roof
+  for(let r=0;r<roofH;r++){ const inset=Math.max(0,Math.round((roofH-r)*0.35))-2; const col = r%4===3 ? shade(h.roof,-28) : (r<2?shade(h.roof,22):h.roof); px(c,X+inset,Y+r,Wd-inset*2,1,col); }
+  px(c,X-2,Y+roofH-2,Wd+4,2,shade(h.roof,-45));
+  // chimney / extras
+  if(h.kind==="mayor"){ px(c,X+Wd-14,Y-6,6,10,"#8b5b44"); px(c,X+Wd-15,Y-7,8,2,"#6c4434"); }
+  if(h.kind==="tower"){ px(c,X+Wd/2,Y-14,1,14,"#4a2f1c"); const wave=Math.sin(t/300)>0?1:0; px(c,X+Wd/2+1,Y-14,7,4+wave,"#e9b949"); px(c,X+Wd/2+1,Y-12,5,1,"#c79a2f"); }
+  // door
+  const dw=7, dh=Math.min(10,wallH-2), dX=X+Math.floor(Wd/2)-3, dY=Y+Ht-dh-1;
+  px(c,dX-1,dY-1,dw+2,dh+1,shade(h.wall,-70)); px(c,dX,dY,dw,dh,"#6a4227"); px(c,dX+3,dY,1,dh,"#563420"); px(c,dX+5,dY+5,1,1,"#e9b949");
+  // windows
+  const win=night?"#ffd86b":"#9fd3e6", winH=night?"#fff2b8":"#d8f0f8";
+  if(h.w>=3){ [X+5, X+Wd-12].forEach(wx=>{ const wy=wallY+3; px(c,wx-1,wy-1,9,8,shade(h.wall,-70)); px(c,wx,wy,7,6,win); px(c,wx+3,wy,1,6,shade(h.wall,-70)); px(c,wx,wy+2,7,1,shade(h.wall,-70)); px(c,wx,wy,2,1,winH); }); }
+  else { const wx=X+Wd/2-3, wy=Y+roofH+3; px(c,wx-1,wy-1,8,9,shade(h.wall,-70)); px(c,wx,wy,6,7,win); }
+  // sign
+  if(h.kind!=="cottage"){ const sx=X+Math.floor(Wd/2)-6, sy=wallY-3; px(c,sx,sy,12,10,"#4a2f1c"); px(c,sx+1,sy+1,10,8,"#e8cf8f"); icon(c,h.kind,sx+3,sy+2,"#4a2f1c"); }
+  else { px(c,X+Wd-8,Y+Ht-9,6,5,"#e8cf8f"); }
+  if(night){ c.fillStyle="rgba(255,210,110,.12)"; c.beginPath(); c.arc(X+Wd/2,Y+Ht+2,14,0,Math.PI*2); c.fill(); }
+}
+
+/* ---------- Trees ---------- */
+function drawTree(c,tr,t){
+  const {x,y,kind}=tr; const sway=Math.round(Math.sin(t/900+tr.seed)*0.6);
+  c.fillStyle="rgba(0,0,0,.18)"; c.fillRect(x-6,y-1,12,3);
+  if(kind==="bush"){ px(c,x-5,y-6,10,6,"#3f8a3c"); px(c,x-4,y-7,8,2,"#4f9e48"); px(c,x-2,y-5,1,1,"#e57aa0"); px(c,x+2,y-3,1,1,"#e57aa0"); return; }
+  px(c,x-1,y-6,3,6,"#6b4428");
+  if(kind==="oak"){ px(c,x-7+sway,y-17,14,11,"#2f7a3a"); px(c,x-6+sway,y-19,12,3,"#3c8d43"); px(c,x-5+sway,y-16,5,3,"#4ea552"); px(c,x+2+sway,y-12,3,2,"#25652f"); px(c,x-8+sway,y-14,1,6,"#2f7a3a"); px(c,x+7+sway,y-14,1,6,"#2f7a3a"); }
+  else { for(let i=0;i<4;i++){ const w=12-i*3; px(c,x-w/2+sway*(i>1?1:0),y-8-i*4,w,4,i%2?"#2a6d47":"#235f3e"); } px(c,x+sway,y-25,1,2,"#235f3e"); }
+}
+
+/* ---------- Villagers ---------- */
+function drawVillager(c,x,y,look,frame,dir,status,t,scale){
+  x=Math.round(x); y=Math.round(y);
+  c.fillStyle="rgba(0,0,0,.22)"; c.fillRect(x-4,y-1,8,2);
+  const L=look, step=frame?1:0;
+  // legs
+  px(c,x-3,y-4+(step?1:0),2,3-(step?1:0),L.pants); px(c,x+1,y-4+(step?0:1)*0,2,3,L.pants);
+  px(c,x-3,y-1,2,1,"#2a1d16"); px(c,x+1,y-1,2,1,"#2a1d16");
+  if(step){ px(c,x+1,y-4,2,3,L.pants); }
+  // body
+  px(c,x-4,y-10,8,6,L.shirt); px(c,x-4,y-5,8,1,shade(L.shirt,-35));
+  const armSwing = frame?1:0;
+  px(c,x-5,y-9+armSwing,1,4,L.shirt); px(c,x+4,y-9+(1-armSwing),1,4,L.shirt);
+  px(c,x-5,y-5+armSwing,1,1,L.skin); px(c,x+4,y-5+(1-armSwing),1,1,L.skin);
+  // head
+  px(c,x-3,y-15,6,5,L.skin);
+  px(c,x-3,y-16,6,2,L.hair); px(c,x-4,y-15,1,3,L.hair); px(c,x+3,y-15,1,3,L.hair);
+  if(dir!=="up"){ const ex = dir==="left"?-1:dir==="right"?1:0; px(c,x-2+ex,y-13,1,1,"#2a1d16"); px(c,x+1+ex,y-13,1,1,"#2a1d16"); px(c,x-2+ex,y-11,1,1,"#e79a8a"); px(c,x+1+ex,y-11,1,1,"#e79a8a"); }
+  else px(c,x-3,y-15,6,3,L.hair);
+  // accessories
+  switch(L.acc){
+    case "glasses": if(dir!=="up"){ px(c,x-3,y-13,2,1,"#d8c070"); px(c,x+1,y-13,2,1,"#d8c070"); px(c,x-1,y-13,2,1,"#a0883a"); } px(c,x-4,y-17,8,1,"#3f8a5f"); break;
+    case "cap": px(c,x-3,y-17,6,2,"#c23b30"); px(c,dir==="left"?x-6:x+1,y-16,5,1,"#c23b30"); px(c,x-4,y-10,1,6,"#7a5232"); px(c,x+3,y-6,3,3,"#b07a46"); break;
+    case "hat": px(c,x-6,y-16,12,1,"#7a5232"); px(c,x-3,y-19,6,3,"#8f6338"); px(c,x-3,y-17,6,1,"#4a2f1c"); break;
+    case "scarf": px(c,x-4,y-10,8,2,"#c26b8a"); px(c,x+2,y-8,2,3,"#c26b8a"); break;
+    case "book": px(c,x+3,y-8,3,4,"#b2473b"); px(c,x+3,y-8,1,4,"#f0e2c4"); break;
+    case "apron": px(c,x-3,y-8,6,4,"#f4ecd8"); px(c,x-1,y-7,2,1,"#2a2a38"); break;
+    case "tie": px(c,x,y-10,1,4,"#2a1d16"); break;
+  }
+  // status bubble
+  if(status){
+    const by=y-29+(Math.sin(t/400+x)>0?0:1), bxx=x-4;
+    const bc={working:"#3fa45e",waiting:"#e8962e",scheduled:"#4f8fd6",done:"#8d8178",new:"#b06fd6"}[status];
+    px(c,bxx-1,by,11,10,"#2b1f17"); px(c,bxx,by+1,9,8,"#fffaf0"); px(c,bxx+3,by+10,3,1,"#2b1f17"); px(c,bxx+4,by+11,1,1,"#2b1f17");
+    if(status==="waiting"){ px(c,bxx+4,by+2,1,4,bc); px(c,bxx+4,by+7,1,1,bc); px(c,bxx+3,by+2,3,1,bc); }
+    else if(status==="scheduled"){ px(c,bxx+2,by+3,5,1,bc); px(c,bxx+5,by+4,1,1,bc); px(c,bxx+4,by+5,1,1,bc); px(c,bxx+3,by+6,1,1,bc); px(c,bxx+2,by+7,5,1,bc); }
+    else if(status==="working"){ const k=Math.floor(t/350)%4; for(let i=0;i<3;i++) px(c,bxx+1+i*3,by+4,2,2, i<k?bc:"#d9cfbf"); }
+    else if(status==="done"){ px(c,bxx+2,by+5,1,1,bc); px(c,bxx+3,by+6,1,1,bc); px(c,bxx+4,by+5,1,1,bc); px(c,bxx+5,by+4,1,1,bc); px(c,bxx+6,by+3,1,1,bc); }
+    else { px(c,bxx+4,by+2,1,5,bc); px(c,bxx+2,by+4,5,1,bc); }
+  }
+}
+
+/* ---------- Actors ---------- */
+let actors=[];
+function allAgents(){ return [...AGENTS, ...[...extras, ...custom].map(c=>({
+  id:c.id, name:c.name, role:c.role, status:c.status||"new", statusText:c.statusText||({new:"Just moved in. Paste the prompt to start",working:"Working",waiting:"Waiting on you",done:"Done",scheduled:"Scheduled"})[c.status||"new"],
+  task:c.task, latest:c.latest!=null?c.latest:(c.status==="new"||!c.status?"Prompt ready to copy.":""), needs:c.needs||[], thread:c.thread||null, threadTitle:c.threadTitle||"Not started yet", custom:!c.extra, created:c.created,
+  house:c._house, look:{shirt:c.color,pants:"#3a3a48",hair:["#2a1d16","#7a3b1f","#d8b04a","#c4572d","#3a2418"][hashStr(c.id)%5],skin:["#f2c9a0","#c98d63","#e8bf98","#8d5a3b","#f4d1b0"][hashStr(c.id+"s")%5],acc:"tie"} }))]; }
+function makeActors(){
+  const prev=new Map(actors.map(a=>[a.agent.id,a]));
+  actors=allAgents().map(ag=>{
+    const h=ag.house, home={x:(h.x+h.w/2)*T, y:(h.y+h.h+1)*T+2};
+    const p=prev.get(ag.id);
+    return {agent:ag, home, x:p?p.x:home.x, y:p?p.y:home.y, tx:home.x, ty:home.y, wait:Math.random()*2000, frame:0, dir:"down", r:rng(hashStr(ag.id))};
+  });
+}
+function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; return true; }
+function stepActor(a,dt){
+  const busy = a.agent.status==="working" || a.agent.status==="new";
+  if(a.wait>0){ a.wait-=dt; a.frame=0; return; }
+  const dx=a.tx-a.x, dy=a.ty-a.y, d=Math.hypot(dx,dy);
+  if(d<1){ a.wait = (a.agent.status==="scheduled"?2600:a.agent.status==="waiting"?1800:900)+a.r()*2200;
+    // choose next target: mostly near home; working agents sometimes visit the plaza
+    for(let i=0;i<12;i++){ let nx,ny;
+      if(busy && a.r()<0.3){ nx=(PLAZA.x+.5)*T+(a.r()*48-24); ny=(PLAZA.y+.5)*T+(a.r()*36-18); }
+      else { const R=a.agent.status==="scheduled"?22:34; nx=a.home.x+(a.r()*2-1)*R; ny=a.home.y+(a.r()*2-1)*R*0.6; }
+      if(walkable(nx,ny)){ a.tx=nx; a.ty=ny; break; } }
+    return; }
+  const sp=(busy?20:13)*dt/1000; a.x+=dx/d*Math.min(sp,d); a.y+=dy/d*Math.min(sp,d);
+  a.dir = Math.abs(dx)>Math.abs(dy) ? (dx<0?"left":"right") : (dy<0?"up":"down");
+  a.frame = Math.floor(performance.now()/180)%2;
+}
+
+/* ---------- Sky ---------- */
+let skyMode="auto";
+try{ skyMode=localStorage.getItem(STORE+".sky")||"auto"; }catch(e){}
+function skyState(){ if(skyMode==="day") return "day"; if(skyMode==="night") return "night"; const h=new Date().getHours(); return (h>=20||h<6)?"night":(h>=17&&h<20)?"dusk":(h>=6&&h<8)?"dawn":"day"; }
+
+/* ---------- Render loop ---------- */
+let hover=null, selected=null, lastT=performance.now();
+const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function render(t){
+  const dt=Math.min(60,t-lastT); lastT=t;
+  if(!reduce) actors.forEach(a=>stepActor(a,dt));
+  const sky=skyState(), night=sky==="night";
+  ctx.drawImage(base,0,0);
+  // water shimmer
+  if(!reduce){ ctx.fillStyle="rgba(220,240,250,.35)"; for(let i=0;i<40;i++){ const sx=(i*97 + t/40*(i%3+1))%cv.width, sy=(i*53)%cv.height; const tx=Math.floor(sx/T), ty=Math.floor(sy/T); if(ty<H&&tx<W&&terr[ty][tx]<=1 && !(tx===PLAZA.x&&ty>=19)) ctx.fillRect(sx|0,sy|0,3,1); } }
+  // drawables sorted by base y
+  const items=[];
+  const houses=[{h:MAYOR,id:"mayor"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
+  houses.forEach(o=>items.push({y:(o.h.y+o.h.h)*T, draw:()=>{ drawHouse(ctx,o.h,night,t); if(hover&&hover.type==="house"&&hover.id===o.id) outline(o.h); }}));
+  trees.forEach(tr=>items.push({y:tr.y, draw:()=>drawTree(ctx,tr,t)}));
+  // notice board
+  const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T};
+  items.push({y:nb.y+8, draw:()=>drawBoard(nb.x,nb.y,t)});
+  // well/fountain in plaza
+  items.push({y:(PLAZA.y+.5)*T+6, draw:()=>drawWell((PLAZA.x+.5)*T,(PLAZA.y+.5)*T,t,night)});
+  // stock crates by shop
+  const shop=AGENTS.find(a=>a.id==="webb").house;
+  items.push({y:(shop.y+shop.h)*T, draw:()=>drawCrates((shop.x+shop.w)*T+3,(shop.y+shop.h)*T-2)});
+  // boat
+  items.push({y:22*T, draw:()=>drawBoat((PLAZA.x+1)*T+3, 21*T+4, t)});
+  // lamps
+  [[PLAZA.x-2,PLAZA.y-2],[PLAZA.x+2,PLAZA.y+2],[PLAZA.x-2,PLAZA.y+2]].forEach(([lx,ly])=>items.push({y:(ly+1)*T, draw:()=>drawLamp(lx*T+8,(ly+1)*T-2,night)}));
+  actors.forEach(a=>items.push({y:a.y, draw:()=>{ drawVillager(ctx,a.x,a.y,a.agent.look,a.frame,a.dir,a.agent.status,t);
+    if((hover&&hover.type==="agent"&&hover.id===a.agent.id)||(selected===a.agent.id)){ ctx.fillStyle="rgba(255,255,255,.9)"; ctx.fillRect(Math.round(a.x)-5,Math.round(a.y)+2,10,1); }
+    nameTag(a); }}));
+  items.sort((a,b)=>a.y-b.y).forEach(i=>i.draw());
+  // tint
+  if(sky==="night"){ ctx.fillStyle="rgba(18,24,70,.45)"; ctx.fillRect(0,0,cv.width,cv.height); glows(t); }
+  else if(sky==="dusk"){ ctx.fillStyle="rgba(240,120,60,.14)"; ctx.fillRect(0,0,cv.width,cv.height); }
+  else if(sky==="dawn"){ ctx.fillStyle="rgba(255,190,150,.10)"; ctx.fillRect(0,0,cv.width,cv.height); }
+  // smoke from your house
+  if(!reduce){ for(let i=0;i<3;i++){ const p=((t/1600)+i/3)%1; ctx.fillStyle=`rgba(235,235,235,${.55*(1-p)})`; ctx.fillRect(MAYOR.x*T+MAYOR.w*T-12+Math.sin(p*6+i)*3, MAYOR.y*T-8-p*18, 3+p*3, 3+p*3); } }
+  requestAnimationFrame(render);
+}
+function nameTag(a){
+  const show = (hover&&hover.id===a.agent.id) || selected===a.agent.id;
+  if(!show) return;
+  ctx.font="8px 'Pixelify Sans', monospace"; const w=Math.ceil(ctx.measureText(a.agent.name).width)+6;
+  const x=Math.round(a.x-w/2), y=Math.round(a.y)+4;
+  ctx.fillStyle="#2b1f17"; ctx.fillRect(x,y,w,10); ctx.fillStyle="#f4e7c6"; ctx.fillText(a.agent.name,x+3,y+8);
+}
+function outline(h){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.lineWidth=1; ctx.strokeRect(h.x*T-2.5,h.y*T-2.5,h.w*T+5,h.h*T+5); }
+function drawBoard(x,y,t){
+  px(ctx,x+2,y+6,2,10,"#4a2f1c"); px(ctx,x+16,y+6,2,10,"#4a2f1c");
+  px(ctx,x,y-4,20,12,"#6b4428"); px(ctx,x+1,y-3,18,10,"#8a5a36");
+  const n=needsList().length; for(let i=0;i<Math.min(n,8);i++){ const col=i%4, row=Math.floor(i/4); px(ctx,x+2+col*4,y-2+row*5,3,4,"#fff4cf"); px(ctx,x+3+col*4,y-2+row*5,1,1,"#c23b30"); }
+  if(hover&&hover.type==="board"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-1.5,y-5.5,23,23); }
+}
+function drawWell(x,y,t,night){
+  px(ctx,x-8,y-6,16,10,"#8d8a86"); px(ctx,x-7,y-5,14,3,"#a8a5a0"); px(ctx,x-6,y-4,12,2,"#3f8ea8");
+  if(!reduce){ const k=Math.floor(t/250)%3; px(ctx,x-4+k*3,y-4,2,1,"#bfe6f2"); }
+  px(ctx,x-1,y-13,2,8,"#8d8a86"); px(ctx,x-3,y-14,6,2,"#a8a5a0");
+  if(!reduce){ const k=(t/300)%1; px(ctx,x-2,y-12+k*6,1,1,"#bfe6f2"); px(ctx,x+1,y-12+((k+.5)%1)*6,1,1,"#bfe6f2"); }
+}
+function drawCrates(x,y){
+  for(let i=0;i<BIZ.stock;i++){ const cx2=x+(i%3)*7, cy2=y-Math.floor(i/3)*6; px(ctx,cx2,cy2-6,7,6,"#a8743f"); px(ctx,cx2,cy2-6,7,1,"#c9925a"); px(ctx,cx2,cy2-1,7,1,"#6b4428"); px(ctx,cx2+3,cy2-6,1,6,"#6b4428"); px(ctx,cx2+1,cy2-4,5,1,"#1d1d24"); }
+  if(BIZ.salesPaused){ px(ctx,x-1,y+2,23,7,"#4a2f1c"); px(ctx,x,y+3,21,5,"#f4e7c6"); ctx.font="5px monospace"; ctx.fillStyle="#a8382b"; ctx.fillText("PAUSED",x+2,y+7.5); }
+  if(hover&&hover.type==="crates"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-2.5,y-14.5,25,25); }
+}
+function drawBoat(x,y,t){ const bob=reduce?0:Math.round(Math.sin(t/600)); px(ctx,x,y+bob,14,4,"#7a4a2a"); px(ctx,x+1,y+4+bob,12,1,"#5a3420"); px(ctx,x+6,y-9+bob,1,9,"#4a2f1c"); px(ctx,x+7,y-8+bob,5,6,"#f4e7c6"); }
+function drawLamp(x,y,night){ px(ctx,x,y-12,1,12,"#3a3a44"); px(ctx,x-2,y-15,5,4,night?"#ffd86b":"#d8d0b0"); px(ctx,x-2,y-16,5,1,"#3a3a44"); }
+function glows(t){
+  ctx.globalCompositeOperation="lighter";
+  const spots=[[ (PLAZA.x-2)*T+8,(PLAZA.y-2)*T+3 ],[ (PLAZA.x+2)*T+8,(PLAZA.y+2)*T+3 ],[ (PLAZA.x-2)*T+8,(PLAZA.y+2)*T+3 ]];
+  spots.forEach(([x,y])=>{ const g=ctx.createRadialGradient(x,y,0,x,y,22); g.addColorStop(0,"rgba(255,200,90,.35)"); g.addColorStop(1,"rgba(255,200,90,0)"); ctx.fillStyle=g; ctx.fillRect(x-22,y-22,44,44); });
+  ctx.globalCompositeOperation="source-over";
+  // fireflies
+  if(!reduce){ for(let i=0;i<14;i++){ const fx=(Math.sin(t/2000+i*1.7)*0.5+0.5)*cv.width*0.7+cv.width*0.15, fy=(Math.cos(t/2600+i*2.3)*0.5+0.5)*cv.height*0.6+cv.height*0.2; if(Math.sin(t/300+i)>0.2){ ctx.fillStyle="rgba(255,240,140,.9)"; ctx.fillRect(fx|0,fy|0,1,1);} } }
+}
+
+/* ---------- Hit testing & tooltip ---------- */
+const tip=document.getElementById("tip"), frame=document.getElementById("frame");
+function toLogical(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height, cx:e.clientX-r.left, cy:e.clientY-r.top, rw:r.width, rh:r.height}; }
+function hit(p){
+  // villagers first (front-most)
+  const sorted=[...actors].sort((a,b)=>b.y-a.y);
+  for(const a of sorted){ if(Math.abs(p.x-a.x)<=7 && p.y<=a.y+3 && p.y>=a.y-20) return {type:"agent",id:a.agent.id}; }
+  const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T}; if(p.x>=nb.x-2&&p.x<=nb.x+22&&p.y>=nb.y-6&&p.y<=nb.y+16) return {type:"board",id:"board"};
+  const shop=AGENTS.find(a=>a.id==="webb").house, crX=(shop.x+shop.w)*T+3, crY=(shop.y+shop.h)*T-2;
+  if(p.x>=crX-3&&p.x<=crX+23&&p.y>=crY-15&&p.y<=crY+10) return {type:"crates",id:"crates"};
+  for(const a of actors){ const h=a.agent.house; if(p.x>=h.x*T-2&&p.x<=(h.x+h.w)*T+2&&p.y>=h.y*T-4&&p.y<=(h.y+h.h)*T+2) return {type:"house",id:a.agent.id}; }
+  if(p.x>=MAYOR.x*T&&p.x<=(MAYOR.x+MAYOR.w)*T&&p.y>=MAYOR.y*T-8&&p.y<=(MAYOR.y+MAYOR.h)*T) return {type:"house",id:"mayor"};
+  return null;
+}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const STLABEL={working:"Working",waiting:"Waiting on you",scheduled:"Scheduled",done:"Done",new:"New"};
+function agentById(id){ return allAgentsCache.find(a=>a.id===id); }
+function tipHTML(h){
+  if(h.type==="board"){ const n=needsList(); return `<div class="nm">Notice board</div><div class="rl">${n.length} things waiting on you</div><ul>${n.slice(0,8).map(x=>`<li><b>${esc(x.who)}:</b> ${esc(x.what)}</li>`).join("")}</ul>${n.length>8?`<div class="row">…and ${n.length-8} more in the town hall</div>`:""}`; }
+  if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">Sales are paused on Stripe while you fix the product. Next buy planned: 150 strips for $232.48.</div>`;
+  if(h.id==="mayor") return `<div class="nm">Your house</div><div class="rl">Maxwell · owner of DarkDorms</div><div class="row">${needsList().length} things on the notice board need you. Tap the board in the square to see them.</div>`;
+  const a=agentById(h.id); if(!a) return "";
+  return `<div class="nm">${esc(a.name)}</div><div class="rl">${esc(a.role)} · ${esc(a.house.label)}</div>
+    <span class="pill ${a.status}">${STLABEL[a.status]}</span> <span style="font-size:12.5px">${esc(a.statusText)}</span>
+    <div class="row"><div class="lbl">Doing</div>${esc(a.task)}</div>
+    ${a.latest?`<div class="row"><div class="lbl">Latest</div>${esc(a.latest)}</div>`:""}
+    ${a.needs&&a.needs.length?`<div class="row"><div class="lbl">Needs from you</div><ul>${a.needs.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}`;
+}
+function placeTip(p){
+  const fw=frame.clientWidth, fh=frame.clientHeight; const tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=p.cx+14, y=p.cy+14; if(x+tw>fw-6) x=p.cx-tw-14; if(x<6) x=6; if(y+th>fh-6) y=Math.max(6,p.cy-th-14);
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+cv.addEventListener("mousemove",e=>{ const p=toLogical(e), h=hit(p); hover=h; cv.style.cursor=h?"pointer":"default";
+  if(h){ tip.innerHTML=tipHTML(h); tip.hidden=false; placeTip(p); } else tip.hidden=true; });
+cv.addEventListener("mouseleave",()=>{ hover=null; tip.hidden=true; });
+cv.addEventListener("click",e=>{ const p=toLogical(e), h=hit(p);
+  if(!h){ tip.hidden=true; hover=null; return; }
+  if(e.pointerType==="touch"||matchMedia("(hover: none)").matches){ hover=h; tip.innerHTML=tipHTML(h); tip.hidden=false; placeTip(p); }
+  if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")) select(h.id);
+  if(h.type==="board") document.getElementById("board").scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
+});
+
+/* ---------- Sidebar ---------- */
+let allAgentsCache=[];
+function needsList(){ const out=[]; allAgentsCache.forEach(a=>(a.needs||[]).forEach(n=>out.push({who:a.name,what:n,id:a.id}))); return out; }
+function renderStats(){
+  document.getElementById("stats").innerHTML=`
+   <div class="stat"><b>${BIZ.stock}</b><span>strips in stock</span></div>
+   <div class="stat"><b>${BIZ.sold}</b><span>sold (real customers)</span></div>
+   <div class="stat neg"><b>−$${Math.abs(BIZ.profit).toFixed(2)}</b><span>profit so far</span></div>
+   <div class="stat warn"><b>${BIZ.toBreakEven}</b><span>sales to break even</span></div>
+   ${BIZ.salesPaused?`<div class="stat warn" style="grid-column:1/-1"><b style="font-size:17px">Sales paused</b><span>Both Stripe links are off. Customers see “sold out for now.”</span></div>`:`<div class="stat" style="grid-column:1/-1"><b style="font-size:17px;color:#2f7a45">Sales open</b><span>The preorder button on darkdorms.com takes payments.</span></div>`}`;
+  const as=document.getElementById("asOf"); if(as){ const d=new Date(DATA_UPDATED); as.textContent="updated "+d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }
+}
+function renderBoard(){ const n=needsList(); document.getElementById("boardCount").textContent=`${n.length} waiting on you`;
+  document.getElementById("board").innerHTML=n.map(x=>`<li><span class="who">${esc(x.who)}</span>${esc(x.what)}</li>`).join(""); }
+function portrait(a){ const c=document.createElement("canvas"); c.width=17; c.height=17; const g=c.getContext("2d"); g.imageSmoothingEnabled=false; drawVillager(g,8.5,16.5,a.look,0,"down",null,0); return c; }
+function renderRoster(){
+  const ul=document.getElementById("roster"); ul.innerHTML="";
+  document.getElementById("rosterCount").textContent=`${allAgentsCache.length} living here`;
+  allAgentsCache.forEach(a=>{ const li=document.createElement("li"); const b=document.createElement("button"); b.type="button"; b.id="r-"+a.id; if(selected===a.id) b.classList.add("sel");
+    b.appendChild(portrait(a)); const t=document.createElement("div"); t.className="t"; t.innerHTML=`<b>${esc(a.name)}</b><span>${esc(a.role)} · ${esc(a.statusText)}</span>`; b.appendChild(t);
+    const p=document.createElement("span"); p.className="pill "+a.status; p.textContent=STLABEL[a.status]; b.appendChild(p);
+    b.addEventListener("click",()=>select(a.id)); li.appendChild(b); ul.appendChild(li); });
+}
+function checkPrompt(a){ return a.thread
+  ? `Check on ${a.name}'s work in my Website Builder project (thread "${a.threadTitle}"). Give me a two-line status: what's done since last time and what you need from me.`
+  : `Check on ${a.name} (${a.role}) in my Website Builder project. Give me a two-line status: what's done since last time and what you need from me.`; }
+function newPrompt(c){ return `Start a new thread in my Website Builder project for a new agent.
+
+Agent name: ${c.name}
+Role: ${c.role}
+First task: ${c.task}
+
+Business context: DarkDorms sells light-blocking strips for dorm doors (darkdorms.com, live on Vercel). Sales are paused on Stripe right now, 6 strips in stock. Follow the project's standing rules: call the product "a strip" (never "foam"), and don't change Stripe, pay, file anything or send messages outside the project without my go-ahead.
+
+Work on the task, keep a checklist, tell me what you need from me, and save lasting facts to project memory so ${c.name} can pick up later.`; }
+let confirmDel=false;
+function select(id){
+  selected=id; confirmDel=false; const a=agentById(id); const d=document.getElementById("detail"); if(!a){ d.hidden=true; return; }
+  const custom_=custom.find(c=>c.id===id);
+  d.innerHTML=`<h2>${esc(a.name)} <span class="pill ${a.status}">${STLABEL[a.status]}</span></h2>
+    <div style="color:var(--ink-soft);font-size:13px">${esc(a.role)} · home: ${esc(a.house.label)}</div>
+    <p class="task">${esc(a.task)}</p>
+    <dl><dt>Status</dt><dd>${esc(a.statusText)}</dd>
+      ${a.latest?`<dt>Latest</dt><dd>${esc(a.latest)}</dd>`:""}
+      ${a.needs&&a.needs.length?`<dt>Needs you</dt><dd>${a.needs.map(esc).join("<br>")}</dd>`:""}
+      <dt>Thread</dt><dd>${a.thread?`<a href="${PROJECT+a.thread}" target="_blank" rel="noopener">${esc(a.threadTitle)}</a>`:esc(a.threadTitle)}</dd></dl>
+    ${custom_?`<div class="f" style="margin-top:10px"><label for="stSel" style="font-family:var(--display);font-size:13px;color:var(--wood-dk)">Update status</label>
+      <select id="stSel" style="font:inherit;padding:6px 8px;border:2px solid #cdb886;border-radius:4px;background:#fffaf0;color:var(--ink)">${["new","working","waiting","done"].map(s=>`<option value="${s}" ${a.status===s?"selected":""}>${STLABEL[s]}</option>`).join("")}</select></div>`:""}
+    <div class="btns">
+      <button class="btn" type="button" id="copyMain">${custom_?"Copy start prompt":"Copy check-in prompt"}</button>
+      ${a.thread?`<a class="btn ghost" href="${PROJECT+a.thread}" target="_blank" rel="noopener">Open thread</a>`:""}
+      ${custom_?`<button class="btn danger" type="button" id="delBtn">Move out</button>`:""}
+      <button class="btn ghost" type="button" id="closeD">Close</button>
+    </div>
+    <pre id="mainPrompt" style="display:none"></pre>`;
+  d.hidden=false;
+  const txt = custom_ ? newPrompt(custom_) : checkPrompt(a);
+  document.getElementById("copyMain").addEventListener("click",()=>copy(txt,"mainPrompt"));
+  document.getElementById("closeD").addEventListener("click",()=>{ selected=null; d.hidden=true; renderRoster(); });
+  const st=document.getElementById("stSel"); if(st) st.addEventListener("change",()=>{ custom_.status=st.value; save(); refresh(); select(id); });
+  const del=document.getElementById("delBtn"); if(del) del.addEventListener("click",()=>{ if(!confirmDel){ confirmDel=true; del.textContent="Tap again to remove"; return; } custom=custom.filter(c=>c.id!==id); save(); selected=null; d.hidden=true; rebuild(); toast(`${a.name} moved out`); });
+  renderRoster();
+  if(window.innerWidth<980) d.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+}
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status"); document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
+function copy(text, fallbackPreId){
+  const done=()=>toast("Prompt copied");
+  const fail=()=>{ const pre=document.getElementById(fallbackPreId); if(pre){ pre.textContent=text; pre.style.display="block"; pre.style.cssText+=";white-space:pre-wrap;background:#2b1f17;color:#f4e7c6;font-size:12.5px;padding:10px;border-radius:4px;margin-top:10px"; const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); } toast("Selected. Press Ctrl+C or ⌘C"); };
+  try{ navigator.clipboard.writeText(text).then(done,fail); }catch(e){ fail(); }
+}
+
+/* ---------- New villager form ---------- */
+const sw=document.getElementById("swatches");
+SWATCH.forEach((c,i)=>{ const inp=document.createElement("input"); inp.type="radio"; inp.name="nColor"; inp.id="sw"+i; inp.value=c; if(i===5) inp.checked=true; const lb=document.createElement("label"); lb.htmlFor="sw"+i; lb.style.background=c; lb.title=c; lb.setAttribute("aria-label","Color "+(i+1)); sw.appendChild(inp); sw.appendChild(lb); });
+document.getElementById("newForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const name=document.getElementById("nName").value.trim(), role=document.getElementById("nRole").value.trim(), task=document.getElementById("nTask").value.trim();
+  if(!name||!role||!task) return;
+  const color=(document.querySelector('input[name="nColor"]:checked')||{}).value||SWATCH[5];
+  const c={id:"c"+Date.now().toString(36), name, role, task, color, status:"new", created:new Date().toISOString()};
+  custom.push(c); save(); rebuild();
+  const txt=newPrompt(c);
+  document.getElementById("newPromptTxt").textContent=txt; document.getElementById("newPrompt").hidden=false;
+  document.getElementById("copyNew").onclick=()=>copy(txt,"newPromptTxt");
+  e.target.reset(); document.getElementById("sw5").checked=true;
+  toast(`${name} moved in`); select(c.id);
+});
+
+/* ---------- Sky buttons & clock ---------- */
+document.querySelectorAll("[data-sky]").forEach(b=>{ b.setAttribute("aria-pressed", String(b.dataset.sky===skyMode));
+  b.addEventListener("click",()=>{ skyMode=b.dataset.sky; try{ localStorage.setItem(STORE+".sky",skyMode);}catch(e){} document.querySelectorAll("[data-sky]").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); tick(); }); });
+function tick(){ const d=new Date(); const s=skyState(); document.getElementById("clockTxt").textContent=`${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})} · ${s[0].toUpperCase()+s.slice(1)}`; }
+setInterval(tick,30000);
+
+/* ---------- Boot ---------- */
+function refresh(){ allAgentsCache=allAgents(); makeActors(); renderBoard(); renderRoster(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); }
+function rebuild(){ buildWorld(); drawTerrain(); refresh(); }
+/* Live data: agents.json is the source of truth for the built-in agents; the copy above is the fallback. */
+let DATA_UPDATED = "2026-11-17T20:00:00-06:00", dataSig = "";
+function applyData(d){
+  if(!d||!Array.isArray(d.agents)) return false;
+  const sig=JSON.stringify(d); if(sig===dataSig) return false; dataSig=sig;
+  if(d.biz) BIZ=Object.assign({},BIZ,d.biz);
+  if(d.updated) DATA_UPDATED=d.updated;
+  const known=new Map(AGENTS.map(a=>[a.id,a]));
+  extras=[];
+  d.agents.forEach(j=>{ const a=known.get(j.id);
+    if(a){ ["name","role","status","statusText","task","latest","needs","thread","threadTitle"].forEach(k=>{ if(j[k]!==undefined) a[k]=j[k]; }); }
+    else extras.push({id:j.id,name:j.name,role:j.role,task:j.task,status:j.status,statusText:j.statusText,latest:j.latest||"",needs:j.needs||[],thread:j.thread||null,threadTitle:j.threadTitle||"",color:j.color||"#4f7fd6",extra:true}); });
+  const retired=new Set(d.retired||[]); AGENTS=AGENTS.filter(a=>!retired.has(a.id));
+  return true;
+}
+function loadData(first){
+  return fetch("/agents.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ const changed=applyData(d); if(changed||first){ renderStats(); rebuild(); if(selected) select(selected); } }).catch(()=>{ if(first){ renderStats(); rebuild(); } });
+}
+loadData(true).then(()=>{ tick(); requestAnimationFrame(t=>{ lastT=t; render(t); }); });
+setInterval(()=>loadData(false), 60000);
+window.addEventListener("island:pick", e=>select(e.detail));
+window.addEventListener("island:ready", ()=>{ if(allAgentsCache.length) window.Island.update(allAgentsCache,{updated:DATA_UPDATED}); });
+})();
+</script>
+<script src="/island.js"></script>
+<script>if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
+</body>
+</html>
