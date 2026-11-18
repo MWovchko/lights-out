@@ -969,7 +969,7 @@ Facts you know (use only these, never invent numbers, dates or results):
 - Things you're waiting on Maxwell for: ${(a.needs||[]).join(" | ")||"nothing"}
 - Your island asks:\n${myAsks}
 - Business: price $${b.price||"10.99"} a strip, ${b.sold??"?"} sold, ${b.stock??"?"} in stock, gross $${b.gross??"?"}, profit so far $${b.profit??"?"}, about ${b.toBreakEven??"?"} more sales to break even, sales ${b.salesPaused?"paused":"open"}.
-- Teammates: ${all}. Melvin is chief of staff.
+- Teammates: ${all}. Melvin is chief of staff and texts Maxwell by iMessage; any agent can ask Melvin to text Maxwell a link or note (say "I'll have Melvin text you" and tag [[CHECK]]).
 - Today: ${new Date().toLocaleString([], {weekday:"long",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})} (Central time).
 Team rules: never call the product "foam" (say "a strip"); never mention any discount link or a price other than the public one; prices, refunds, deleting things, Stripe, taxes and messages to customers are Maxwell's call; you never claim you did something you haven't; act with Christian kindness.
 If Maxwell asks you to DO something, check something live, or asks anything these facts don't answer, say briefly what you know and that you're checking now, then end with the exact tag [[CHECK]] on its own line. Otherwise do not include the tag.`;
@@ -1043,8 +1043,7 @@ document.addEventListener("keydown",async e=>{
   const agent=i.dataset.chat, who=agentName(agent); i.value=""; delete drafts["chat:"+agent]; i.disabled=true;
   try{
     const ref=await db.collection("chats").add({agent, text, at:new Date().toISOString(), status:"sent", reply:"", replyAt:null});
-    const host=i.closest(".thought")||i;
-    fastReply(ref, agent, text, host);
+    fastReply(ref, agent, text, document.querySelector(".stage")||document.body);
   }catch(err){ i.value=text; toast(err&&err.code==="permission_denied"?"Only the island's owner can message agents.":"Couldn't send that. Check your connection and try again."); }
   finally{ i.disabled=false; const n=bubbleLayer&&bubbleLayer.querySelector(`input[data-chat="${CSS.escape(agent)}"]`); if(n) n.focus(); }
 });
@@ -1069,7 +1068,7 @@ async function wakeClaude(text, el, okMsg, slowMsg){
   try{ if(comments===undefined) comments=await window.claude.use("comments"); }catch(e){ comments=null; }
   if(comments&&typeof comments.sendToClaude==="function"){
     try{ const can=typeof comments.canSendToClaude==="function"?await comments.canSendToClaude():"available";
-      if(can==="available"){ const anchor=await comments.anchorFor(el); await comments.sendToClaude({anchor, text}); toast(okMsg); return; } }catch(e){}
+      if(can==="available"){ const tgt=(el&&el.isConnected)?el:(document.querySelector(`#roster [data-id]`)||document.querySelector(".stage")||document.body); const anchor=await comments.anchorFor(tgt); await comments.sendToClaude({anchor, text}); toast(okMsg); return; } }catch(e){ console.warn("sendToClaude failed", e); }
   }
   try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
   if(mcp){ try{ await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:RELAY_TASK,text:"Maxwell sent a message on Agent Island. Relay now."}); toast(okMsg); return; }catch(e){} }
@@ -1084,7 +1083,7 @@ async function kick(act, x, note, el){
   if(comments&&typeof comments.sendToClaude==="function"){
     try{
       const can=typeof comments.canSendToClaude==="function"?await comments.canSendToClaude():"available";
-      if(can==="available"){ const anchor=await comments.anchorFor(el); await comments.sendToClaude({anchor, text}); toast(`Claude got it. ${who} hears in a minute or two.`); return; }
+      if(can==="available"){ const tgt=(el&&el.isConnected)?el:(document.querySelector(".stage")||document.body); const anchor=await comments.anchorFor(tgt); await comments.sendToClaude({anchor, text}); toast(`Claude got it. ${who} hears in a minute or two.`); return; }
     }catch(e){ /* fall through */ }
   }
   try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
