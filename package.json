@@ -1,0 +1,25 @@
+{
+  "name": "primary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "site.js",
+  "scripts": {
+    "postinstall": "mkdir -p js && cp node_modules/@vercel/analytics/dist/index.mjs js/analytics.mjs",
+    "build": "npm run postinstall",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MWovchko/lights-out.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MWovchko/lights-out/issues"
+  },
+  "homepage": "https://github.com/MWovchko/lights-out#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
