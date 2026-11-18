@@ -109,6 +109,7 @@ form input:focus,form textarea:focus,form select:focus{outline:none;border-color
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--parchment);font-family:var(--display);padding:8px 14px;border-radius:4px;border:2px solid var(--gold);z-index:20}
 @media (prefers-reduced-motion: reduce){.btn:active{transform:none}}
 .isle-tabs{display:none;margin:0 0 8px}
+.ask-m.mel{color:#2f5e9e;font-style:italic}
 @media (max-width: 760px){ .isle-tabs{display:inline-flex} }
 /* Thought bubbles + asks */
 .frame{overflow:visible}
@@ -834,7 +835,7 @@ function renderBoard(){
     : `<li style="border-left-color:var(--st-working)">Nothing is waiting on you right now.</li>`;
   restoreDrafts(ul);
   document.getElementById("boardNote").textContent = db
-    ? "Press Yes or No and Claude is told right away; the agent gets it in their thread within a minute or two. For anything that can't be undone they'll still check with you there first."
+    ? "Only things Melvin (chief of staff) decided need you show up here. Press Yes or No: Claude is woken right away and passes it to the agent, who acts on it within a minute or two."
     : "On this website the buttons open your Claude island, where your answer is saved and sent to the agent.";
 }
 function portrait(a){ const c=document.createElement("canvas"); c.width=17; c.height=17; const g=c.getContext("2d"); g.imageSmoothingEnabled=false; drawVillager(g,8.5,16.5,a.look,0,"down",null,0); return c; }
@@ -932,7 +933,7 @@ function askHTML(x,a){
   const kind=x.kind==="answer"?"answer":"decide";
   let body="";
   if(x.status==="open"){
-    if(!db){ body=`<div class="ask-b"><a class="link" href="${ARTIFACT_URL}" target="_blank" rel="noopener">Answer Yes or No in Claude</a></div>`; }
+    if(!db){ body=`<div class="ask-b"><a class="link" href="${ARTIFACT_URL}" target="_blank" rel="noopener">Open the archipelago to press Yes or No</a></div>`; }
     else {
       body=`<input data-in="${esc(x.id)}" maxlength="400" placeholder="${esc(x.placeholder|| (kind==="answer"?"Type your answer":"Add a note (optional)"))}" aria-label="${kind==="answer"?"Your answer":"Note"} for: ${esc(x.text)}">
         <div class="ask-b"><button type="button" class="yes" data-act="approved" data-id="${esc(x.id)}">Yes</button><button type="button" class="no" data-act="declined" data-id="${esc(x.id)}">No</button></div>
@@ -947,7 +948,8 @@ function askHTML(x,a){
       ${x.note?`<div class="ask-m">You said: ${esc(x.note)}</div>`:""}`;
   }
   const meaning = x.status==="open" && (x.approveMeans||x.declineMeans) ? `<div class="ask-m">${x.approveMeans?`Yes: ${esc(x.approveMeans)}`:""}${x.approveMeans&&x.declineMeans?"<br>":""}${x.declineMeans?`No: ${esc(x.declineMeans)}`:""}</div>` : "";
-  return `<li class="ask"><div class="ask-t">${esc(x.text)}</div>${meaning}${body}</li>`;
+  const why = x.status==="open" && x.melvin ? `<div class="ask-m mel">Melvin: ${esc(x.melvin)}</div>` : "";
+  return `<li class="ask" data-ask="${esc(x.id)}"><div class="ask-t">${esc(x.text)}</div>${why}${meaning}${body}</li>`;
 }
 function restoreDrafts(root){ root.querySelectorAll("input[data-in]").forEach(i=>{ if(drafts[i.dataset.in]) i.value=drafts[i.dataset.in]; }); }
 document.addEventListener("input",e=>{ const i=e.target.closest&&e.target.closest("input[data-in]"); if(i) drafts[i.dataset.in]=i.value; });
@@ -958,21 +960,33 @@ document.addEventListener("click",async e=>{
   if(act==="approved" && x.kind==="answer" && !note){ errs[id]="Type your answer in the box, then press Yes."; renderAll(); return; }
   delete errs[id]; b.disabled=true;
   const patch = act==="open" ? {status:"open", decidedAt:null, note:""} : {status:act, note, decidedAt:new Date().toISOString(), relayed:false, relayedAt:null};
-  try{ await db.doc("asks/"+id).update(patch); if(act!=="open"){ delete drafts[id]; kick(act); } }
+  const host=b.closest(".ask")||b;
+  if(act!=="open") kick(act, x, note, host);
+  try{ await db.doc("asks/"+id).update(patch); if(act!=="open"){ delete drafts[id]; } }
   catch(err){ errs[id]= err&&err.code==="permission_denied" ? "Only the island's owner can answer this." : "Couldn't save that. Check your connection and try again."; b.disabled=false; renderAll(); }
 });
 function renderAll(){ renderBoard(); buildBubbles(); }
-/* A press wakes Claude right away through the Claude Code Remote connector, which runs the relay task now. */
-const RELAY_TASK="trig_01CcEKFZ4u2V3Xenos7CvJ6w"; let mcp=null, kickT=null, kickN=0;
-function kick(act){
-  kickN++; toast(act==="approved"?"Yes saved. Telling Claude…":"No saved. Telling Claude…");
-  clearTimeout(kickT); kickT=setTimeout(async()=>{
-    const n=kickN; kickN=0;
-    try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
-    if(!mcp){ toast("Saved. Claude passes it on within the hour."); return; }
-    try{ await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:RELAY_TASK,text:`Maxwell just pressed ${n} button${n>1?"s":""} on Agent Island. Relay now.`}); toast("Sent to Claude. The agent hears about it in a minute or two."); }
-    catch(e){ toast(e&&["not_granted","consent_required","cancelled","server_not_connected","needs_reauth"].includes(e.code) ? "Saved. Allow the Claude Code Remote connector to send it instantly; otherwise it goes within the hour." : "Saved. Claude passes it on within the hour."); }
-  },1200);
+/* A press wakes Claude right away. First choice: post it as a comment "sent to Claude" (wakes the watching cloud
+   session instantly, no computer needed). Fallback: fire the relay task through the Claude Code Remote connector.
+   Last resort: the hourly relay picks it up from the db. */
+const RELAY_TASK="trig_01CcEKFZ4u2V3Xenos7CvJ6w"; let mcp=null, comments=undefined;
+async function kick(act, x, note, el){
+  toast(act==="approved"?"Yes saved. Waking Claude…":"No saved. Waking Claude…");
+  const who=agentName(x.agent);
+  const text=`Agent Island decision [ask:${x.id}] for ${who}: ${act==="approved"?"YES":"NO"} to "${x.text}".${note?` Maxwell's note: ${note}`:""} Please pass it to ${who} now.`;
+  try{ if(comments===undefined) comments=await window.claude.use("comments"); }catch(e){ comments=null; }
+  if(comments&&typeof comments.sendToClaude==="function"){
+    try{
+      const can=typeof comments.canSendToClaude==="function"?await comments.canSendToClaude():"available";
+      if(can==="available"){ const anchor=await comments.anchorFor(el); await comments.sendToClaude({anchor, text}); toast(`Claude got it. ${who} hears in a minute or two.`); return; }
+    }catch(e){ /* fall through */ }
+  }
+  try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
+  if(mcp){
+    try{ await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:RELAY_TASK,text:`Maxwell just pressed a button on Agent Island (${x.id}). Relay now.`}); toast(`Sent to Claude. ${who} hears in a minute or two.`); return; }
+    catch(e){ /* fall through */ }
+  }
+  toast("Saved. Claude passes it on within the hour.");
 }
 const bubbleLayer=document.getElementById("bubbles");
 function buildBubbles(){
@@ -1016,6 +1030,7 @@ function positionBubbles(){
     if(!window.claude||typeof window.claude.use!=="function") { renderAll(); return; }
     const d=await window.claude.use("db"); if(!d){ renderAll(); return; }
     db=d; renderAll();
+    window.claude.use("comments").then(c=>{ comments=c; }).catch(()=>{ comments=null; });
     db.collection("asks").onSnapshot(snap=>{
       asks=snap.docs.map(s=>Object.assign({id:s.id},s.data())).sort((x,y)=>(x.order||0)-(y.order||0));
       const sy=window.scrollY, sx=window.scrollX; refresh(); if(selected) select(selected); renderBoard(); window.scrollTo(sx, sy); requestAnimationFrame(()=>window.scrollTo(sx, sy));
