@@ -177,7 +177,7 @@ canvas#map{border-radius:2px}
       <span><i class="dot" style="background:var(--st-new)"></i>New, prompt not sent yet</span>
       <span><i class="dot" style="background:var(--st-done)"></i>Done</span>
     </div>
-    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. The notice board in the square lists everything waiting on you.</p>
+    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. Agents with nothing to do study at Leadership Hall, race at the track, or rest at home (Zz). The notice board in the square lists everything waiting on you.</p>
   </section>
 
   <aside>
@@ -275,7 +275,18 @@ let AGENTS = [
 ];
 const MAYOR = {x:16,y:3,w:5,h:3,kind:"mayor",roof:"#8a3b2f",wall:"#f3e4c2",label:"Your House"};
 const PLAZA = {x:19,y:11};
-const ORCH = {x:23,y:9,w:6,h:5}; /* sales orchard: one tree per sale */
+const ORCH = {x:23,y:9,w:6,h:5};
+const HALL = {x:22,y:4,w:4,h:3,kind:"hall",roof:"#5a4a8a",wall:"#efe3c8",label:"Leadership Hall"};
+const TRACK = {x:29,y:15,w:4,h:3};
+/* Free time: agents that are scheduled or done (and not waiting on you) study, race or rest. Night is always rest. */
+const ACT_TEXT={study:"Studying leadership at Leadership Hall: serving customers well, owning results, staying debt-free.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
+function activity(ag){
+  if(!(ag.status==="scheduled"||ag.status==="done")) return null;
+  if(typeof openAsksFor==="function"&&openAsksFor(ag.id).length) return null;
+  if(skyState()==="night") return "rest";
+  const block=Math.floor(Date.now()/(15*60000));
+  return ["study","race","rest"][(block+hashStr(ag.id))%3];
+} /* sales orchard: one tree per sale */
 const SWATCH = ["#d9534f","#e58f3a","#e9c43a","#5cae5c","#3fa8a0","#4f7fd6","#8a63c9","#d46fa8","#f2f2f2","#2a2a2a"];
 
 /* ---------- Saved villagers ---------- */
@@ -301,10 +312,11 @@ let reserved, pathT, trees, lots;
 function key(x,y){return x+","+y;}
 function buildWorld(){
   reserved=new Set(); pathT=new Set();
-  const houses=[MAYOR, ...AGENTS.map(a=>a.house)];
+  const houses=[MAYOR, HALL, ...AGENTS.map(a=>a.house)];
   const markHouse=h=>{ for(let y=h.y-1;y<=h.y+h.h;y++) for(let x=h.x-1;x<=h.x+h.w;x++) reserved.add(key(x,y)); };
   houses.forEach(markHouse);
   for(let y=ORCH.y-1;y<=ORCH.y+ORCH.h;y++) for(let x=ORCH.x-1;x<=ORCH.x+ORCH.w;x++) reserved.add(key(x,y));
+  for(let y=TRACK.y-1;y<=TRACK.y+TRACK.h;y++) for(let x=TRACK.x-1;x<=TRACK.x+TRACK.w;x++) reserved.add(key(x,y));
   // plaza
   for(let y=PLAZA.y-2;y<=PLAZA.y+2;y++) for(let x=PLAZA.x-2;x<=PLAZA.x+2;x++) if(Math.abs(x-PLAZA.x)+Math.abs(y-PLAZA.y)<=3) reserved.add(key(x,y));
   // dock path
@@ -389,6 +401,7 @@ const ICONS={
   archive:["######","#.##.#","#.##.#","#.##.#","#.##.#","######"],
   shop:["#..#.","##.##","#.#.#","#...#","#...#"],
   mayor:["..#..",".###.","#####",".#.#.",".###."],
+  hall:["..#..","#####","..#..","..#..","..#.."],
   cottage:["..#..",".###.","#####",".#.#."],
 };
 function icon(c,name,x,y,col){ const g=ICONS[name]; if(!g) return; g.forEach((row,j)=>{ [...row].forEach((ch,i)=>{ if(ch==="#") px(c,x+i,y+j,1,1,col); }); }); }
@@ -495,11 +508,15 @@ function makeActors(){
   actors=allAgents().map(ag=>{
     const h=ag.house, home={x:(h.x+h.w/2)*T, y:(h.y+h.h+1)*T+2};
     const p=prev.get(ag.id);
-    return {agent:ag, home, x:p?p.x:home.x, y:p?p.y:home.y, tx:home.x, ty:home.y, wait:Math.random()*2000, frame:0, dir:"down", r:rng(hashStr(ag.id))};
+    return {agent:ag, home, houseHome:home, x:p?p.x:home.x, y:p?p.y:home.y, tx:home.x, ty:home.y, wait:Math.random()*2000, frame:0, dir:"down", r:rng(hashStr(ag.id))};
   });
 }
-function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; if(tx>=ORCH.x&&tx<ORCH.x+ORCH.w&&ty>=ORCH.y&&ty<ORCH.y+ORCH.h) return false; return true; }
+function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; if(tx>=ORCH.x&&tx<ORCH.x+ORCH.w&&ty>=ORCH.y&&ty<ORCH.y+ORCH.h) return false; for(const R of [HALL,TRACK]) if(tx>=R.x&&tx<R.x+R.w&&ty>=R.y&&ty<R.y+R.h) return false; return true; }
 function stepActor(a,dt){
+  a.act=activity(a.agent);
+  if(a.act==="race"||a.act==="rest"){ a.x=a.houseHome.x; a.y=a.houseHome.y; a.tx=a.x; a.ty=a.y; return; }
+  const want=a.act==="study"?{x:(HALL.x+HALL.w/2)*T, y:(HALL.y+HALL.h+1)*T+2}:a.houseHome;
+  if(a.home.x!==want.x||a.home.y!==want.y){ a.home=want; a.tx=want.x; a.ty=want.y; a.wait=0; }
   if(openAsksFor(a.agent.id).length){ const dx=a.home.x-a.x, dy=a.home.y-a.y, d=Math.hypot(dx,dy); if(d>1){ const sp=16*dt/1000; a.x+=dx/d*Math.min(sp,d); a.y+=dy/d*Math.min(sp,d); a.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?"left":"right"):(dy<0?"up":"down"); a.frame=Math.floor(performance.now()/180)%2; } else { a.frame=0; a.dir="down"; } return; }
   const busy = a.agent.status==="working" || a.agent.status==="new";
   if(a.wait>0){ a.wait-=dt; a.frame=0; return; }
@@ -533,10 +550,13 @@ function render(t){
   if(!reduce){ ctx.fillStyle="rgba(220,240,250,.35)"; for(let i=0;i<40;i++){ const sx=(i*97 + t/40*(i%3+1))%cv.width, sy=(i*53)%cv.height; const tx=Math.floor(sx/T), ty=Math.floor(sy/T); if(ty<H&&tx<W&&terr[ty][tx]<=1 && !(tx===PLAZA.x&&ty>=19)) ctx.fillRect(sx|0,sy|0,3,1); } }
   // drawables sorted by base y
   const items=[];
-  const houses=[{h:MAYOR,id:"mayor"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
+  const houses=[{h:MAYOR,id:"mayor"},{h:HALL,id:"hall"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
   houses.forEach(o=>items.push({y:(o.h.y+o.h.h)*T, draw:()=>{ drawHouse(ctx,o.h,night,t); if(hover&&hover.type==="house"&&hover.id===o.id) outline(o.h); }}));
   trees.forEach(tr=>items.push({y:tr.y, draw:()=>drawTree(ctx,tr,t)}));
   drawOrchardGround();
+  drawTrack(t);
+  actors.filter(a=>a.act==="race").forEach((a,i,arr)=>{ const k=kartPos(t,i,arr.length); items.push({y:k.y, draw:()=>drawKart(k,a,t)}); });
+  actors.filter(a=>a.act==="rest").forEach(a=>{ const h=a.agent.house; items.push({y:(h.y+h.h)*T+1, draw:()=>drawZzz((h.x+h.w)*T-6,h.y*T+4,t)}); });
   orchardSlots().forEach((sl,i)=>items.push({y:sl.y, draw:()=>drawSaleTree(sl,i,t)}));
   items.push({y:(ORCH.y+ORCH.h)*T+4, draw:()=>drawOrchardSign(t)});
   // notice board
@@ -551,7 +571,7 @@ function render(t){
   items.push({y:22*T, draw:()=>drawBoat((PLAZA.x+1)*T+3, 21*T+4, t)});
   // lamps
   [[PLAZA.x-2,PLAZA.y-2],[PLAZA.x+2,PLAZA.y+2],[PLAZA.x-2,PLAZA.y+2]].forEach(([lx,ly])=>items.push({y:(ly+1)*T, draw:()=>drawLamp(lx*T+8,(ly+1)*T-2,night)}));
-  actors.forEach(a=>items.push({y:a.y, draw:()=>{ drawVillager(ctx,a.x,a.y,a.agent.look,a.frame,a.dir,openAsksFor(a.agent.id).length?null:a.agent.status,t);
+  actors.filter(a=>a.act!=="race"&&a.act!=="rest").forEach(a=>items.push({y:a.y, draw:()=>{ drawVillager(ctx,a.x,a.y,a.agent.look,a.frame,a.dir,openAsksFor(a.agent.id).length?null:a.agent.status,t);
     if((hover&&hover.type==="agent"&&hover.id===a.agent.id)||(selected===a.agent.id)){ ctx.fillStyle="rgba(255,255,255,.9)"; ctx.fillRect(Math.round(a.x)-5,Math.round(a.y)+2,10,1); }
     nameTag(a); }}));
   items.sort((a,b)=>a.y-b.y).forEach(i=>i.draw());
@@ -654,6 +674,44 @@ function orchardTip(idx){
     ${(BIZ.refunds||0)?`<div class="row" style="opacity:.75">${BIZ.refunds} refunded test order not counted.</div>`:""}${one}
     ${n>ORCH_COLS*ORCH_ROWS?`<div class="row">The orchard is full: showing ${ORCH_COLS*ORCH_ROWS} of ${n} trees.</div>`:""}`;
 }
+/* ---------- Racetrack & rest ---------- */
+function drawTrack(t){
+  const x=TRACK.x*T, y=TRACK.y*T, w=TRACK.w*T, h=TRACK.h*T;
+  px(ctx,x,y,w,h,"#8a7a5a"); px(ctx,x+2,y+2,w-4,h-4,"#9c8b66");
+  px(ctx,x+12,y+12,w-24,h-24,"#5d9a45"); px(ctx,x+14,y+14,w-28,h-28,"#6aab4f");
+  for(let i=0;i<w;i+=4){ px(ctx,x+i,y,2,1,"#e8e0d0"); px(ctx,x+i+2,y,2,1,"#c8423a"); px(ctx,x+i,y+h-1,2,1,"#e8e0d0"); px(ctx,x+i+2,y+h-1,2,1,"#c8423a"); }
+  for(let j=0;j<6;j++) px(ctx,x+w/2-1+(j%2),y+2+j,1,1,j%2?"#1d1d24":"#fff");
+  px(ctx,x+w/2+2,y-8,1,10,"#4a2f1c"); for(let j=0;j<3;j++) for(let i=0;i<4;i++) px(ctx,x+w/2+3+i,y-8+j,1,1,(i+j)%2?"#1d1d24":"#fff");
+  if(hover&&hover.type==="track"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.lineWidth=1; ctx.strokeRect(x-2.5,y-9.5,w+5,h+12); }
+}
+function kartPos(t,i,n){
+  const x=TRACK.x*T+6, y=TRACK.y*T+7, w=TRACK.w*T-12, h=TRACK.h*T-14, per=2*(w+h);
+  let d=((reduce?0:t/18)+i*per/Math.max(1,n))%per, px0, py0, dir;
+  if(d<w){ px0=x+d; py0=y; dir="right"; } else if((d-=w)<h){ px0=x+w; py0=y+d; dir="down"; } else if((d-=h)<w){ px0=x+w-d; py0=y+h; dir="left"; } else { d-=w; px0=x; py0=y+h-d; dir="up"; }
+  return {x:Math.round(px0), y:Math.round(py0)+4, dir};
+}
+function drawKart(k,a,t){
+  const L=a.agent.look, x=k.x, y=k.y;
+  ctx.fillStyle="rgba(0,0,0,.2)"; ctx.fillRect(x-5,y-1,10,2);
+  px(ctx,x-5,y-5,10,4,L.shirt); px(ctx,x-5,y-2,10,1,shade(L.shirt,-40));
+  px(ctx,x-5,y-1,3,2,"#1d1d24"); px(ctx,x+2,y-1,3,2,"#1d1d24");
+  px(ctx,x-2,y-10,5,5,L.skin); px(ctx,x-2,y-11,5,2,L.hair);
+}
+function drawZzz(x,y,t){
+  const k=reduce?0:(t/700)%3;
+  ctx.font="bold 6px monospace"; ctx.fillStyle="rgba(255,255,255,.95)";
+  ctx.fillText("z",x,y-k); ctx.font="bold 8px monospace"; ctx.fillText("Z",x+4,y-5-k);
+}
+function hallTip(){
+  const st=actors.filter(a=>a.act==="study").map(a=>a.agent.name);
+  return `<div class="nm">Leadership Hall</div><div class="rl">Where the team trains when there's no work</div>
+    <div class="row">${st.length?`<b>${esc(st.join(", "))}</b> ${st.length>1?"are":"is"} studying now.`:"Nobody is studying right now."}</div>
+    <div class="row"><div class="lbl">On the board</div><ul><li>Serve every customer like Jesus would</li><li>Be honest, even when it costs you</li><li>Do the work well, as if for the Lord</li><li>Own your results, help your teammates</li><li>Stay debt-free and spend wisely</li><li>Rest when the work is done</li></ul></div>`;
+}
+function trackTip(){
+  const r=actors.filter(a=>a.act==="race").map(a=>a.agent.name);
+  return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working, studying or resting."}</div>`;
+}
 function drawBoat(x,y,t){ const bob=reduce?0:Math.round(Math.sin(t/600)); px(ctx,x,y+bob,14,4,"#7a4a2a"); px(ctx,x+1,y+4+bob,12,1,"#5a3420"); px(ctx,x+6,y-9+bob,1,9,"#4a2f1c"); px(ctx,x+7,y-8+bob,5,6,"#f4e7c6"); }
 function drawLamp(x,y,night){ px(ctx,x,y-12,1,12,"#3a3a44"); px(ctx,x-2,y-15,5,4,night?"#ffd86b":"#d8d0b0"); px(ctx,x-2,y-16,5,1,"#3a3a44"); }
 function glows(t){
@@ -670,11 +728,13 @@ const tip=document.getElementById("tip"), frame=document.getElementById("frame")
 function toLogical(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*cv.width/r.width, y:(e.clientY-r.top)*cv.height/r.height, cx:e.clientX-r.left, cy:e.clientY-r.top, rw:r.width, rh:r.height}; }
 function hit(p){
   // villagers first (front-most)
-  const sorted=[...actors].sort((a,b)=>b.y-a.y);
+  const sorted=actors.filter(a=>a.act!=="race"&&a.act!=="rest").sort((a,b)=>b.y-a.y);
   for(const a of sorted){ if(Math.abs(p.x-a.x)<=7 && p.y<=a.y+3 && p.y>=a.y-20) return {type:"agent",id:a.agent.id}; }
   const nb={x:(PLAZA.x+1.4)*T, y:(PLAZA.y-0.4)*T}; if(p.x>=nb.x-2&&p.x<=nb.x+22&&p.y>=nb.y-6&&p.y<=nb.y+16) return {type:"board",id:"board"};
   const shop=AGENTS.find(a=>a.id==="webb").house, crX=(shop.x+shop.w)*T+3, crY=(shop.y+shop.h)*T-2;
   if(p.x>=crX-3&&p.x<=crX+23&&p.y>=crY-15&&p.y<=crY+10) return {type:"crates",id:"crates"};
+  if(p.x>=TRACK.x*T-3&&p.x<=(TRACK.x+TRACK.w)*T+3&&p.y>=TRACK.y*T-10&&p.y<=(TRACK.y+TRACK.h)*T+3) return {type:"track",id:"track"};
+  if(p.x>=HALL.x*T-2&&p.x<=(HALL.x+HALL.w)*T+2&&p.y>=HALL.y*T-4&&p.y<=(HALL.y+HALL.h)*T+2) return {type:"hall",id:"hall"};
   if(p.x>=ORCH.x*T-4&&p.x<=(ORCH.x+ORCH.w)*T+4&&p.y>=ORCH.y*T-8&&p.y<=(ORCH.y+ORCH.h)*T+12){ let best=null,bd=1e9; orchardSlots().forEach((sl,i)=>{ const d=Math.abs(p.x-sl.x)+Math.abs(p.y-(sl.y-7)); if(d<bd&&d<=9){bd=d;best=i;} }); return {type:"orchard",id:"orchard",idx:best}; }
   for(const a of actors){ const h=a.agent.house; if(p.x>=h.x*T-2&&p.x<=(h.x+h.w)*T+2&&p.y>=h.y*T-4&&p.y<=(h.y+h.h)*T+2) return {type:"house",id:a.agent.id}; }
   if(p.x>=MAYOR.x*T&&p.x<=(MAYOR.x+MAYOR.w)*T&&p.y>=MAYOR.y*T-8&&p.y<=(MAYOR.y+MAYOR.h)*T) return {type:"house",id:"mayor"};
@@ -686,6 +746,8 @@ function agentById(id){ return allAgentsCache.find(a=>a.id===id); }
 function tipHTML(h){
   if(h.type==="board"){ const n=needsList(); return `<div class="nm">Notice board</div><div class="rl">${n.length} things waiting on you</div><ul>${n.slice(0,8).map(x=>`<li><b>${esc(x.who)}:</b> ${esc(x.what)}</li>`).join("")}</ul>${n.length>8?`<div class="row">…and ${n.length-8} more in the town hall</div>`:""}`; }
   if(h.type==="orchard") return orchardTip(h.idx);
+  if(h.type==="hall") return hallTip();
+  if(h.type==="track") return trackTip();
   if(h.type==="crates") return `<div class="nm">Strip stock</div><div class="rl">${BIZ.stock} crates = ${BIZ.stock} strips on hand</div><div class="row">${BIZ.salesPaused?"Sales are paused on Stripe while you fix the product.":"Sales are open. Each new sale plants a tree in the orchard."}</div>`;
   if(h.id==="mayor") return `<div class="nm">Your house</div><div class="rl">Maxwell · owner of DarkDorms</div><div class="row">${needsList().length} things on the notice board need you. Tap the board in the square to see them.</div>`;
   const a=agentById(h.id); if(!a) return "";
@@ -693,6 +755,7 @@ function tipHTML(h){
     <span class="pill ${a.status}">${STLABEL[a.status]}</span> <span style="font-size:12.5px">${esc(a.statusText)}</span>
     <div class="row"><div class="lbl">Doing</div>${esc(a.task)}</div>
     ${a.latest?`<div class="row"><div class="lbl">Latest</div>${esc(a.latest)}</div>`:""}
+    ${(()=>{ const ac=(actors.find(z=>z.agent.id===a.id)||{}).act; return ac?`<div class="row"><div class="lbl">Free time</div>${esc(ACT_TEXT[ac])}</div>`:""; })()}
     ${a.needs&&a.needs.length?`<div class="row"><div class="lbl">Needs from you</div><ul>${a.needs.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}`;
 }
 function placeTip(p){
