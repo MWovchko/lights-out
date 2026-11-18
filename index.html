@@ -135,6 +135,16 @@ canvas#map{border-radius:2px}
 .thought.below .thought-btn::after{bottom:auto;top:-12px}.thought.below .thought-btn::before{bottom:auto;top:-19px}
 .thought-btn:focus-visible{outline:3px solid var(--st-scheduled);outline-offset:2px}
 .thought.open{z-index:7}
+.thought-btn.reply{white-space:normal;max-width:240px;text-align:left;font-family:inherit;font-size:12.5px;line-height:1.35}
+.thought-btn.reply b{font-family:var(--display);color:#2f5e9e}
+.chat{margin-top:8px;border-top:2px dashed #d8c592;padding-top:7px}
+.chat-log{display:grid;gap:5px;max-height:190px;overflow:auto;margin-bottom:6px}
+.cm{font-size:12.5px;line-height:1.35;padding:5px 8px;border-radius:10px;max-width:92%}
+.cm.me{background:#e6eefb;justify-self:end}
+.cm.ag{background:#fff;border:2px solid #d8c592;justify-self:start}
+.cm.wait{color:var(--ink-soft);font-style:italic;justify-self:start}
+.chat input{font:inherit;font-size:13px;width:100%;padding:6px 8px;border:2px solid #cdb886;border-radius:4px;background:#fffdf6;color:var(--ink)}
+.chat .hint{font-size:11.5px;color:var(--ink-soft);margin-top:3px}
 .thought-card{width:min(290px,80vw);background:#fffaf0;border:3px solid var(--wood-dk);border-radius:16px;box-shadow:0 5px 0 rgba(0,0,0,.28);padding:10px 12px 12px;margin-bottom:22px;max-height:min(420px,70vh);overflow:auto}
 .thought.below .thought-card{margin-bottom:0;margin-top:22px}
 .thought-card h3{font-family:var(--display);font-size:16px;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -824,7 +834,7 @@ cv.addEventListener("mouseleave",()=>{ hover=null; tip.hidden=true; });
 cv.addEventListener("click",e=>{ const p=toLogical(e), h=hit(p);
   if(!h){ tip.hidden=true; hover=null; return; }
   if(e.pointerType==="touch"||matchMedia("(hover: none)").matches){ hover=h; tip.innerHTML=tipHTML(h); tip.hidden=false; placeTip(p); }
-  if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")){ select(h.id,{scroll:!openAsksFor(h.id).length}); if(openAsksFor(h.id).length){ openBubble=h.id; tip.hidden=true; buildBubbles(); } }
+  if(h.type==="agent"||(h.type==="house"&&h.id!=="mayor")){ select(h.id,{scroll:!(openAsksFor(h.id).length||db)}); if(openAsksFor(h.id).length||db){ openBubble=h.id; tip.hidden=true; buildBubbles(); const f=bubbleLayer&&bubbleLayer.querySelector(".thought.open input[data-chat]"); if(f&&!openAsksFor(h.id).length) f.focus({preventScroll:true}); const lg=bubbleLayer&&bubbleLayer.querySelector(".thought.open .chat-log"); if(lg) lg.scrollTop=lg.scrollHeight; } }
   if(h.type==="board") document.getElementById("board").scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
 });
 
@@ -888,6 +898,7 @@ function select(id, opts){
       <select id="stSel" style="font:inherit;padding:6px 8px;border:2px solid #cdb886;border-radius:4px;background:#fffaf0;color:var(--ink)">${["new","working","waiting","done"].map(s=>`<option value="${s}" ${a.status===s?"selected":""}>${STLABEL[s]}</option>`).join("")}</select></div>`:""}
     <div class="btns">
       <button class="btn" type="button" id="copyMain">${custom_?"Copy start prompt":"Copy check-in prompt"}</button>
+      ${db?`<button class="btn" type="button" id="msgBtn">Message ${esc(a.name)}</button>`:""}
       ${a.thread?`<a class="btn ghost" href="${PROJECT+a.thread}" target="_blank" rel="noopener">Open thread</a>`:""}
       ${custom_?`<button class="btn danger" type="button" id="delBtn">Move out</button>`:""}
       <button class="btn ghost" type="button" id="closeD">Close</button>
@@ -897,6 +908,7 @@ function select(id, opts){
   const txt = custom_ ? newPrompt(custom_) : checkPrompt(a);
   document.getElementById("copyMain").addEventListener("click",()=>copy(txt,"mainPrompt"));
   document.getElementById("closeD").addEventListener("click",()=>{ selected=null; d.hidden=true; renderRoster(); });
+  const mb=document.getElementById("msgBtn"); if(mb) mb.addEventListener("click",()=>{ if(a.island==="home"&&VIEW!=="home") setView("home"); else if(a.island!=="home"&&VIEW==="home") setView("dd"); openBubble=id; buildBubbles(); const st=document.querySelector(".stage"); if(st) st.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"}); const f=bubbleLayer.querySelector(".thought.open input[data-chat]"); if(f) f.focus({preventScroll:true}); });
   const st=document.getElementById("stSel"); if(st) st.addEventListener("change",()=>{ custom_.status=st.value; save(); refresh(); select(id); });
   const del=document.getElementById("delBtn"); if(del) del.addEventListener("click",()=>{ if(!confirmDel){ confirmDel=true; del.textContent="Tap again to remove"; return; } custom=custom.filter(c=>c.id!==id); save(); selected=null; d.hidden=true; rebuild(); toast(`${a.name} moved out`); });
   renderRoster();
@@ -935,7 +947,16 @@ setInterval(tick,30000);
 
 /* ---------- Asks: things agents are waiting on you for ---------- */
 const ARTIFACT_URL="https://claude.ai/artifact/Rc3tCJQuekX1YFEgVD5BV2";
-let db=null, asks=null, openBubble=null; const drafts={}; const errs={};
+let db=null, asks=null, openBubble=null, chats=[]; const drafts={}; const errs={};
+let seenChats=new Set(); try{ seenChats=new Set(JSON.parse(localStorage.getItem("darkdormsIsland.seenChats")||"[]")); }catch(e){}
+function markSeen(ids){ let ch=false; ids.forEach(i=>{ if(!seenChats.has(i)){ seenChats.add(i); ch=true; } }); if(ch) try{ localStorage.setItem("darkdormsIsland.seenChats", JSON.stringify([...seenChats].slice(-300))); }catch(e){} }
+function chatsFor(id){ return chats.filter(c=>c.agent===id); }
+function unseenReply(id){ return chatsFor(id).filter(c=>c.reply&&!seenChats.has(c.id)).pop()||null; }
+function chatHTML(a){
+  if(!db) return "";
+  const log=chatsFor(a.id).slice(-4).map(c=>`<div class="cm me">${esc(c.text)}</div>`+(c.reply?`<div class="cm ag"><b>${esc(a.name)}:</b> ${esc(c.reply)}</div>`:`<div class="cm wait">${esc(a.name)} is thinking… replies usually take 1 to 3 minutes</div>`)).join("");
+  return `<div class="chat">${log?`<div class="chat-log">${log}</div>`:""}<input data-in="chat:${esc(a.id)}" data-chat="${esc(a.id)}" maxlength="600" placeholder="Message ${esc(a.name)}, then press Enter" aria-label="Message ${esc(a.name)}"><div class="hint">${esc(a.name)}'s answer pops up here as a thought bubble.</div></div>`;
+}
 function asksFor(id){
   if(asks) return asks.filter(x=>x.agent===id);
   const a=allAgentsCache.find(z=>z.id===id)||AGENTS.find(z=>z.id===id); if(!a) return [];
@@ -967,6 +988,17 @@ function askHTML(x,a){
 }
 function restoreDrafts(root){ root.querySelectorAll("input[data-in]").forEach(i=>{ if(drafts[i.dataset.in]) i.value=drafts[i.dataset.in]; }); }
 document.addEventListener("input",e=>{ const i=e.target.closest&&e.target.closest("input[data-in]"); if(i) drafts[i.dataset.in]=i.value; });
+document.addEventListener("keydown",async e=>{
+  const i=e.target.closest&&e.target.closest("input[data-chat]"); if(!i||e.key!=="Enter"||e.isComposing||!db) return;
+  e.preventDefault(); const text=i.value.trim(); if(!text) return;
+  const agent=i.dataset.chat, who=agentName(agent); i.value=""; delete drafts["chat:"+agent]; i.disabled=true;
+  try{
+    const ref=await db.collection("chats").add({agent, text, at:new Date().toISOString(), status:"sent", reply:"", replyAt:null});
+    const host=i.closest(".thought")||i;
+    wakeClaude(`Agent Island message [chat:${ref.id}] from Maxwell to ${who}: "${text}". Please get ${who}'s answer and post it back on the island.`, host, `Sent to ${who}. The answer pops up here, usually in 1 to 3 minutes.`, `Sent. ${who} answers within the hour.`);
+  }catch(err){ i.value=text; toast(err&&err.code==="permission_denied"?"Only the island's owner can message agents.":"Couldn't send that. Check your connection and try again."); }
+  finally{ i.disabled=false; const n=bubbleLayer&&bubbleLayer.querySelector(`input[data-chat="${CSS.escape(agent)}"]`); if(n) n.focus(); }
+});
 document.addEventListener("click",async e=>{
   const b=e.target.closest&&e.target.closest("[data-act]"); if(!b||!db) return;
   const id=b.dataset.id, x=(asks||[]).find(z=>z.id===id); if(!x) return;
@@ -984,6 +1016,16 @@ function renderAll(){ renderBoard(); buildBubbles(); }
    session instantly, no computer needed). Fallback: fire the relay task through the Claude Code Remote connector.
    Last resort: the hourly relay picks it up from the db. */
 const RELAY_TASK="trig_01CcEKFZ4u2V3Xenos7CvJ6w"; let mcp=null, comments=undefined;
+async function wakeClaude(text, el, okMsg, slowMsg){
+  try{ if(comments===undefined) comments=await window.claude.use("comments"); }catch(e){ comments=null; }
+  if(comments&&typeof comments.sendToClaude==="function"){
+    try{ const can=typeof comments.canSendToClaude==="function"?await comments.canSendToClaude():"available";
+      if(can==="available"){ const anchor=await comments.anchorFor(el); await comments.sendToClaude({anchor, text}); toast(okMsg); return; } }catch(e){}
+  }
+  try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
+  if(mcp){ try{ await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:RELAY_TASK,text:"Maxwell sent a message on Agent Island. Relay now."}); toast(okMsg); return; }catch(e){} }
+  toast(slowMsg);
+}
 async function kick(act, x, note, el){
   toast(act==="approved"?"Yes saved. Waking Claude…":act==="check"?"Asking them to check. Waking Claude…":"No saved. Waking Claude…");
   const who=agentName(x.agent);
@@ -1011,10 +1053,15 @@ function buildBubbles(){
   allAgentsCache.forEach(a=>{
     const open=openAsksFor(a.id); const all=asksFor(a.id);
     const pending=all.filter(x=>x.status!=="open"&&!x.relayed);
-    if(!open.length && !(openBubble===a.id && pending.length)) return;
+    const fresh=unseenReply(a.id);
+    if(!open.length && !fresh && openBubble!==a.id) return;
     const d=document.createElement("div"); d.className="thought"+(openBubble===a.id?" open":""); d.dataset.agent=a.id;
     if(openBubble===a.id){
-      d.innerHTML=`<div class="thought-card" role="dialog" aria-label="${esc(a.name)} is waiting on you"><h3>${esc(a.name)} is thinking… <button type="button" data-close aria-label="Close">Close</button></h3><ul class="asks">${all.filter(x=>x.status==="open"||!x.relayed).map(x=>askHTML(x,a)).join("")}</ul></div>`;
+      const list=all.filter(x=>x.status==="open"||!x.relayed);
+      d.innerHTML=`<div class="thought-card" role="dialog" aria-label="${esc(a.name)}"><h3>${esc(a.name)} is thinking… <button type="button" data-close aria-label="Close">Close</button></h3>${list.length?`<ul class="asks">${list.map(x=>askHTML(x,a)).join("")}</ul>`:""}${chatHTML(a)}</div>`;
+      markSeen(chatsFor(a.id).filter(c=>c.reply).map(c=>c.id));
+    } else if(fresh){
+      d.innerHTML=`<button type="button" class="thought-btn reply" aria-label="New reply from ${esc(a.name)}"><b>${esc(a.name)}:</b> ${esc(fresh.reply.length>140?fresh.reply.slice(0,137)+"…":fresh.reply)}</button>`;
     } else {
       d.innerHTML=`<button type="button" class="thought-btn" aria-label="${esc(a.name)} has ${open.length} thing${open.length>1?"s":""} for you"><b>${open.length}</b> for you</button>`;
     }
@@ -1026,7 +1073,7 @@ function buildBubbles(){
 }
 bubbleLayer&&bubbleLayer.addEventListener("click",e=>{
   if(e.target.closest("[data-close]")){ openBubble=null; buildBubbles(); return; }
-  const t=e.target.closest(".thought-btn"); if(t){ openBubble=t.parentElement.dataset.agent; buildBubbles(); const f=bubbleLayer.querySelector(".thought.open input, .thought.open button"); if(f) f.focus(); }
+  const t=e.target.closest(".thought-btn"); if(t){ openBubble=t.parentElement.dataset.agent; buildBubbles(); const f=bubbleLayer.querySelector(".thought.open input[data-chat]")||bubbleLayer.querySelector(".thought.open input, .thought.open button"); if(f) f.focus(); const lg=bubbleLayer.querySelector(".thought.open .chat-log"); if(lg) lg.scrollTop=lg.scrollHeight; }
 });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&openBubble){ openBubble=null; buildBubbles(); } });
 function positionBubbles(){
@@ -1049,6 +1096,10 @@ function positionBubbles(){
     db.collection("asks").onSnapshot(snap=>{
       asks=snap.docs.map(s=>Object.assign({id:s.id},s.data())).sort((x,y)=>(x.order||0)-(y.order||0));
       const sy=window.scrollY, sx=window.scrollX; refresh(); if(selected) select(selected); renderBoard(); window.scrollTo(sx, sy); requestAnimationFrame(()=>window.scrollTo(sx, sy));
+    },()=>{});
+    db.collection("chats").onSnapshot(snap=>{
+      chats=snap.docs.map(s=>Object.assign({id:s.id},s.data())).sort((x,y)=>String(x.at).localeCompare(String(y.at)));
+      buildBubbles(); const lg=bubbleLayer&&bubbleLayer.querySelector(".thought.open .chat-log"); if(lg) lg.scrollTop=lg.scrollHeight;
     },()=>{});
     /* Live statuses: status/agents holds the same shape as agents.json. Any write shows up here within a second. */
     db.doc("status/agents").onSnapshot(snap=>{
