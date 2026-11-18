@@ -133,7 +133,7 @@ canvas#map{border-radius:2px}
 .ask input{font:inherit;font-size:13px;width:100%;margin-top:6px;padding:6px 8px;border:2px solid #cdb886;border-radius:4px;background:#fffdf6;color:var(--ink)}
 .ask-b{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
 .ask-b button,.ask-b a{font-family:var(--display);font-size:13px;border:2px solid var(--wood-dk);border-radius:4px;padding:4px 10px;cursor:pointer;box-shadow:0 2px 0 var(--wood-dk);text-decoration:none;color:var(--ink)}
-.ask-b .yes{background:#9fdcae}.ask-b .no{background:#f1c9bf}.ask-b .link{background:var(--gold)}
+.ask-b .yes{background:#2f9e4f;color:#fff;min-width:64px}.ask-b .no{background:#c8423a;color:#fff;min-width:64px}.ask-b .yes:hover{background:#278a43}.ask-b .no:hover{background:#b23830}.ask-b .link{background:var(--gold)}
 .ask-b button:focus-visible,.ask-b a:focus-visible{outline:3px solid var(--st-scheduled);outline-offset:2px}
 .ask-s{margin-top:6px;font-size:12.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ask-s .tag{font-family:var(--display);font-size:12px;padding:1px 7px;border-radius:3px;color:#fff}
@@ -659,7 +659,7 @@ function renderBoard(){
     : `<li style="border-left-color:var(--st-working)">Nothing is waiting on you right now.</li>`;
   restoreDrafts(ul);
   document.getElementById("boardNote").textContent = db
-    ? "Your answer is saved as soon as you press a button. Each agent gets it in their thread within the hour. For anything that can't be undone they'll still check with you there first."
+    ? "Press Yes or No and Claude is told right away; the agent gets it in their thread within a minute or two. For anything that can't be undone they'll still check with you there first."
     : "On this website the buttons open your Claude island, where your answer is saved and sent to the agent.";
 }
 function portrait(a){ const c=document.createElement("canvas"); c.width=17; c.height=17; const g=c.getContext("2d"); g.imageSmoothingEnabled=false; drawVillager(g,8.5,16.5,a.look,0,"down",null,0); return c; }
@@ -712,7 +712,7 @@ function select(id){
   renderRoster();
   if(window.innerWidth<980) d.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
 }
-function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status"); document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
+function toast(msg){ document.querySelectorAll(".toast").forEach(n=>n.remove()); const t=document.createElement("div"); t.className="toast"; t.textContent=msg; t.setAttribute("role","status"); document.body.appendChild(t); setTimeout(()=>t.remove(),3200); }
 function copy(text, fallbackPreId){
   const done=()=>toast("Prompt copied");
   const fail=()=>{ const pre=document.getElementById(fallbackPreId); if(pre){ pre.textContent=text; pre.style.display="block"; pre.style.cssText+=";white-space:pre-wrap;background:#2b1f17;color:#f4e7c6;font-size:12.5px;padding:10px;border-radius:4px;margin-top:10px"; const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); } toast("Selected. Press Ctrl+C or ⌘C"); };
@@ -756,21 +756,21 @@ function askHTML(x,a){
   const kind=x.kind==="answer"?"answer":"decide";
   let body="";
   if(x.status==="open"){
-    if(!db){ body=`<div class="ask-b"><a class="link" href="${ARTIFACT_URL}" target="_blank" rel="noopener">Approve or decline in Claude</a></div>`; }
+    if(!db){ body=`<div class="ask-b"><a class="link" href="${ARTIFACT_URL}" target="_blank" rel="noopener">Answer Yes or No in Claude</a></div>`; }
     else {
       body=`<input data-in="${esc(x.id)}" maxlength="400" placeholder="${esc(x.placeholder|| (kind==="answer"?"Type your answer":"Add a note (optional)"))}" aria-label="${kind==="answer"?"Your answer":"Note"} for: ${esc(x.text)}">
-        <div class="ask-b"><button type="button" class="yes" data-act="approved" data-id="${esc(x.id)}">${kind==="answer"?"Send answer":"Approve"}</button><button type="button" class="no" data-act="declined" data-id="${esc(x.id)}">${kind==="answer"?"Not now":"Decline"}</button></div>
+        <div class="ask-b"><button type="button" class="yes" data-act="approved" data-id="${esc(x.id)}">Yes</button><button type="button" class="no" data-act="declined" data-id="${esc(x.id)}">No</button></div>
         ${errs[x.id]?`<div class="ask-err">${esc(errs[x.id])}</div>`:""}`;
     }
   } else {
     const who=a?a.name:agentName(x.agent);
     const when=x.relayedAt?new Date(x.relayedAt).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
-    body=`<div class="ask-s"><span class="tag ${x.status}">${x.status==="approved"?(kind==="answer"?"Answered":"Approved"):(kind==="answer"?"Not now":"Declined")}</span>
-      <span>${x.relayed?`${esc(who)} got it ${esc(when)}`:`Saved. On its way to ${esc(who)}`}</span>
+    body=`<div class="ask-s"><span class="tag ${x.status}">${x.status==="approved"?"Yes":"No"}</span>
+      <span>${x.relayed?`${esc(who)} got it ${esc(when)}`:`Sending to ${esc(who)}…`}</span>
       ${!x.relayed&&db?`<button type="button" data-act="open" data-id="${esc(x.id)}">Change</button>`:""}</div>
       ${x.note?`<div class="ask-m">You said: ${esc(x.note)}</div>`:""}`;
   }
-  const meaning = x.status==="open" && (x.approveMeans||x.declineMeans) ? `<div class="ask-m">${x.approveMeans?`${kind==="answer"?"Send":"Approve"}: ${esc(x.approveMeans)}`:""}${x.approveMeans&&x.declineMeans?"<br>":""}${x.declineMeans?`${kind==="answer"?"Not now":"Decline"}: ${esc(x.declineMeans)}`:""}</div>` : "";
+  const meaning = x.status==="open" && (x.approveMeans||x.declineMeans) ? `<div class="ask-m">${x.approveMeans?`Yes: ${esc(x.approveMeans)}`:""}${x.approveMeans&&x.declineMeans?"<br>":""}${x.declineMeans?`No: ${esc(x.declineMeans)}`:""}</div>` : "";
   return `<li class="ask"><div class="ask-t">${esc(x.text)}</div>${meaning}${body}</li>`;
 }
 function restoreDrafts(root){ root.querySelectorAll("input[data-in]").forEach(i=>{ if(drafts[i.dataset.in]) i.value=drafts[i.dataset.in]; }); }
@@ -779,13 +779,25 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest&&e.target.closest("[data-act]"); if(!b||!db) return;
   const id=b.dataset.id, x=(asks||[]).find(z=>z.id===id); if(!x) return;
   const act=b.dataset.act, note=(drafts[id]||"").trim();
-  if(act==="approved" && x.kind==="answer" && !note){ errs[id]="Type your answer first."; renderAll(); return; }
+  if(act==="approved" && x.kind==="answer" && !note){ errs[id]="Type your answer in the box, then press Yes."; renderAll(); return; }
   delete errs[id]; b.disabled=true;
   const patch = act==="open" ? {status:"open", decidedAt:null, note:""} : {status:act, note, decidedAt:new Date().toISOString(), relayed:false, relayedAt:null};
-  try{ await db.doc("asks/"+id).update(patch); if(act!=="open"){ delete drafts[id]; toast(act==="approved"?(x.kind==="answer"?"Answer saved":"Approved"):(x.kind==="answer"?"Marked not now":"Declined")); } }
+  try{ await db.doc("asks/"+id).update(patch); if(act!=="open"){ delete drafts[id]; kick(act); } }
   catch(err){ errs[id]= err&&err.code==="permission_denied" ? "Only the island's owner can answer this." : "Couldn't save that. Check your connection and try again."; b.disabled=false; renderAll(); }
 });
 function renderAll(){ renderBoard(); buildBubbles(); }
+/* A press wakes Claude right away through the Claude Code Remote connector, which runs the relay task now. */
+const RELAY_TASK="trig_01CcEKFZ4u2V3Xenos7CvJ6w"; let mcp=null, kickT=null, kickN=0;
+function kick(act){
+  kickN++; toast(act==="approved"?"Yes saved. Telling Claude…":"No saved. Telling Claude…");
+  clearTimeout(kickT); kickT=setTimeout(async()=>{
+    const n=kickN; kickN=0;
+    try{ if(!mcp) mcp=await window.claude.use("mcp"); }catch(e){ mcp=null; }
+    if(!mcp){ toast("Saved. Claude passes it on within the hour."); return; }
+    try{ await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:RELAY_TASK,text:`Maxwell just pressed ${n} button${n>1?"s":""} on Agent Island. Relay now.`}); toast("Sent to Claude. The agent hears about it in a minute or two."); }
+    catch(e){ toast(e&&["not_granted","consent_required","cancelled","server_not_connected","needs_reauth"].includes(e.code) ? "Saved. Allow the Claude Code Remote connector to send it instantly; otherwise it goes within the hour." : "Saved. Claude passes it on within the hour."); }
+  },1200);
+}
 const bubbleLayer=document.getElementById("bubbles");
 function buildBubbles(){
   if(!bubbleLayer) return;
