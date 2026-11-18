@@ -626,27 +626,31 @@ function drawOrchardSign(t){
 function money(v){ const n=Number(v)||0; return (n<0?"−":"")+"$"+Math.abs(n).toFixed(2); }
 function pct(v){ return (v<0?"−":"")+Math.abs(v*100).toFixed(1)+"%"; }
 /* Unit economics. Price includes Tulsa sales tax; Stripe fee is per sale; cost per strip = materials so far / strips bought. */
-function unitMath(){
+function unitMath(cost){
   const price=BIZ.price||10.99, taxRate=BIZ.salesTaxRate!=null?BIZ.salesTaxRate:0.08517, incRate=BIZ.incomeTaxRate!=null?BIZ.incomeTaxRate:0.25;
   const fee=BIZ.feePerSale!=null?BIZ.feePerSale:Math.round((price*0.029+0.35)*100)/100;
-  const cost=BIZ.costPerStrip!=null?BIZ.costPerStrip:7.62;
+  if(cost==null) cost=BIZ.costPerStrip!=null?BIZ.costPerStrip:1.63;
   const salesTax=price-price/(1+taxRate);
   const gross=price-fee-cost;                 // before any tax
   const pre=price-salesTax-fee-cost;          // after sales tax
   const after=pre>0?pre*(1-incRate):pre;      // after income tax set-aside
-  return {price,fee,cost,salesTax,gross,after,grossPct:gross/price,afterPct:after/price,incRate};
+  return {price,fee,cost,salesTax,gross,pre,after,grossPct:gross/price,prePct:pre/price,afterPct:after/price,incRate};
 }
+function scenarios(){ return (BIZ.costScenarios&&BIZ.costScenarios.length)?BIZ.costScenarios:[{label:"Per strip",cost:BIZ.costPerStrip}]; }
 function orchardTip(idx){
-  const sales=realSales(), n=sales.length, u=unitMath();
+  const sales=realSales(), n=sales.length;
   const gross=sales.reduce((a,s)=>a+(s.amount||0),0);
-  const tGross=n*u.gross, tAfter=n*u.after;
   let one="";
   if(idx!=null&&sales[idx]){ const s=sales[idx], d=new Date(s.date+"T12:00:00"); one=`<div class="row"><div class="lbl">This tree</div>Sale #${idx+1} · ${money(s.amount)} on ${d.toLocaleDateString([], {month:"short",day:"numeric"})}</div>`; }
+  const sc=scenarios().map(o=>{ const u=unitMath(o.cost); return `<div class="row"><div class="lbl">${esc(o.label)} · ${money(u.cost)} a strip</div>
+      Per strip: <b>${money(u.gross)}</b> gross (${pct(u.grossPct)}) · <b>${money(u.pre)}</b> after sales tax (${pct(u.prePct)}) · <b>${money(u.after)}</b> after ${Math.round(u.incRate*100)}% income tax (${pct(u.afterPct)})<br>
+      All ${n} sales: ${money(n*u.gross)} gross · ${money(n*u.pre)} after sales tax · ${money(n*u.after)} after income tax</div>`; }).join("");
+  const u0=unitMath(scenarios()[0].cost);
   return `<div class="nm">Sales Orchard</div><div class="rl">One tree for every sale</div>
     <div class="row"><b>${n}</b> sales · <b>${money(gross)}</b> gross revenue</div>
     <div class="row">Net profit: <b style="color:${(BIZ.profit||0)<0?"#b23830":"#2f7a45"}">${money(BIZ.profit)}</b> <span style="opacity:.75">(counts all materials bought, sold or not)</span></div>
-    <div class="row"><div class="lbl">Margin, all sales</div>Gross: <b>${money(tGross)}</b> (${pct(u.grossPct)}) · After taxes: <b>${money(tAfter)}</b> (${pct(u.afterPct)})</div>
-    <div class="row"><div class="lbl">Margin per DarkDorms strip</div>${money(u.price)} price − ${money(u.fee)} Stripe − ${money(u.cost)} materials = <b>${money(u.gross)}</b> gross (${pct(u.grossPct)})<br>− ${money(u.salesTax)} sales tax − ${Math.round(u.incRate*100)}% income tax = <b>${money(u.after)}</b> after taxes (${pct(u.afterPct)})</div>
+    <div class="row" style="opacity:.75">Each strip: ${money(u0.price)} price − ${money(u0.fee)} Stripe − strip cost = gross; then − ${money(u0.salesTax)} sales tax; then the income tax set-aside.</div>
+    ${sc}
     ${(BIZ.refunds||0)?`<div class="row" style="opacity:.75">${BIZ.refunds} refunded test order not counted.</div>`:""}${one}
     ${n>ORCH_COLS*ORCH_ROWS?`<div class="row">The orchard is full: showing ${ORCH_COLS*ORCH_ROWS} of ${n} trees.</div>`:""}`;
 }
