@@ -952,10 +952,59 @@ let seenChats=new Set(); try{ seenChats=new Set(JSON.parse(localStorage.getItem(
 function markSeen(ids){ let ch=false; ids.forEach(i=>{ if(!seenChats.has(i)){ seenChats.add(i); ch=true; } }); if(ch) try{ localStorage.setItem("darkdormsIsland.seenChats", JSON.stringify([...seenChats].slice(-300))); }catch(e){} }
 function chatsFor(id){ return chats.filter(c=>c.agent===id); }
 function unseenReply(id){ return chatsFor(id).filter(c=>c.reply&&!seenChats.has(c.id)).pop()||null; }
+const streaming={}; let sampleFn=undefined;
+/* Fast replies: the page asks Claude directly, speaking as the agent from what the island knows
+   (role, task, status, latest, open asks, business numbers, team rules). Answers stream in 1-5 seconds.
+   Anything that needs the real agent to DO or look up something is flagged [[CHECK]] and relayed to their
+   thread, whose answer lands as a follow-up in the same bubble. */
+function agentBrief(id){
+  const a=allAgentsCache.find(z=>z.id===id)||{}; const all=allAgentsCache.map(z=>`${z.name} (${z.role}): ${z.statusText}`).join("; ");
+  const myAsks=(asks||[]).filter(x=>x.agent===id).map(x=>`- [${x.status}] ${x.text}${x.melvin?` (Melvin: ${x.melvin})`:""}`).join("\n")||"none";
+  const b=BIZ||{};
+  return `You are ${a.name}, ${a.role}, one of the AI agents on Maxwell's team for DarkDorms (dorm door light-blocking strips for college students, sold at darkdorms.com). Maxwell owns the business and is messaging you from his island dashboard. Reply in your own voice, warm and brief (1 to 3 sentences, under 300 characters), plain text, no markdown.
+Facts you know (use only these, never invent numbers, dates or results):
+- Your job: ${a.task||""}
+- Your status: ${a.status||""}: ${a.statusText||""}
+- Your latest: ${a.latest||"nothing new"}
+- Things you're waiting on Maxwell for: ${(a.needs||[]).join(" | ")||"nothing"}
+- Your island asks:\n${myAsks}
+- Business: price $${b.price||"10.99"} a strip, ${b.sold??"?"} sold, ${b.stock??"?"} in stock, gross $${b.gross??"?"}, profit so far $${b.profit??"?"}, about ${b.toBreakEven??"?"} more sales to break even, sales ${b.salesPaused?"paused":"open"}.
+- Teammates: ${all}. Melvin is chief of staff.
+- Today: ${new Date().toLocaleString([], {weekday:"long",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})} (Central time).
+Team rules: never call the product "foam" (say "a strip"); never mention any discount link or a price other than the public one; prices, refunds, deleting things, Stripe, taxes and messages to customers are Maxwell's call; you never claim you did something you haven't; act with Christian kindness.
+If Maxwell asks you to DO something, check something live, or asks anything these facts don't answer, say briefly what you know and that you're checking now, then end with the exact tag [[CHECK]] on its own line. Otherwise do not include the tag.`;
+}
+async function fastReply(ref, agent, text, host){
+  try{ if(sampleFn===undefined) sampleFn=await window.claude.use("sample"); }catch(e){ sampleFn=null; }
+  const who=agentName(agent);
+  const slow=()=>wakeClaude(`Agent Island message [chat:${ref.id}] from Maxwell to ${who}: "${text}". Please get ${who}'s answer and post it back on the island.`, host, `Sent to ${who}. The answer pops up here, usually in 1 to 3 minutes.`, `Sent. ${who} answers within the hour.`);
+  if(!sampleFn){ slow(); return; }
+  const prev=chatsFor(agent).filter(c=>c.id!==ref.id&&c.reply).slice(-4).flatMap(c=>[{role:"user",content:c.text},{role:"assistant",content:c.reply}]);
+  const turns=[{role:"user",content:agentBrief(agent)+"\n\nReply OK to start."},{role:"assistant",content:"OK."},...prev,{role:"user",content:text}];
+  streaming[ref.id]=""; buildBubbles();
+  let lastPaint=0;
+  try{
+    const {text:out}=await sampleFn(turns,{modelTier:"quick",cache:false,onText:({text:t})=>{ streaming[ref.id]=t.replace(/\[\[CHECK\]\]/g,"").trim(); const n=performance.now(); if(n-lastPaint>120){ lastPaint=n; buildBubbles(); scrollChat(); } }});
+    const check=/\[\[CHECK\]\]/.test(out); const reply=out.replace(/\[\[CHECK\]\]/g,"").trim().slice(0,600);
+    await db.doc("chats/"+ref.id).update({reply, replyAt:new Date().toISOString(), by:"quick", status:check?"sent":"answered"});
+    delete streaming[ref.id];
+    if(check) wakeClaude(`Agent Island message [chat:${ref.id}] from Maxwell to ${who}: "${text}". ${who} gave a quick answer and said they'd check. Please get ${who}'s real answer and post it as the follow-up.`, host, `${who} is checking. A follow-up pops up here.`, `${who} follows up within the hour.`);
+  }catch(e){
+    delete streaming[ref.id]; buildBubbles();
+    if(e&&e.code==="not_granted"){ sampleFn=null; toast("Quick replies are off. Sending to the agent's thread instead."); }
+    slow();
+  }
+}
+function scrollChat(){ const lg=bubbleLayer&&bubbleLayer.querySelector(".thought.open .chat-log"); if(lg) lg.scrollTop=lg.scrollHeight; }
 function chatHTML(a){
   if(!db) return "";
-  const log=chatsFor(a.id).slice(-4).map(c=>`<div class="cm me">${esc(c.text)}</div>`+(c.reply?`<div class="cm ag"><b>${esc(a.name)}:</b> ${esc(c.reply)}</div>`:`<div class="cm wait">${esc(a.name)} is thinking… replies usually take 1 to 3 minutes</div>`)).join("");
-  return `<div class="chat">${log?`<div class="chat-log">${log}</div>`:""}<input data-in="chat:${esc(a.id)}" data-chat="${esc(a.id)}" maxlength="600" placeholder="Message ${esc(a.name)}, then press Enter" aria-label="Message ${esc(a.name)}"><div class="hint">${esc(a.name)}'s answer pops up here as a thought bubble.</div></div>`;
+  const log=chatsFor(a.id).slice(-4).map(c=>{
+    const live=streaming[c.id];
+    const r=live!==undefined?(live?`<div class="cm ag"><b>${esc(a.name)}:</b> ${esc(live)}</div>`:`<div class="cm wait">${esc(a.name)} is thinking…</div>`)
+      : c.reply?`<div class="cm ag"><b>${esc(a.name)}:</b> ${esc(c.reply)}</div>`:`<div class="cm wait">${esc(a.name)} is thinking… a full answer can take 1 to 3 minutes</div>`;
+    const f=c.followup?`<div class="cm ag"><b>${esc(a.name)} (follow-up):</b> ${esc(c.followup)}</div>`:(c.status==="sent"||c.status==="relayed")&&c.reply?`<div class="cm wait">Checking in ${esc(a.name)}'s thread, follow-up coming…</div>`:"";
+    return `<div class="cm me">${esc(c.text)}</div>`+r+f; }).join("");
+  return `<div class="chat">${log?`<div class="chat-log">${log}</div>`:""}<input data-in="chat:${esc(a.id)}" data-chat="${esc(a.id)}" maxlength="600" placeholder="Message ${esc(a.name)}, then press Enter" aria-label="Message ${esc(a.name)}"><div class="hint">${esc(a.name)} answers here in a few seconds. If it needs real work, a follow-up comes from their thread.</div></div>`;
 }
 function asksFor(id){
   if(asks) return asks.filter(x=>x.agent===id);
@@ -995,7 +1044,7 @@ document.addEventListener("keydown",async e=>{
   try{
     const ref=await db.collection("chats").add({agent, text, at:new Date().toISOString(), status:"sent", reply:"", replyAt:null});
     const host=i.closest(".thought")||i;
-    wakeClaude(`Agent Island message [chat:${ref.id}] from Maxwell to ${who}: "${text}". Please get ${who}'s answer and post it back on the island.`, host, `Sent to ${who}. The answer pops up here, usually in 1 to 3 minutes.`, `Sent. ${who} answers within the hour.`);
+    fastReply(ref, agent, text, host);
   }catch(err){ i.value=text; toast(err&&err.code==="permission_denied"?"Only the island's owner can message agents.":"Couldn't send that. Check your connection and try again."); }
   finally{ i.disabled=false; const n=bubbleLayer&&bubbleLayer.querySelector(`input[data-chat="${CSS.escape(agent)}"]`); if(n) n.focus(); }
 });
@@ -1083,7 +1132,8 @@ function positionBubbles(){
     const below = el.classList.contains("open") && a.y/cv.height < 0.62;
     el.classList.toggle("below", below);
     const vx=a.x-VX; el.style.display=(vx<0||vx>cv.width)?"none":"";
-    el.style.left=(vx/cv.width*100)+"%";
+    const W=bubbleLayer.clientWidth||1, half=el.offsetWidth/2, cx=vx/cv.width*W;
+    el.style.left=(W>half*2+12? Math.min(W-half-6, Math.max(half+6, cx)) : cx)+"px";
     el.style.top=((below? a.y+2 : a.y-22)/cv.height*100)+"%";
   });
 }
