@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18T04:52:48+00:00",
+  "updated": "2026-11-18T05:00:08+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -26,12 +26,12 @@
     {
       "id": "melvin",
       "name": "Melvin",
-      "role": "Messenger",
+      "role": "Chief of staff",
       "color": "#2f5e9e",
       "status": "working",
       "statusText": "On duty",
       "task": "Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
-      "latest": "Your ORU Outlook won't forward mail to him, so orders reach him through me@darkdorms.com instead.",
+      "latest": "Promoted to chief of staff (Nov 17, 10:59 PM): runs the team, makes small calls, can add or replace helper agents.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4EKuCknhiBbJukLidxxjn22",
       "threadTitle": "Connect Melvin to Outlook"
