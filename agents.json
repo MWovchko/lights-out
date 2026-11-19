@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T13:24:16.937399+00:00",
+  "updated": "2026-11-19T16:39:00.426434+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -275,9 +275,9 @@
       "color": "#2f6fb0",
       "island": "home",
       "status": "scheduled",
-      "statusText": "Daily domain hunt at 10:37 AM",
+      "statusText": "Daily domain hunt at 10:37 AM. Last hunt: today",
       "task": "Hunts every day for good, available domain names for your current and possible businesses, checks price, and lists the best finds here. Never buys: registering is your call.",
-      "latest": "First hunt: dormquiet.com ($17), debtlesswallet.com ($17) and roomieaid.com ($17) were available. budgetcard.com and envelopecard.com are taken.",
+      "latest": "Today's best finds: hushdorm.com, campusshade.com and budgetfirstcard.com, each $17 first year and available when checked. Dex never buys.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4FaPh2rVpFxAhDar1bmLEWC",
       "threadTitle": "Build agent island dashboard",
@@ -470,6 +470,42 @@
     }
   ],
   "domainFinds": [
+    {
+      "domain": "hushdorm.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing",
+      "checked": "2026-11-19"
+    },
+    {
+      "domain": "campusshade.com",
+      "price": "17.00",
+      "idea": "DarkDorms-style light-blocking strips",
+      "checked": "2026-11-19"
+    },
+    {
+      "domain": "budgetfirstcard.com",
+      "price": "17.00",
+      "idea": "the debt-free business budgeting card",
+      "checked": "2026-11-19"
+    },
+    {
+      "domain": "dormwhisper.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing",
+      "checked": "2026-11-19"
+    },
+    {
+      "domain": "dormsetupcrew.com",
+      "price": "17.00",
+      "idea": "student move-in and dorm setup service (new idea)",
+      "checked": "2026-11-19"
+    },
+    {
+      "domain": "campuslaundryrun.com",
+      "price": "17.00",
+      "idea": "student-run campus laundry pickup (new idea)",
+      "checked": "2026-11-19"
+    },
     {
       "domain": "dormquiet.com",
       "price": "17.00",
