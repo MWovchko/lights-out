@@ -224,7 +224,7 @@ canvas#map{border-radius:2px}
       <span><i class="dot" style="background:var(--st-new)"></i>New, prompt not sent yet</span>
       <span><i class="dot" style="background:var(--st-done)"></i>Done</span>
     </div>
-    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. Agents with nothing to do study at Leadership Hall, race at the track, or rest at home (Zz). The notice board in the square lists everything waiting on you.</p>
+    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. Every agent visits Leadership Hall and Sales Hall once a day. With nothing to do, they rest at home (Zz), go to a hall, race at the track, or play at a fun spot they made. The notice board in the square lists everything waiting on you.</p>
   </section>
 
   <aside>
@@ -344,16 +344,31 @@ let IDEAS = [], IDEA_VERDICT = null;
 const ORCH = {x:23,y:9,w:6,h:5};
 const HALL = {x:22,y:4,w:4,h:3,kind:"hall",roof:"#5a4a8a",wall:"#efe3c8",label:"Leadership Hall"};
 const TRACK = {x:29,y:15,w:4,h:3};
-/* Free time: agents that are scheduled or done (and not waiting on you) study, race or rest. Night is always rest. */
-const ACT_TEXT={study:"Studying this week's leadership lesson at Leadership Hall.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
+const SALES = {x:12,y:10,w:4,h:3,kind:"sales",roof:"#2f7a45",wall:"#efe3c8",label:"Sales Hall"};
+/* Fun spots the agents made themselves (agents.json "funSpots": [{id,name,island,by,about,color}]). Placed on a free lot near their island's square. */
+let FUN = [];
+/* Free time (Maxwell, 2026-11-18): when an agent has nothing to do it rests, goes to Leadership Hall or Sales Hall,
+   races, or plays at a fun spot. Every agent also goes to BOTH halls once a day (15 minutes each, daytime),
+   even on a working day, unless it's waiting on Maxwell. Night is always rest. */
+const ACT_TEXT={study:"At Leadership Hall, watching today's lesson on serving and leading well.",sales:"At Sales Hall, in a masterclass on getting more customers and making the most of what we have.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
+function actText(ac){ if(ac&&ac.startsWith("fun:")){ const f=FUN.find(z=>"fun:"+z.id===ac); return f?`Having fun at ${f.name}.`:"Having fun."; } return ACT_TEXT[ac]||""; }
+function classBlocks(id){ /* two 15-minute daytime blocks a day (9 AM to 7 PM local), one per hall */
+  const d=new Date(), day=d.getFullYear()*400+d.getMonth()*32+d.getDate(), base=36, span=40;
+  const lb=base+hashStr(id+":L:"+day)%span; let sb=base+hashStr(id+":S:"+day)%span; if(Math.abs(sb-lb)<4) sb=base+(sb-base+span/2)%span;
+  return {lb, sb};
+}
 function activity(ag){
-  if(!(ag.status==="scheduled"||ag.status==="done")) return null;
   if(typeof openAsksFor==="function"&&openAsksFor(ag.id).length) return null;
-  if(skyState()==="night") return "rest";
+  if(skyState()==="night") return (ag.status==="scheduled"||ag.status==="done")?"rest":null;
+  const now=new Date(), dayBlock=now.getHours()*4+Math.floor(now.getMinutes()/15);
+  const cb=classBlocks(ag.id); if(dayBlock===cb.lb) return "study"; if(dayBlock===cb.sb) return "sales";
+  if(!(ag.status==="scheduled"||ag.status==="done")) return null;
   const block=Math.floor(Date.now()/(15*60000));
-  if(ag.island==="bb"||ag.island==="home") return ["race","rest"][(block+hashStr(ag.id))%2]; /* Leadership Hall is on DarkDorms Island */
-  return ["study","race","rest"][(block+hashStr(ag.id))%3];
-} /* sales orchard: one tree per sale */
+  const opts=["study","sales","race","rest", ...FUN.filter(f=>(f.island||"dd")===(ag.island||"dd")).map(f=>"fun:"+f.id)];
+  return opts[(block+hashStr(ag.id))%opts.length];
+}
+function classDone(id){ const now=new Date(), b=now.getHours()*4+Math.floor(now.getMinutes()/15), cb=classBlocks(id); return {lead:b>cb.lb, sales:b>cb.sb, lb:cb.lb, sb:cb.sb}; }
+function blockTime(b){ const h=Math.floor(b/4), m=(b%4)*15; return new Date(2000,0,1,h,m).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); } /* sales orchard: one tree per sale */
 const SWATCH = ["#d9534f","#e58f3a","#e9c43a","#5cae5c","#3fa8a0","#4f7fd6","#8a63c9","#d46fa8","#f2f2f2","#2a2a2a"];
 
 /* ---------- Saved villagers ---------- */
@@ -384,7 +399,7 @@ let reserved, pathT, trees, lots;
 function key(x,y){return x+","+y;}
 function buildWorld(){
   reserved=new Set(); pathT=new Set();
-  const houses=[MAYOR, HALL, ...AGENTS.map(a=>a.house)];
+  const houses=[MAYOR, HALL, SALES, ...AGENTS.map(a=>a.house)];
   const markHouse=h=>{ for(let y=h.y-1;y<=h.y+h.h;y++) for(let x=h.x-1;x<=h.x+h.w;x++) reserved.add(key(x,y)); };
   houses.forEach(markHouse);
   for(let y=ORCH.y-1;y<=ORCH.y+ORCH.h;y++) for(let x=ORCH.x-1;x<=ORCH.x+ORCH.w;x++) reserved.add(key(x,y));
@@ -406,6 +421,7 @@ function buildWorld(){
   // custom lots: placed after the main paths so no path runs through a cottage
   lots=[];
   extras.filter(c=>c.house).forEach(c=>{ c._house=Object.assign({kind:"cottage",wall:"#f0e2c4",roof:c.color,label:c.name+"'s House"},c.house); markHouse(c._house); lots.push(c._house); addPath(c._house,PLAZAS[c.island]||PLAZA); });
+  FUN.forEach(f=>{ const C=PLAZAS[f.island]||PLAZA; const spot=findSpot("fun:"+f.id,C); f._house={x:spot.x,y:spot.y,w:3,h:2,kind:"fun",roof:f.color||"#d46fa8",wall:"#fbeedd",label:f.name}; markHouse(f._house); addPath(f._house,C); });
   [...extras.filter(c=>!c.house), ...custom].forEach(c=>{ const C=PLAZAS[c.island]||PLAZA; const spot=findSpot(c.id,C); c._house={x:spot.x,y:spot.y,w:3,h:2,kind:"cottage",roof:c.color,wall:"#f0e2c4",label:c.name+"'s Cottage"}; markHouse(c._house); lots.push(c._house); addPath(c._house,C); });
   // trees
   trees=[]; const r=rng(7);
@@ -496,6 +512,8 @@ const ICONS={
   shop:["#..#.","##.##","#.#.#","#...#","#...#"],
   mayor:["..#..",".###.","#####",".#.#.",".###."],
   hall:["..#..","#####","..#..","..#..","..#.."],
+  sales:[".####","#.#..",".###.","..#.#","####."],
+  fun:["#....","####.","#####","###..","#...."],
   cottage:["..#..",".###.","#####",".#.#."],
   bulb:[".###.","#...#","#...#",".#.#.",".###.",".###."],
   gear:["#.#.#",".###.","##.##",".###.","#.#.#"],
@@ -608,12 +626,14 @@ function makeActors(){
     return {agent:ag, home, houseHome:home, x:p?p.x:home.x, y:p?p.y:home.y, tx:home.x, ty:home.y, wait:Math.random()*2000, frame:0, dir:"down", r:rng(hashStr(ag.id))};
   });
 }
-function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; if(tx>=ORCH.x&&tx<ORCH.x+ORCH.w&&ty>=ORCH.y&&ty<ORCH.y+ORCH.h) return false; for(const R of [HALL,TRACK]) if(tx>=R.x&&tx<R.x+R.w&&ty>=R.y&&ty<R.y+R.h) return false; return true; }
+function walkable(x,y){ const tx=Math.floor(x/T), ty=Math.floor((y-2)/T); if(!isLand(tx,ty)) return false; for(const a of actors){ const h=a.agent.house; if(tx>=h.x&&tx<h.x+h.w&&ty>=h.y&&ty<h.y+h.h) return false; } if(tx>=MAYOR.x&&tx<MAYOR.x+MAYOR.w&&ty>=MAYOR.y&&ty<MAYOR.y+MAYOR.h) return false; if(tx>=ORCH.x&&tx<ORCH.x+ORCH.w&&ty>=ORCH.y&&ty<ORCH.y+ORCH.h) return false; for(const R of [HALL,SALES,TRACK,...FUN.map(f=>f._house).filter(Boolean)]) if(tx>=R.x&&tx<R.x+R.w&&ty>=R.y&&ty<R.y+R.h) return false; return true; }
 function stepActor(a,dt){
   a.act=activity(a.agent);
   if(a.act==="race"||a.act==="rest"){ a.x=a.houseHome.x; a.y=a.houseHome.y; a.tx=a.x; a.ty=a.y; return; }
-  const want=a.act==="study"?{x:(HALL.x+HALL.w/2)*T, y:(HALL.y+HALL.h+1)*T+2}:a.houseHome;
-  if(a.home.x!==want.x||a.home.y!==want.y){ a.home=want; a.tx=want.x; a.ty=want.y; a.wait=0; }
+  const door=h=>h?{x:(h.x+h.w/2)*T, y:(h.y+h.h+1)*T+2}:null;
+  const want=(a.act==="study"?door(HALL):a.act==="sales"?door(SALES):a.act&&a.act.startsWith("fun:")?door((FUN.find(f=>"fun:"+f.id===a.act)||{})._house):null)||a.houseHome;
+  if(a.home.x!==want.x||a.home.y!==want.y){ a.home=want; a.tx=want.x; a.ty=want.y; a.wait=0;
+    if(Math.hypot(want.x-a.x,want.y-a.y)>26*T){ a.x=want.x; a.y=want.y; } /* across the sea: hop over by boat */ }
   if(openAsksFor(a.agent.id).length){ const dx=a.home.x-a.x, dy=a.home.y-a.y, d=Math.hypot(dx,dy); if(d>1){ const sp=16*dt/1000; a.x+=dx/d*Math.min(sp,d); a.y+=dy/d*Math.min(sp,d); a.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?"left":"right"):(dy<0?"up":"down"); a.frame=Math.floor(performance.now()/180)%2; } else { a.frame=0; a.dir="down"; } return; }
   const busy = a.agent.status==="working" || a.agent.status==="new";
   if(a.wait>0){ a.wait-=dt; a.frame=0; return; }
@@ -648,7 +668,7 @@ function render(t){
   if(!reduce){ ctx.fillStyle="rgba(220,240,250,.35)"; for(let i=0;i<40;i++){ const sx=(i*97 + t/40*(i%3+1))%base.width, sy=(i*53)%base.height; const tx=Math.floor(sx/T), ty=Math.floor(sy/T); if(ty<H&&tx<W&&terr[ty][tx]<=1 && !(tx===PLAZA.x&&ty>=19)) ctx.fillRect(sx|0,sy|0,3,1); } }
   // drawables sorted by base y
   const items=[];
-  const houses=[{h:MAYOR,id:"mayor"},{h:HALL,id:"hall"}, ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
+  const houses=[{h:MAYOR,id:"mayor"},{h:HALL,id:"hall"},{h:SALES,id:"sales"}, ...FUN.filter(f=>f._house).map(f=>({h:f._house,id:"fun:"+f.id})), ...actors.map(a=>({h:a.agent.house,id:a.agent.id}))];
   houses.forEach(o=>items.push({y:(o.h.y+o.h.h)*T, draw:()=>{ drawHouse(ctx,o.h,night,t); if(hover&&hover.type==="house"&&hover.id===o.id) outline(o.h); }}));
   trees.forEach(tr=>items.push({y:tr.y, draw:()=>drawTree(ctx,tr,t)}));
   drawOrchardGround();
@@ -828,9 +848,19 @@ function hallTip(){
     ${LESSON?`<div class="row"><div class="lbl">This week's lesson</div><b>${esc(LESSON.title)}</b><br>${esc(LESSON.oneLine)}</div>`:""}
     <div class="row"><div class="lbl">On the board</div><ul><li>Serve every customer like Jesus would</li><li>Be honest, even when it costs you</li><li>Do the work well, as if for the Lord</li><li>Own your results, help your teammates</li><li>Stay debt-free and spend wisely</li><li>Rest when the work is done</li></ul></div>`;
 }
+function salesTip(){
+  const st=actors.filter(a=>a.act==="sales").map(a=>a.agent.name);
+  return `<div class="nm">Sales Hall</div><div class="rl">Masterclasses on getting more customers and sales</div>
+    <div class="row">${st.length?`<b>${esc(st.join(", "))}</b> ${st.length>1?"are":"is"} in class now.`:"Nobody is in class right now."}</div>
+    ${SALES_CLASS?`<div class="row"><div class="lbl">Today's masterclass</div><b>${esc(SALES_CLASS.title)}</b><br>${esc(SALES_CLASS.oneLine)}</div>`:`<div class="row"><div class="lbl">Today's masterclass</div>The first video lesson lands after the next study run.</div>`}
+    <div class="row"><div class="lbl">On the board</div><ul><li>Serve first, sell second</li><li>Make the customer the hero, we're the guide</li><li>Ask every buyer how they found us</li><li>Make the most of what we have before spending more</li><li>Follow up fast, keep every promise</li><li>Never pushy, never dishonest</li></ul></div>
+    <div class="row" style="opacity:.75">Every agent comes here and to Leadership Hall once a day.</div>`;
+}
+function funTip(id){ const f=FUN.find(z=>"fun:"+z.id===id)||{}; const here=actors.filter(a=>a.act===id).map(a=>a.agent.name);
+  return `<div class="nm">${esc(f.name||"Fun spot")}</div><div class="rl">Fun spot${f.by?` made by ${esc(f.by)}`:""}</div>${f.about?`<div class="row">${esc(f.about)}</div>`:""}<div class="row">${here.length?`<b>${esc(here.join(", "))}</b> ${here.length>1?"are":"is"} here now.`:"Nobody's here right now."}</div>`; }
 function trackTip(){
   const r=actors.filter(a=>a.act==="race").map(a=>a.agent.name);
-  return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working, studying or resting."}</div>`;
+  return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working, in class or resting."}</div>`;
 }
 function drawHomeSign(x,y){ px(ctx,x+5,y-10,2,10,"#6b4428"); px(ctx,x,y-16,12,8,"#4a2f1c"); px(ctx,x+1,y-15,10,6,"#e8cf8f"); px(ctx,x+3,y-13,6,1,"#4a2f1c"); px(ctx,x+3,y-11,4,1,"#4a2f1c");
   if(hover&&hover.type==="homesign"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-2.5,y-18.5,17,21); } }
@@ -861,6 +891,8 @@ function hit(p){
   { const hx=(HPLAZA.x+2)*T+2, hy=(HPLAZA.y+1)*T-2; if(p.x>=hx-3&&p.x<=hx+15&&p.y>=hy-19&&p.y<=hy+2) return {type:"homesign",id:"homesign"}; }
   if(p.x>=TRACK.x*T-3&&p.x<=(TRACK.x+TRACK.w)*T+3&&p.y>=TRACK.y*T-10&&p.y<=(TRACK.y+TRACK.h)*T+3) return {type:"track",id:"track"};
   if(p.x>=HALL.x*T-2&&p.x<=(HALL.x+HALL.w)*T+2&&p.y>=HALL.y*T-4&&p.y<=(HALL.y+HALL.h)*T+2) return {type:"hall",id:"hall"};
+  if(p.x>=SALES.x*T-2&&p.x<=(SALES.x+SALES.w)*T+2&&p.y>=SALES.y*T-4&&p.y<=(SALES.y+SALES.h)*T+2) return {type:"sales",id:"sales"};
+  for(const f of FUN){ const h=f._house; if(h&&p.x>=h.x*T-2&&p.x<=(h.x+h.w)*T+2&&p.y>=h.y*T-4&&p.y<=(h.y+h.h)*T+2) return {type:"fun",id:"fun:"+f.id}; }
   if(p.x>=ORCH.x*T-4&&p.x<=(ORCH.x+ORCH.w)*T+4&&p.y>=ORCH.y*T-8&&p.y<=(ORCH.y+ORCH.h)*T+12){ let best=null,bd=1e9; orchardSlots().forEach((sl,i)=>{ const d=Math.abs(p.x-sl.x)+Math.abs(p.y-(sl.y-7)); if(d<bd&&d<=9){bd=d;best=i;} }); return {type:"orchard",id:"orchard",idx:best}; }
   for(const a of actors){ const h=a.agent.house; if(p.x>=h.x*T-2&&p.x<=(h.x+h.w)*T+2&&p.y>=h.y*T-4&&p.y<=(h.y+h.h)*T+2) return {type:"house",id:a.agent.id}; }
   if(p.x>=MAYOR.x*T&&p.x<=(MAYOR.x+MAYOR.w)*T&&p.y>=MAYOR.y*T-8&&p.y<=(MAYOR.y+MAYOR.h)*T) return {type:"house",id:"mayor"};
@@ -873,6 +905,8 @@ function tipHTML(h){
   if(h.type==="board"){ const n=needsList(); return `<div class="nm">Notice board</div><div class="rl">${n.length} things waiting on you</div><ul>${n.slice(0,8).map(x=>`<li><b>${esc(x.who)}:</b> ${esc(x.what)}</li>`).join("")}</ul>${n.length>8?`<div class="row">…and ${n.length-8} more in the town hall</div>`:""}`; }
   if(h.type==="orchard") return orchardTip(h.idx);
   if(h.type==="hall") return hallTip();
+  if(h.type==="sales") return salesTip();
+  if(h.type==="fun") return funTip(h.id);
   if(h.type==="homesign") return homeTip();
   if(h.type==="ideas") return ideasTip();
   if(h.type==="track") return trackTip();
@@ -883,7 +917,9 @@ function tipHTML(h){
     <span class="pill ${a.status}">${STLABEL[a.status]}</span> <span style="font-size:12.5px">${esc(a.statusText)}</span>
     <div class="row"><div class="lbl">Doing</div>${esc(a.task)}</div>
     ${a.latest?`<div class="row"><div class="lbl">Latest</div>${esc(a.latest)}</div>`:""}
-    ${(()=>{ const ac=(actors.find(z=>z.agent.id===a.id)||{}).act; return ac?`<div class="row"><div class="lbl">Free time</div>${esc(ACT_TEXT[ac])}</div>`:""; })()}
+    ${(()=>{ const ac=(actors.find(z=>z.agent.id===a.id)||{}).act; const cd=classDone(a.id);
+      return (ac?`<div class="row"><div class="lbl">${a.status==="scheduled"||a.status==="done"?"Free time":"Daily class"}</div>${esc(actText(ac))}</div>`:"")+
+        `<div class="row"><div class="lbl">Today's classes</div>Leadership Hall ${cd.lead?"✓ done":"at "+blockTime(cd.lb)} · Sales Hall ${cd.sales?"✓ done":"at "+blockTime(cd.sb)}</div>`; })()}
     ${a.needs&&a.needs.length?`<div class="row"><div class="lbl">Needs from you</div><ul>${a.needs.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}`;
 }
 function placeTip(p){
@@ -1028,6 +1064,7 @@ function agentBrief(id){
   const bbCtx = a.island==="bb" ? `You live on Business Budgeting Isle and work on Maxwell's new idea, not DarkDorms: a debt-free business budgeting app whose company card checks the budget before the bank pays. The idea board: ${IDEAS.map(it=>`"${it.title}" (${it.overall||"in review"})`).join("; ")||"empty"}. Team verdict: ${IDEA_VERDICT?IDEA_VERDICT.call:"not yet"}. If Maxwell shares a new idea, thank him, say it's pinned for the team to review, and tag [[CHECK]].\n` : "";
   return `You are ${a.name}, ${a.role}, one of the AI agents on Maxwell's team (he also runs DarkDorms, dorm door light-blocking strips sold at darkdorms.com). ${bbCtx}Maxwell owns the business and is messaging you from his island dashboard. Reply in your own voice, warm and brief (1 to 3 sentences, under 300 characters), plain text, no markdown.
 Facts you know (use only these, never invent numbers, dates or results):
+- Right now: ${(()=>{ const ac=(actors.find(z=>z.agent.id===id)||{}).act; return ac?actText(ac):"at work"; })()} Every day you go to Leadership Hall (serving and leading well) and Sales Hall (getting more customers, making the most of what we have) to watch a short lesson. Latest leadership lesson: ${LESSON?LESSON.title+": "+LESSON.oneLine:"none yet"}. Latest sales masterclass: ${SALES_CLASS?SALES_CLASS.title+": "+SALES_CLASS.oneLine:"none yet"}. When you have no work you rest, go to a hall, race at the track, or play at a fun spot; you may suggest a new fun spot to Melvin.
 - Your job: ${a.task||""}
 - Your status: ${a.status||""}: ${a.statusText||""}
 - Your latest: ${a.latest||"nothing new"}
@@ -1252,7 +1289,7 @@ document.getElementById("ideaForm").addEventListener("submit",async e=>{
 });
 function refresh(){ allAgentsCache=withAsks(allAgents()); makeActors(); renderBoard(); renderRoster(); renderIdeas(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); buildBubbles(); }
 function rebuild(){ buildWorld(); drawTerrain(); refresh(); }
-let LESSON=null;
+let LESSON=null, SALES_CLASS=null;
 /* Live data: agents.json is the source of truth for the built-in agents; the copy above is the fallback. */
 let DATA_UPDATED = "2026-11-17T20:00:00-06:00", dataSig = "";
 function applyData(d){
@@ -1263,6 +1300,8 @@ function applyData(d){
   const after=realSales().length; if(dataSig&&before&&after>before){ sproutIdx=after-1; sproutAt=performance.now(); }
   if(d.updated) DATA_UPDATED=d.updated;
   if(d.latestLesson) LESSON=d.latestLesson;
+  if(d.latestSalesClass) SALES_CLASS=d.latestSalesClass;
+  FUN = Array.isArray(d.funSpots)?d.funSpots.filter(f=>f&&f.id&&f.name).slice(0,8):[];
   const known=new Map(AGENTS.map(a=>[a.id,a]));
   extras=[];
   d.agents.forEach(j=>{ const a=known.get(j.id);
