@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T16:39:00.426434+00:00",
+  "updated": "2026-11-19T22:16:03.377526+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -302,9 +302,9 @@
   ],
   "retired": [],
   "latestLesson": {
-    "title": "Why Your Team Is Busy But Nothing Gets Done (EntreLeadership)",
-    "oneLine": "Busy isn't productive: measure what gets finished, find work that's sitting still, fix the worst jam, own the system.",
-    "date": "2026-11-17"
+    "title": "The Simple Strategy Dave Uses to Motivate His Team",
+    "oneLine": "People act like owners when you reward their wins, talk about it constantly, and hire and coach for it.",
+    "date": "2026-11-19"
   },
   "ideas": [
     {
@@ -536,5 +536,10 @@
       "idea": "budgeting card (budgetcard.com is taken)",
       "checked": "2026-11-18"
     }
-  ]
+  ],
+  "latestSalesClass": {
+    "title": "This is why your business isn't growing",
+    "oneLine": "Customers don't buy what they have to work to understand: say what you offer, how it helps and what to do next.",
+    "date": "2026-11-19"
+  }
 }
