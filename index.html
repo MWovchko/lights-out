@@ -224,7 +224,7 @@ canvas#map{border-radius:2px}
       <span><i class="dot" style="background:var(--st-new)"></i>New, prompt not sent yet</span>
       <span><i class="dot" style="background:var(--st-done)"></i>Done</span>
     </div>
-    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. Every agent visits Leadership Hall and Sales Hall once a day. With nothing to do, they rest at home (Zz), go to a hall, race at the track, or play at a fun spot they made. The notice board in the square lists everything waiting on you.</p>
+    <p class="hint">Tap or click anyone to pin their card in the town hall. The crates by the shop are your real strip stock, and the fenced orchard grows one tree per sale. Every agent visits Leadership Hall and Sales Hall once a day. With nothing to do, they're in class at one of the halls, with a short break at the racetrack or a fun spot every 2 hours, and they sleep (Zz) from 1 to 6 AM. The notice board in the square lists everything waiting on you.</p>
   </section>
 
   <aside>
@@ -347,9 +347,9 @@ const TRACK = {x:29,y:15,w:4,h:3};
 const SALES = {x:12,y:10,w:4,h:3,kind:"sales",roof:"#2f7a45",wall:"#efe3c8",label:"Sales Hall"};
 /* Fun spots the agents made themselves (agents.json "funSpots": [{id,name,island,by,about,color}]). Placed on a free lot near their island's square. */
 let FUN = [];
-/* Free time (Maxwell, 2026-11-18): when an agent has nothing to do it rests, goes to Leadership Hall or Sales Hall,
-   races, or plays at a fun spot. Every agent also goes to BOTH halls once a day (15 minutes each, daytime),
-   even on a working day, unless it's waiting on Maxwell. Night is always rest. */
+/* Free time (Maxwell, 2026-11-18): with nothing to do, agents are in Leadership Hall or Sales Hall classes, with a short
+   racetrack or fun-spot break every 2 hours and sleep only from 1 to 6 AM. Every agent also goes to BOTH halls
+   once a day (15 minutes each, daytime), even on a working day, unless it's waiting on Maxwell. */
 const ACT_TEXT={study:"At Leadership Hall, watching today's lesson on serving and leading well.",sales:"At Sales Hall, in a masterclass on getting more customers and making the most of what we have.",race:"Taking a break at the racetrack.",rest:"Resting at home until there's work."};
 function actText(ac){ if(ac&&ac.startsWith("fun:")){ const f=FUN.find(z=>"fun:"+z.id===ac); return f?`Having fun at ${f.name}.`:"Having fun."; } return ACT_TEXT[ac]||""; }
 function classBlocks(id){ /* two 15-minute daytime blocks a day (9 AM to 7 PM local), one per hall */
@@ -359,13 +359,16 @@ function classBlocks(id){ /* two 15-minute daytime blocks a day (9 AM to 7 PM lo
 }
 function activity(ag){
   if(typeof openAsksFor==="function"&&openAsksFor(ag.id).length) return null;
-  if(skyState()==="night") return (ag.status==="scheduled"||ag.status==="done")?"rest":null;
-  const now=new Date(), dayBlock=now.getHours()*4+Math.floor(now.getMinutes()/15);
+  const now=new Date(), hr=now.getHours(), dayBlock=hr*4+Math.floor(now.getMinutes()/15);
+  const idle=ag.status==="scheduled"||ag.status==="done";
+  if(idle&&hr>=1&&hr<6) return "rest"; /* only the small hours are for sleep */
   const cb=classBlocks(ag.id); if(dayBlock===cb.lb) return "study"; if(dayBlock===cb.sb) return "sales";
-  if(!(ag.status==="scheduled"||ag.status==="done")) return null;
-  const block=Math.floor(Date.now()/(15*60000));
-  const opts=["study","sales","race","rest", ...FUN.filter(f=>(f.island||"dd")===(ag.island||"dd")).map(f=>"fun:"+f.id)];
-  return opts[(block+hashStr(ag.id))%opts.length];
+  if(!idle) return null;
+  /* Maxwell (2026-11-18): when there's nothing to do, agents are in class. They switch halls every 15 minutes,
+     and take one 15-minute break every 2 hours (racetrack or a fun spot). */
+  const block=Math.floor(Date.now()/(15*60000)), h=hashStr(ag.id);
+  if((block+h)%8===0){ const br=["race", ...FUN.filter(f=>(f.island||"dd")===(ag.island||"dd")).map(f=>"fun:"+f.id)]; return br[Math.floor(block/8+h)%br.length]; }
+  return (block+h)%2?"study":"sales";
 }
 function classDone(id){ const now=new Date(), b=now.getHours()*4+Math.floor(now.getMinutes()/15), cb=classBlocks(id); return {lead:b>cb.lb, sales:b>cb.sb, lb:cb.lb, sb:cb.sb}; }
 function blockTime(b){ const h=Math.floor(b/4), m=(b%4)*15; return new Date(2000,0,1,h,m).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}); } /* sales orchard: one tree per sale */
@@ -860,7 +863,7 @@ function funTip(id){ const f=FUN.find(z=>"fun:"+z.id===id)||{}; const here=actor
   return `<div class="nm">${esc(f.name||"Fun spot")}</div><div class="rl">Fun spot${f.by?` made by ${esc(f.by)}`:""}</div>${f.about?`<div class="row">${esc(f.about)}</div>`:""}<div class="row">${here.length?`<b>${esc(here.join(", "))}</b> ${here.length>1?"are":"is"} here now.`:"Nobody's here right now."}</div>`; }
 function trackTip(){
   const r=actors.filter(a=>a.act==="race").map(a=>a.agent.name);
-  return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working, in class or resting."}</div>`;
+  return `<div class="nm">Racetrack</div><div class="rl">Fun for agents on a break</div><div class="row">${r.length?`<b>${esc(r.join(", "))}</b> ${r.length>1?"are":"is"} racing.`:"The track is empty. Everyone is working or in class."}</div>`;
 }
 function drawHomeSign(x,y){ px(ctx,x+5,y-10,2,10,"#6b4428"); px(ctx,x,y-16,12,8,"#4a2f1c"); px(ctx,x+1,y-15,10,6,"#e8cf8f"); px(ctx,x+3,y-13,6,1,"#4a2f1c"); px(ctx,x+3,y-11,4,1,"#4a2f1c");
   if(hover&&hover.type==="homesign"){ ctx.strokeStyle="rgba(255,240,180,.95)"; ctx.strokeRect(x-2.5,y-18.5,17,21); } }
@@ -1064,7 +1067,7 @@ function agentBrief(id){
   const bbCtx = a.island==="bb" ? `You live on Business Budgeting Isle and work on Maxwell's new idea, not DarkDorms: a debt-free business budgeting app whose company card checks the budget before the bank pays. The idea board: ${IDEAS.map(it=>`"${it.title}" (${it.overall||"in review"})`).join("; ")||"empty"}. Team verdict: ${IDEA_VERDICT?IDEA_VERDICT.call:"not yet"}. If Maxwell shares a new idea, thank him, say it's pinned for the team to review, and tag [[CHECK]].\n` : "";
   return `You are ${a.name}, ${a.role}, one of the AI agents on Maxwell's team (he also runs DarkDorms, dorm door light-blocking strips sold at darkdorms.com). ${bbCtx}Maxwell owns the business and is messaging you from his island dashboard. Reply in your own voice, warm and brief (1 to 3 sentences, under 300 characters), plain text, no markdown.
 Facts you know (use only these, never invent numbers, dates or results):
-- Right now: ${(()=>{ const ac=(actors.find(z=>z.agent.id===id)||{}).act; return ac?actText(ac):"at work"; })()} Every day you go to Leadership Hall (serving and leading well) and Sales Hall (getting more customers, making the most of what we have) to watch a short lesson. Latest leadership lesson: ${LESSON?LESSON.title+": "+LESSON.oneLine:"none yet"}. Latest sales masterclass: ${SALES_CLASS?SALES_CLASS.title+": "+SALES_CLASS.oneLine:"none yet"}. When you have no work you rest, go to a hall, race at the track, or play at a fun spot; you may suggest a new fun spot to Melvin.
+- Right now: ${(()=>{ const ac=(actors.find(z=>z.agent.id===id)||{}).act; return ac?actText(ac):"at work"; })()} Every day you go to Leadership Hall (serving and leading well) and Sales Hall (getting more customers, making the most of what we have) to watch a short lesson. Latest leadership lesson: ${LESSON?LESSON.title+": "+LESSON.oneLine:"none yet"}. Latest sales masterclass: ${SALES_CLASS?SALES_CLASS.title+": "+SALES_CLASS.oneLine:"none yet"}. When you have no work you're in class at Leadership Hall or Sales Hall, with a short break every 2 hours at the racetrack or a fun spot, and you sleep from 1 to 6 AM; you may suggest a new fun spot to Melvin.
 - Your job: ${a.task||""}
 - Your status: ${a.status||""}: ${a.statusText||""}
 - Your latest: ${a.latest||"nothing new"}
