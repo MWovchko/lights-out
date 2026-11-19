@@ -44,7 +44,6 @@
     <p class="lede">The hallway light leaks under your dorm door all night. <b>DarkDorms is a strip that slides into the gap and blocks it,</b> so your room is dark when you turn off the light.</p>
     <div class="ctas" id="heroCtas">
       <a class="btn" href="#order" data-buy id="heroBuy">Preorder for <s>$19.99</s> $10.99</a>
-      <a class="btn pink" href="#alerts">Text me when they're back</a>
     </div>
     <p class="status" data-paused><i aria-hidden="true"></i>Preorders are paused for a few days while we restock.</p>
     <figure class="stage" role="img" aria-label="Animation: hallway light glows under a dorm door marked Room 214, then a DarkDorms strip slides into the gap, the light disappears, and z z z appears.">
@@ -102,7 +101,7 @@
         <li>Receipt from Stripe by email</li>
       </ul>
       <a class="btn" href="#order" data-buy id="orderBuy">Preorder for $10.99</a>
-      <p class="paused" id="pausedNote" data-paused><b>Preorders are paused.</b> We're restocking and will turn checkout back on soon. Leave your number below and we'll text you.</p>
+      <p class="paused" id="pausedNote" data-paused><b>Preorders are paused.</b> We're restocking and will turn checkout back on soon.</p>
       <p class="fine">Secure checkout by Stripe. It asks for your name, phone, dorm and room. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </div>
   </div></section>
@@ -116,26 +115,6 @@
     </div>
   </div></section>
 
-  <section id="alerts"><div class="col narrow">
-    <p class="kicker">Back in stock soon</p>
-    <h2>Get a text when preorders open.</h2>
-    <form id="alertForm" novalidate>
-      <label for="aName">First name
-        <input id="aName" name="name" autocomplete="given-name" placeholder="Jordan" aria-describedby="aNameErr">
-        <span class="ferr" id="aNameErr" hidden></span>
-      </label>
-      <label for="aPhone">Phone number <span class="hint">We'll only text you about DarkDorms.</span>
-        <input id="aPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(918) 555-0142" aria-describedby="aPhoneErr">
-        <span class="ferr" id="aPhoneErr" hidden></span>
-      </label>
-      <label for="aDorm">Dorm <span class="hint">Optional</span>
-        <input id="aDorm" name="dorm" placeholder="e.g. Michael Hall">
-      </label>
-      <button class="btn pink" type="submit" id="alertBtn">Text me when they're back</button>
-      <p id="alertDone" class="fok" role="status" hidden></p>
-      <p class="fine">This opens an email to me@darkdorms.com with your details filled in. Hit send and you're on the list.</p>
-    </form>
-  </div></section>
 
   <section id="faq"><div class="col narrow">
     <p class="kicker">Questions</p>
