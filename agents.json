@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T04:21:09.224944+00:00",
+  "updated": "2026-11-19T04:28:47.336696+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -267,6 +267,37 @@
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4VSG3DwkVcgQEH82nHm3WcG",
       "threadTitle": "Research business budgeting bank app"
+    },
+    {
+      "id": "dex",
+      "name": "Dex",
+      "role": "Domain scout",
+      "color": "#2f6fb0",
+      "island": "home",
+      "status": "scheduled",
+      "statusText": "Daily domain hunt at 10:37 AM",
+      "task": "Hunts every day for good, available domain names for your current and possible businesses, checks price, and lists the best finds here. Never buys: registering is your call.",
+      "latest": "First hunt: dormquiet.com ($17), debtlesswallet.com ($17) and roomieaid.com ($17) were available. budgetcard.com and envelopecard.com are taken.",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4FaPh2rVpFxAhDar1bmLEWC",
+      "threadTitle": "Build agent island dashboard",
+      "house": {
+        "x": 46,
+        "y": 6,
+        "w": 4,
+        "h": 3,
+        "kind": "globe",
+        "roof": "#2f6fb0",
+        "wall": "#eee2c6",
+        "label": "Domain Lookout"
+      },
+      "look": {
+        "shirt": "#2f6fb0",
+        "pants": "#2a2a38",
+        "hair": "#3a2418",
+        "skin": "#e8bf98",
+        "acc": "glasses"
+      }
     }
   ],
   "retired": [],
@@ -436,6 +467,38 @@
       "by": "Penny",
       "about": "A shady porch with a free jigsaw table and a tidy abacus, where villagers drop by to rest and solve number puzzles together.",
       "color": "#3f8a5f"
+    }
+  ],
+  "domainFinds": [
+    {
+      "domain": "dormquiet.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing / quiet products",
+      "checked": "2026-11-18"
+    },
+    {
+      "domain": "debtlesswallet.com",
+      "price": "17.00",
+      "idea": "the debt-free business budgeting card",
+      "checked": "2026-11-18"
+    },
+    {
+      "domain": "roomieaid.com",
+      "price": "17.00",
+      "idea": "dorm and roommate products",
+      "checked": "2026-11-18"
+    },
+    {
+      "domain": "envelopecard.org",
+      "price": "16.00",
+      "idea": "budgeting card (envelopecard.com is taken)",
+      "checked": "2026-11-18"
+    },
+    {
+      "domain": "budgetcard.org",
+      "price": "16.00",
+      "idea": "budgeting card (budgetcard.com is taken)",
+      "checked": "2026-11-18"
     }
   ]
 }

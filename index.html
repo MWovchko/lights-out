@@ -517,6 +517,7 @@ const ICONS={
   hall:["..#..","#####","..#..","..#..","..#.."],
   sales:[".####","#.#..",".###.","..#.#","####."],
   fun:["#....","####.","#####","###..","#...."],
+  globe:[".###.","#.#.#","#####","#.#.#",".###."],
   cottage:["..#..",".###.","#####",".#.#."],
   bulb:[".###.","#...#","#...#",".#.#.",".###.",".###."],
   gear:["#.#.#",".###.","##.##",".###.","#.#.#"],
@@ -919,6 +920,7 @@ function tipHTML(h){
   return `<div class="nm">${esc(a.name)}</div><div class="rl">${esc(a.role)} · ${esc(a.house.label)}</div>
     <span class="pill ${a.status}">${STLABEL[a.status]}</span> <span style="font-size:12.5px">${esc(a.statusText)}</span>
     <div class="row"><div class="lbl">Doing</div>${esc(a.task)}</div>
+    ${a.id==="dex"&&DOMAINS.length?`<div class="row"><div class="lbl">Domain finds (available when checked)</div><ul>${DOMAINS.slice(0,8).map(f=>`<li><b>${esc(f.domain)}</b>${f.price?` · $${esc(f.price)} first year`:""}${f.idea?` · for ${esc(f.idea)}`:""}${f.checked?` <span style="opacity:.7">(checked ${esc(f.checked)})</span>`:""}</li>`).join("")}</ul><div style="opacity:.75">Dex never buys. If you want one, register it yourself soon: availability can change.</div></div>`:""}
     ${a.latest?`<div class="row"><div class="lbl">Latest</div>${esc(a.latest)}</div>`:""}
     ${(()=>{ const ac=(actors.find(z=>z.agent.id===a.id)||{}).act; const cd=classDone(a.id);
       return (ac?`<div class="row"><div class="lbl">${a.status==="scheduled"||a.status==="done"?"Free time":"Daily class"}</div>${esc(actText(ac))}</div>`:"")+
@@ -1292,7 +1294,7 @@ document.getElementById("ideaForm").addEventListener("submit",async e=>{
 });
 function refresh(){ allAgentsCache=withAsks(allAgents()); makeActors(); renderBoard(); renderRoster(); renderIdeas(); if(window.Island) window.Island.update(allAgentsCache, {updated:DATA_UPDATED}); buildBubbles(); }
 function rebuild(){ buildWorld(); drawTerrain(); refresh(); }
-let LESSON=null, SALES_CLASS=null;
+let LESSON=null, SALES_CLASS=null, DOMAINS=[];
 /* Live data: agents.json is the source of truth for the built-in agents; the copy above is the fallback. */
 let DATA_UPDATED = "2026-11-17T20:00:00-06:00", dataSig = "";
 function applyData(d){
@@ -1304,6 +1306,7 @@ function applyData(d){
   if(d.updated) DATA_UPDATED=d.updated;
   if(d.latestLesson) LESSON=d.latestLesson;
   if(d.latestSalesClass) SALES_CLASS=d.latestSalesClass;
+  DOMAINS = Array.isArray(d.domainFinds)?d.domainFinds.filter(f=>f&&f.domain):[];
   FUN = Array.isArray(d.funSpots)?d.funSpots.filter(f=>f&&f.id&&f.name).slice(0,8):[];
   const known=new Map(AGENTS.map(a=>[a.id,a]));
   extras=[];
