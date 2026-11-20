@@ -20,19 +20,6 @@ var CONTACT_EMAIL = "me@darkdorms.com";
 
   if (!SALES_PAUSED) document.querySelectorAll("[data-paused]").forEach(function(el){el.hidden=true});
 
-  /* ---------- delivery countdown: "Will be to you within" 24 hours, ticking down ---------- */
-  var etaEls=document.querySelectorAll("[data-eta]");
-  if(etaEls.length){
-    var end=Date.now()+24*3600*1000, pad=function(n){return (n<10?"0":"")+n};
-    var tick=function(){
-      var ms=end-Date.now(); if(ms<=0){end=Date.now()+24*3600*1000; ms=end-Date.now();}
-      var t=Math.floor(ms/1000), h=Math.floor(t/3600), m=Math.floor(t%3600/60), sec=t%60;
-      var txt=h+"h "+pad(m)+"m "+pad(sec)+"s";
-      etaEls.forEach(function(el){el.textContent=txt});
-    };
-    tick(); setInterval(tick,1000);
-  }
-
   /* ---------- analytics (Vercel Web Analytics), only after cookie consent ---------- */
   var analyticsLoaded=false;
   function loadAnalytics(){
