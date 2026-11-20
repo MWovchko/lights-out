@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T22:16:03.377526+00:00",
+  "updated": "2026-11-20T16:38:27.390708+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -277,7 +277,7 @@
       "status": "scheduled",
       "statusText": "Daily domain hunt at 10:37 AM. Last hunt: today",
       "task": "Hunts every day for good, available domain names for your current and possible businesses, checks price, and lists the best finds here. Never buys: registering is your call.",
-      "latest": "Today's best finds: hushdorm.com, campusshade.com and budgetfirstcard.com, each $17 first year and available when checked. Dex never buys.",
+      "latest": "Today's best finds: quietroomkit.com, budgetgatecard.com and campusbikefix.com, each $17 first year and available when checked. Dex never buys.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4FaPh2rVpFxAhDar1bmLEWC",
       "threadTitle": "Build agent island dashboard",
@@ -471,6 +471,30 @@
   ],
   "domainFinds": [
     {
+      "domain": "quietroomkit.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing",
+      "checked": "2026-11-20"
+    },
+    {
+      "domain": "budgetgatecard.com",
+      "price": "17.00",
+      "idea": "the debt-free business budgeting card",
+      "checked": "2026-11-20"
+    },
+    {
+      "domain": "dormdoorglow.com",
+      "price": "17.00",
+      "idea": "DarkDorms-style light-blocking strips",
+      "checked": "2026-11-20"
+    },
+    {
+      "domain": "campusbikefix.com",
+      "price": "17.00",
+      "idea": "student bike repair and tune-ups (new idea)",
+      "checked": "2026-11-20"
+    },
+    {
       "domain": "hushdorm.com",
       "price": "17.00",
       "idea": "dorm soundproofing",
@@ -516,24 +540,6 @@
       "domain": "debtlesswallet.com",
       "price": "17.00",
       "idea": "the debt-free business budgeting card",
-      "checked": "2026-11-18"
-    },
-    {
-      "domain": "roomieaid.com",
-      "price": "17.00",
-      "idea": "dorm and roommate products",
-      "checked": "2026-11-18"
-    },
-    {
-      "domain": "envelopecard.org",
-      "price": "16.00",
-      "idea": "budgeting card (envelopecard.com is taken)",
-      "checked": "2026-11-18"
-    },
-    {
-      "domain": "budgetcard.org",
-      "price": "16.00",
-      "idea": "budgeting card (budgetcard.com is taken)",
       "checked": "2026-11-18"
     }
   ],
