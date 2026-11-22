@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-22T16:38:19.184489+00:00",
+  "updated": "2026-11-22T22:15:18.127458+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -333,9 +333,9 @@
   ],
   "retired": [],
   "latestLesson": {
-    "title": "The Simple Strategy Dave Uses to Motivate His Team",
-    "oneLine": "People act like owners when you reward their wins, talk about it constantly, and hire and coach for it.",
-    "date": "2026-11-19"
+    "title": "How to Delegate (EntreLeadership)",
+    "oneLine": "Hand off work only once you have the right people and a clear process, then over-communicate and check results instead of micromanaging.",
+    "date": "2026-11-22"
   },
   "ideas": [
     {
@@ -575,8 +575,8 @@
     }
   ],
   "latestSalesClass": {
-    "title": "This is why your business isn't growing",
-    "oneLine": "Customers don't buy what they have to work to understand: say what you offer, how it helps and what to do next.",
-    "date": "2026-11-19"
+    "title": "Why Cognitive Load is Holding Back Your Business (StoryBrand)",
+    "oneLine": "Make the first screen effortless: say what you sell, for whom, and how to order, and cut every heavy sentence.",
+    "date": "2026-11-22"
   }
 }
