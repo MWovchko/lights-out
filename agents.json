@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-23T01:21:30.912987+00:00",
+  "updated": "2026-11-23T16:38:57.696879+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -277,7 +277,7 @@
       "status": "scheduled",
       "statusText": "Daily domain hunt at 10:37 AM. Last hunt: today",
       "task": "Hunts every day for good, available domain names for your current and possible businesses, checks price, and lists the best finds here. Never buys: registering is your call.",
-      "latest": "Today's best find: quietdorm.com, a short .com for the sound-first idea, plus dormdoorstrips.com and campustechfix.com, each $17 first year and available when checked. Dex never buys.",
+      "latest": "Today's best find: dormhush.com, a short .com for the sound-first idea, plus budgetfirstcard.com and dormlightstrips.com, each $17 first year and available when checked. Dex never buys.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4FaPh2rVpFxAhDar1bmLEWC",
       "threadTitle": "Build agent island dashboard",
@@ -502,6 +502,30 @@
   ],
   "domainFinds": [
     {
+      "domain": "dormhush.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing / sound-first strips",
+      "checked": "2026-11-23"
+    },
+    {
+      "domain": "dormlightstrips.com",
+      "price": "17.00",
+      "idea": "DarkDorms-style dorm door light strips",
+      "checked": "2026-11-23"
+    },
+    {
+      "domain": "budgetfirstcard.com",
+      "price": "17.00",
+      "idea": "the debt-free business budgeting card",
+      "checked": "2026-11-23"
+    },
+    {
+      "domain": "campusbikefix.com",
+      "price": "17.00",
+      "idea": "student-run campus bike repair (new idea)",
+      "checked": "2026-11-23"
+    },
+    {
       "domain": "quietdorm.com",
       "price": "17.00",
       "idea": "dorm soundproofing / sound-first strips",
@@ -548,30 +572,6 @@
       "price": "17.00",
       "idea": "the debt-free business budgeting card",
       "checked": "2026-11-21"
-    },
-    {
-      "domain": "dormtidycrew.com",
-      "price": "17.00",
-      "idea": "student-run dorm cleaning service (new idea)",
-      "checked": "2026-11-21"
-    },
-    {
-      "domain": "campustutorhub.com",
-      "price": "17.00",
-      "idea": "student-run campus tutoring (new idea)",
-      "checked": "2026-11-21"
-    },
-    {
-      "domain": "quietroomkit.com",
-      "price": "17.00",
-      "idea": "dorm soundproofing",
-      "checked": "2026-11-20"
-    },
-    {
-      "domain": "budgetgatecard.com",
-      "price": "17.00",
-      "idea": "the debt-free business budgeting card",
-      "checked": "2026-11-20"
     }
   ],
   "latestSalesClass": {
