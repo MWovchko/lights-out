@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-23T17:48:31.161170+00:00",
+  "updated": "2026-11-23T22:15:27.902837+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -333,9 +333,9 @@
   ],
   "retired": [],
   "latestLesson": {
-    "title": "How to Delegate (EntreLeadership)",
-    "oneLine": "Hand off work only once you have the right people and a clear process, then over-communicate and check results instead of micromanaging.",
-    "date": "2026-11-22"
+    "title": "Why good leaders make you feel safe (Simon Sinek)",
+    "oneLine": "Make the team feel safe so mistakes get reported early and everyone's energy goes to serving customers, not protecting themselves.",
+    "date": "2026-11-23"
   },
   "ideas": [
     {
@@ -575,8 +575,8 @@
     }
   ],
   "latestSalesClass": {
-    "title": "Why Cognitive Load is Holding Back Your Business (StoryBrand)",
-    "oneLine": "Make the first screen effortless: say what you sell, for whom, and how to order, and cut every heavy sentence.",
-    "date": "2026-11-22"
+    "title": "How to Make Your First Sale (Learn With Shopify)",
+    "oneLine": "Stop polishing the store and get visitors: share the link everywhere, message people who'd really use it, then change one thing at a time based on the numbers.",
+    "date": "2026-11-23"
   }
 }
