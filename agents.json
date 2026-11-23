@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-23T16:38:57.696879+00:00",
+  "updated": "2026-11-23T17:48:31.161170+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -306,9 +306,9 @@
       "color": "#7a5c2e",
       "island": "dd",
       "status": "scheduled",
-      "statusText": "Tariff check Mon + Thu 11:47 AM",
+      "statusText": "Checked Mon Nov 23. Next check Thu 11:47 AM",
       "task": "Tracks US tariffs and supplier prices for strips and cover cloth, and tells Melvin the best time to order. Never buys.",
-      "latest": "First check Nov 20: 100 China strips land at about $0.58-0.93 each, under the $1.50 goal. Order by about Jan 8 for Chinese New Year.",
+      "latest": "No tariff change. Strips still about $0.58-0.93 each landed for 100; order before early January (truce ends Jan 10). Alibaba pages couldn't be re-read today.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4BjsXb1rKDKJY6W6X4bWEK6",
       "threadTitle": "Track tariffs for best inventory timing",
