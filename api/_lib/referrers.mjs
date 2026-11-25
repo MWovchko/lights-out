@@ -11,5 +11,6 @@ export const PAYOUT_PER_STRIP = 2; // dollars per strip sold through a referral 
 export const HOLD_DAYS = 7;        // sales newer than this are "pending" (refund window) before they are payable
 
 export const REFERRERS = [
+  { code: "julia", name: "Julia", payouts: [] },
   // { code: "jake", name: "Jake (EMR)", payouts: [] },
 ];

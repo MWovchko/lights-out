@@ -20,7 +20,7 @@
 No webhook or database. This does not touch `api/stripe-webhook.mjs` from PR #3, so they merge in either order.
 
 ## Tests
-`node --test tests/`
+`node --test tests/referrals.test.mjs`
 
 ## Later options
 - **Stripe Promotion Codes**: one code per rep (e.g. `JAKE`) for people who hear about it in person and never scan. Needs "Allow promotion codes" turned on for the Payment Link, and a code usually means a discount for the buyer, which cuts the margin further.

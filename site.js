@@ -14,6 +14,8 @@ var CONTACT_EMAIL = "me@darkdorms.com";
    remembered for REF_DAYS and sent to Stripe as client_reference_id, so the
    private tracker at /referrals can count their strips. Last link clicked wins. */
 var REF_DAYS = 30;
+/* Reps with a personal welcome line on the page. Code -> first name shown. */
+var REF_NAMES = { julia: "Julia" };
 
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -36,6 +38,13 @@ var REF_DAYS = 30;
   function checkoutUrl(){
     var ref=currentRef(); if(!ref) return PAYMENT_LINK;
     return PAYMENT_LINK+(PAYMENT_LINK.indexOf("?")<0?"?":"&")+"client_reference_id="+encodeURIComponent("ref_"+ref);
+  }
+
+  /* personal welcome for a known rep's visitors */
+  var refName=REF_NAMES[currentRef()||""];
+  if(refName){
+    var h=document.querySelector(".hero h1");
+    if(h){var p=document.createElement("p");p.className="refnote";p.textContent=refName+" sent you. Thanks for stopping by!";h.parentNode.insertBefore(p,h);}
   }
 
   if (!SALES_PAUSED) document.querySelectorAll("[data-paused]").forEach(function(el){el.hidden=true});

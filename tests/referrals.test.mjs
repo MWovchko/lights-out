@@ -58,3 +58,10 @@ test("GET reads Stripe sessions and refund status", async () => {
   assert.equal(res.status, 200); assert.equal(body.totals.owed, 4);
   assert.equal(urls.length, 2); assert.ok(urls[0].includes("status=complete")); assert.ok(urls[1].includes("pi_1"));
 });
+
+test("Julia is listed and earns $2 per strip", () => {
+  const r = buildReport([sess("j1", "ref_julia", 3, 10), sess("j2", "ref_julia", 1, 1)], undefined, now);
+  const j = r.referrers.find((x) => x.code === "julia");
+  assert.equal(j.name, "Julia"); assert.equal(j.listed, true);
+  assert.equal(j.strips, 3); assert.equal(j.owed, 6); assert.equal(j.pendingStrips, 1); assert.equal(j.pending, 2);
+});
