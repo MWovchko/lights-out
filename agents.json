@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-25T16:38:20.531227+00:00",
+  "updated": "2026-11-25T22:30:05.712142+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -974,9 +974,9 @@
   ],
   "retired": [],
   "latestLesson": {
-    "title": "Mastering Hard Conversations (Craig Groeschel)",
-    "oneLine": "Hard talks are for helping the person grow: care, be specific, agree on what changes by when, and ask for feedback yourself.",
-    "date": "2026-11-24"
+    "title": "The Secret Ingredients of Great Hospitality (Will Guidara, TED)",
+    "oneLine": "Small personal touches beat fancy extras: be present, notice what each customer cares about, and give the team freedom to make someone's day.",
+    "date": "2026-11-25"
   },
   "ideas": [
     {
@@ -1518,8 +1518,8 @@
     }
   ],
   "latestSalesClass": {
-    "title": "Building Business Through Referrals (StoryBrand)",
-    "oneLine": "Make referrals a system: ask how each customer heard about us, thank every referrer, and get to know the RAs and club leaders who can send many.",
-    "date": "2026-11-24"
+    "title": "How to Get Your First 10 Customers (Y Combinator)",
+    "oneLine": "Go where buyers already are: ask friends for one specific introduction, show up in person, and keep every ask short, honest and one-time.",
+    "date": "2026-11-25"
   }
 }
