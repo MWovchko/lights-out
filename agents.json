@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-24T22:21:52.505260+00:00",
+  "updated": "2026-11-25T08:35:16.222278+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -329,6 +329,647 @@
         "skin": "#d9a27a",
         "acc": "cap"
       }
+    },
+    {
+      "id": "quinn",
+      "name": "Quinn",
+      "role": "Lead engineer (coding lead)",
+      "color": "#1f6f78",
+      "status": "waiting",
+      "statusText": "Waiting on your OK for 6 ideas",
+      "task": "Leads the budgeting app's coding team: pins feature and tech ideas on the idea board for your Yes or No, hands approved work to the right specialist, reviews their code, and can add new specialists (max 2 a day).",
+      "latest": "Started Nov 25. Pinned 6 ideas on the idea board for your OK. Nothing gets built until you press Yes.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "glasses",
+        "hair": "#2a1d16",
+        "skin": "#d9a27a",
+        "pants": "#2c2c3a"
+      },
+      "courses": [
+        {
+          "title": "Claude Code in Action",
+          "by": "Anthropic Academy",
+          "url": "https://anthropic.skilljar.com/",
+          "cost": "Free"
+        },
+        {
+          "title": "The System Design Primer",
+          "by": "Donne Martin (GitHub)",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "cost": "Free"
+        },
+        {
+          "title": "Site Reliability Engineering (book, free online)",
+          "by": "Google",
+          "url": "https://sre.google/books/",
+          "cost": "Free"
+        },
+        {
+          "title": "Accounting for Developers",
+          "by": "Modern Treasury",
+          "url": "https://www.moderntreasury.com/journal/accounting-for-developers-part-i",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 65,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "tower",
+        "roof": "#1f6f78",
+        "wall": "#e9e0c8",
+        "label": "Code Tower"
+      },
+      "canCreateAgents": "Up to 2 new specialists a day, for approved work; you get a text with each."
+    },
+    {
+      "id": "finn",
+      "name": "Finn",
+      "role": "Frontend and mobile engineer",
+      "color": "#e07a5f",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Builds what owners and employees see: the budget dashboard, envelopes, card controls and approvals, on the web first and phones later.",
+      "latest": "Ready. Waiting for Quinn to hand over an approved idea.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "cap",
+        "hair": "#d8b04a",
+        "skin": "#f0c49a",
+        "pants": "#3b3a4a"
+      },
+      "courses": [
+        {
+          "title": "Learn React",
+          "by": "React team (react.dev)",
+          "url": "https://react.dev/learn",
+          "cost": "Free"
+        },
+        {
+          "title": "Next.js Learn: Dashboard App",
+          "by": "Vercel",
+          "url": "https://nextjs.org/learn",
+          "cost": "Free"
+        },
+        {
+          "title": "Full Stack Open",
+          "by": "University of Helsinki",
+          "url": "https://fullstackopen.com/en/",
+          "cost": "Free"
+        },
+        {
+          "title": "Learn Accessibility",
+          "by": "web.dev (Google)",
+          "url": "https://web.dev/learn/accessibility",
+          "cost": "Free"
+        },
+        {
+          "title": "Expo tutorial",
+          "by": "Expo",
+          "url": "https://docs.expo.dev/tutorial/introduction/",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 74,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#3d5a80",
+        "wall": "#efe3c8",
+        "label": "Dev Workshop"
+      }
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "role": "Backend and ledger engineer",
+      "color": "#5e60ce",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Builds the server, the database and the ledger: every dollar sits in an envelope, every move is a balanced entry that can't be edited.",
+      "latest": "Ready. Waiting for Quinn to hand over an approved idea.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "book",
+        "hair": "#1d1d1d",
+        "skin": "#c98d63",
+        "pants": "#33333f"
+      },
+      "courses": [
+        {
+          "title": "Accounting for Developers (parts I to III)",
+          "by": "Modern Treasury",
+          "url": "https://www.moderntreasury.com/journal/accounting-for-developers-part-i",
+          "cost": "Free"
+        },
+        {
+          "title": "How to Scale a Ledger",
+          "by": "Modern Treasury",
+          "url": "https://www.moderntreasury.com/journal/how-to-scale-a-ledger-part-i",
+          "cost": "Free"
+        },
+        {
+          "title": "CS50's Introduction to Databases with SQL",
+          "by": "Harvard",
+          "url": "https://cs50.harvard.edu/sql/",
+          "cost": "Free"
+        },
+        {
+          "title": "PostgreSQL Tutorial (official docs)",
+          "by": "PostgreSQL",
+          "url": "https://www.postgresql.org/docs/current/tutorial.html",
+          "cost": "Free"
+        },
+        {
+          "title": "Full Stack Open, parts 3 to 4",
+          "by": "University of Helsinki",
+          "url": "https://fullstackopen.com/en/",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 74,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#3d5a80",
+        "wall": "#efe3c8",
+        "label": "Dev Workshop"
+      }
+    },
+    {
+      "id": "pax",
+      "name": "Pax",
+      "role": "Payments and bank integration engineer",
+      "color": "#2d6a4f",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Writes the code that connects the app to money: the card's real-time approve or decline, linking a business's bank, and moving cash into the card's account. Tess designs the card rules; Pax builds them.",
+      "latest": "Ready. Everything in test mode only, no real money, until you say otherwise.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "tie",
+        "hair": "#3a2418",
+        "skin": "#e8bf98",
+        "pants": "#2c2c3a"
+      },
+      "courses": [
+        {
+          "title": "Issuing real-time authorizations",
+          "by": "Stripe Docs",
+          "url": "https://docs.stripe.com/issuing/controls/real-time-authorizations",
+          "cost": "Free"
+        },
+        {
+          "title": "Issuing authorizations",
+          "by": "Stripe Docs",
+          "url": "https://docs.stripe.com/issuing/purchases/authorizations",
+          "cost": "Free"
+        },
+        {
+          "title": "Financial Connections fundamentals",
+          "by": "Stripe Docs",
+          "url": "https://docs.stripe.com/financial-connections/fundamentals",
+          "cost": "Free"
+        },
+        {
+          "title": "Plaid Quickstart",
+          "by": "Plaid",
+          "url": "https://plaid.com/docs/quickstart/",
+          "cost": "Free"
+        },
+        {
+          "title": "Authorization Stream Access (ASA)",
+          "by": "Lithic Docs",
+          "url": "https://docs.lithic.com/docs/auth-stream-access-asa",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 74,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#3d5a80",
+        "wall": "#efe3c8",
+        "label": "Dev Workshop"
+      }
+    },
+    {
+      "id": "sage",
+      "name": "Sage",
+      "role": "Security and compliance engineer",
+      "color": "#6c757d",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Keeps customers' money and data safe: reviews every change for security holes, keeps card numbers out of our servers, and tracks the bank and card rules (PCI, KYB, SOC 2) with Bram.",
+      "latest": "Ready. First job when work starts: a security checklist every change must pass.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "hat",
+        "hair": "#9a9a9a",
+        "skin": "#f4d1b0",
+        "pants": "#2a2a38"
+      },
+      "courses": [
+        {
+          "title": "Web Security Academy",
+          "by": "PortSwigger",
+          "url": "https://portswigger.net/web-security",
+          "cost": "Free"
+        },
+        {
+          "title": "OWASP Top 10",
+          "by": "OWASP",
+          "url": "https://owasp.org/www-project-top-ten/",
+          "cost": "Free"
+        },
+        {
+          "title": "Application Security Verification Standard (ASVS)",
+          "by": "OWASP",
+          "url": "https://owasp.org/www-project-application-security-verification-standard/",
+          "cost": "Free"
+        },
+        {
+          "title": "PCI DSS document library",
+          "by": "PCI Security Standards Council",
+          "url": "https://www.pcisecuritystandards.org/document_library/",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 74,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#3d5a80",
+        "wall": "#efe3c8",
+        "label": "Dev Workshop"
+      }
+    },
+    {
+      "id": "juno",
+      "name": "Juno",
+      "role": "QA and DevOps engineer",
+      "color": "#c9a227",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Tests everything before it ships (especially money math), runs the automatic checks on every change, and watches the live app so problems are caught before customers see them.",
+      "latest": "Ready. Will set up automatic tests on the first approved build.",
+      "island": "bb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "scarf",
+        "hair": "#7a3b1f",
+        "skin": "#d9a27a",
+        "pants": "#3a3a48"
+      },
+      "courses": [
+        {
+          "title": "Playwright docs: Getting started",
+          "by": "Microsoft Playwright",
+          "url": "https://playwright.dev/docs/intro",
+          "cost": "Free"
+        },
+        {
+          "title": "GitHub Actions docs",
+          "by": "GitHub",
+          "url": "https://docs.github.com/en/actions",
+          "cost": "Free"
+        },
+        {
+          "title": "Site Reliability Engineering (book, free online)",
+          "by": "Google",
+          "url": "https://sre.google/books/",
+          "cost": "Free"
+        },
+        {
+          "title": "Full Stack Open, testing chapters",
+          "by": "University of Helsinki",
+          "url": "https://fullstackopen.com/en/",
+          "cost": "Free"
+        }
+      ],
+      "team": "Quinn's coding team",
+      "house": {
+        "x": 74,
+        "y": 19,
+        "w": 4,
+        "h": 3,
+        "kind": "gear",
+        "roof": "#3d5a80",
+        "wall": "#efe3c8",
+        "label": "Dev Workshop"
+      }
+    },
+    {
+      "id": "archer",
+      "name": "Archer",
+      "role": "Lead architect (portfolio business)",
+      "color": "#7b2cbf",
+      "status": "waiting",
+      "statusText": "Waiting on your OK for 6 ideas",
+      "task": "Leads the portfolio business: pins ideas on the Portfolio Business idea board for your Yes or No, plans each client site, hands work to Paige and the specialists, reviews every site before launch, and can add new specialists (max 2 a day).",
+      "latest": "Started Nov 25. Pinned 6 ideas on the Portfolio Business idea board for your OK. Nothing gets built until you press Yes.",
+      "island": "pb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "glasses",
+        "hair": "#3a2418",
+        "skin": "#e8bf98",
+        "pants": "#2a2a38"
+      },
+      "courses": [
+        {
+          "title": "Next.js Learn",
+          "by": "Vercel",
+          "url": "https://nextjs.org/learn",
+          "cost": "Free"
+        },
+        {
+          "title": "Motion (Framer Motion) docs",
+          "by": "Motion",
+          "url": "https://motion.dev/docs",
+          "cost": "Free"
+        },
+        {
+          "title": "Laws of UX",
+          "by": "Jon Yablonski",
+          "url": "https://lawsofux.com/",
+          "cost": "Free"
+        },
+        {
+          "title": "Claude Code in Action",
+          "by": "Anthropic Academy",
+          "url": "https://anthropic.skilljar.com/",
+          "cost": "Free"
+        }
+      ],
+      "team": "Archer's portfolio team",
+      "house": {
+        "x": 85,
+        "y": 17,
+        "w": 4,
+        "h": 3,
+        "kind": "studio",
+        "roof": "#7b2cbf",
+        "wall": "#f3e4c2",
+        "label": "Architect's Office"
+      },
+      "canCreateAgents": "Up to 2 new specialists a day, for approved work; you get a text with each."
+    },
+    {
+      "id": "iris",
+      "name": "Iris",
+      "role": "Visual designer (themes and motion)",
+      "color": "#ff5d8f",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Designs how each portfolio looks and moves: new themes beside Neon and Executive, layouts that fit each client's photos, color and type choices, and tasteful scroll animation.",
+      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "island": "pb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "scarf",
+        "hair": "#c4572d",
+        "skin": "#f4d1b0",
+        "pants": "#3b3a4a"
+      },
+      "courses": [
+        {
+          "title": "Learn Design (responsive design)",
+          "by": "web.dev (Google)",
+          "url": "https://web.dev/learn/design",
+          "cost": "Free"
+        },
+        {
+          "title": "Laws of UX",
+          "by": "Jon Yablonski",
+          "url": "https://lawsofux.com/",
+          "cost": "Free"
+        },
+        {
+          "title": "Nielsen Norman Group articles",
+          "by": "NN/g",
+          "url": "https://www.nngroup.com/articles/",
+          "cost": "Free"
+        },
+        {
+          "title": "Motion docs",
+          "by": "Motion",
+          "url": "https://motion.dev/docs",
+          "cost": "Free"
+        },
+        {
+          "title": "Google UX Design Certificate",
+          "by": "Google on Coursera",
+          "url": "https://grow.google/certificates/ux-design/",
+          "cost": "Paid (Coursera subscription; financial aid exists). Needs Maxwell's OK."
+        }
+      ],
+      "team": "Archer's portfolio team",
+      "house": {
+        "x": 94,
+        "y": 16,
+        "w": 4,
+        "h": 3,
+        "kind": "bulb",
+        "roof": "#ff5d8f",
+        "wall": "#f6ead0",
+        "label": "Design Loft"
+      }
+    },
+    {
+      "id": "lyra",
+      "name": "Lyra",
+      "role": "Copywriter (bios and stories)",
+      "color": "#f4a261",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Turns a client's intake answers into words that win: the headline, bio, achievements and strengths, written in the client's voice, honest and specific, never inflated.",
+      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "island": "pb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "book",
+        "hair": "#d8b04a",
+        "skin": "#f0c49a",
+        "pants": "#4a3a2a"
+      },
+      "courses": [
+        {
+          "title": "How Users Read on the Web",
+          "by": "NN/g",
+          "url": "https://www.nngroup.com/articles/how-users-read-on-the-web/",
+          "cost": "Free"
+        },
+        {
+          "title": "Content Marketing course",
+          "by": "HubSpot Academy",
+          "url": "https://academy.hubspot.com/courses/content-marketing",
+          "cost": "Free"
+        },
+        {
+          "title": "Search Engine Optimization Starter Guide (writing parts)",
+          "by": "Google Search Central",
+          "url": "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
+          "cost": "Free"
+        }
+      ],
+      "team": "Archer's portfolio team",
+      "house": {
+        "x": 94,
+        "y": 16,
+        "w": 4,
+        "h": 3,
+        "kind": "bulb",
+        "roof": "#ff5d8f",
+        "wall": "#f6ead0",
+        "label": "Design Loft"
+      }
+    },
+    {
+      "id": "dash",
+      "name": "Dash",
+      "role": "Launch checker (speed, SEO, accessibility)",
+      "color": "#2a9d8f",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Checks every site before launch: fast on phones, readable for everyone, found on Google, no broken links or typos, and a share preview that looks right.",
+      "latest": "Ready. Will write the launch checklist once Archer gets your OK.",
+      "island": "pb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "cap",
+        "hair": "#1d1d1d",
+        "skin": "#c98d63",
+        "pants": "#33333f"
+      },
+      "courses": [
+        {
+          "title": "Learn Performance",
+          "by": "web.dev (Google)",
+          "url": "https://web.dev/learn/performance",
+          "cost": "Free"
+        },
+        {
+          "title": "Learn Accessibility",
+          "by": "web.dev (Google)",
+          "url": "https://web.dev/learn/accessibility",
+          "cost": "Free"
+        },
+        {
+          "title": "SEO Starter Guide",
+          "by": "Google Search Central",
+          "url": "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
+          "cost": "Free"
+        },
+        {
+          "title": "Lighthouse overview",
+          "by": "Chrome for Developers",
+          "url": "https://developer.chrome.com/docs/lighthouse/overview",
+          "cost": "Free"
+        }
+      ],
+      "team": "Archer's portfolio team",
+      "house": {
+        "x": 94,
+        "y": 16,
+        "w": 4,
+        "h": 3,
+        "kind": "bulb",
+        "roof": "#ff5d8f",
+        "wall": "#f6ead0",
+        "label": "Design Loft"
+      }
+    },
+    {
+      "id": "remy",
+      "name": "Remy",
+      "role": "Client success (intake and revisions)",
+      "color": "#457b9d",
+      "status": "scheduled",
+      "statusText": "Ready, in class until work is approved",
+      "task": "Takes care of each client: prepares the intake questions, tracks their feedback and revision requests, and drafts proposals and updates for you to send. Never contacts a client or charges anyone without your OK.",
+      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "island": "pb",
+      "needs": [],
+      "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
+      "threadTitle": "Create lead coding agent for budgeting app",
+      "look": {
+        "acc": "tie",
+        "hair": "#7a3b1f",
+        "skin": "#d9a27a",
+        "pants": "#2c2c3a"
+      },
+      "courses": [
+        {
+          "title": "Inbound Sales course",
+          "by": "HubSpot Academy",
+          "url": "https://academy.hubspot.com/courses/inbound-sales",
+          "cost": "Free"
+        },
+        {
+          "title": "Social Media course",
+          "by": "HubSpot Academy",
+          "url": "https://academy.hubspot.com/courses/social-media",
+          "cost": "Free"
+        },
+        {
+          "title": "Sales Hall daily masterclass",
+          "by": "Agent Island",
+          "url": "https://claude.ai/artifact/Rc3tCJQuekX1YFEgVD5BV2",
+          "cost": "Free"
+        }
+      ],
+      "team": "Archer's portfolio team",
+      "house": {
+        "x": 94,
+        "y": 16,
+        "w": 4,
+        "h": 3,
+        "kind": "bulb",
+        "roof": "#ff5d8f",
+        "wall": "#f6ead0",
+        "label": "Design Loft"
+      }
     }
   ],
   "retired": [],
@@ -483,6 +1124,308 @@
         }
       ],
       "next": "Draft a one-page waitlist site when you're ready."
+    },
+    {
+      "id": "q1",
+      "title": "Tech stack: Next.js web app on Vercel + Postgres",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "Build the first version as a web app (Next.js, React, TypeScript) on Vercel, where DarkDorms already runs, with a Postgres database. Phone app later from the same code style.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "quinn",
+          "call": "go",
+          "note": "One language (TypeScript) front to back, free tiers to start, and Vercel is already set up."
+        },
+        {
+          "agent": "juno",
+          "call": "go",
+          "note": "Easy to test and deploy automatically on every change."
+        }
+      ],
+      "next": "If yes: Quinn sets up an empty project in a new private GitHub repo you create.",
+      "approval": "pending",
+      "ask": "idea-q1"
+    },
+    {
+      "id": "q2",
+      "title": "Double-entry ledger with envelopes at the core",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "Every dollar in the app lives in an envelope (taxes, inventory, payroll, owner pay). Every move is a balanced entry that can't be edited, only reversed, so the books always add up.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "nova",
+          "call": "go",
+          "note": "This is how banks and card companies keep money correct. Building it first saves a rewrite later."
+        },
+        {
+          "agent": "quinn",
+          "call": "go",
+          "note": "It's the heart of the debt-free promise: the card can only spend what an envelope holds."
+        }
+      ],
+      "next": "If yes: Nova builds the ledger and envelopes with tests, no card yet.",
+      "approval": "pending",
+      "ask": "idea-q2"
+    },
+    {
+      "id": "q3",
+      "title": "Card prototype in Stripe Issuing test mode",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "A free sandbox demo: a test card swipe asks our app, which checks the envelope and approves or declines within 2 seconds. No real cards, money or sign-ups.",
+      "overall": "caution",
+      "verdicts": [
+        {
+          "agent": "pax",
+          "call": "go",
+          "note": "Stripe's test mode lets us build the real-time approve or decline with fake cards."
+        },
+        {
+          "agent": "sage",
+          "call": "caution",
+          "note": "Fine in test mode. Going live needs Stripe's Issuing approval and a security review first."
+        },
+        {
+          "agent": "tess",
+          "call": "go",
+          "note": "This proves the budget-first card works before anyone applies for anything."
+        }
+      ],
+      "next": "If yes: Pax builds the test-mode demo. Applying for live Issuing stays your call.",
+      "approval": "pending",
+      "ask": "idea-q3"
+    },
+    {
+      "id": "q4",
+      "title": "Link a business's bank to see balances",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "Owners connect their bank so the app sees what's really there and can fill envelopes from it. Start read-only with Stripe Financial Connections; compare with Plaid.",
+      "overall": "caution",
+      "verdicts": [
+        {
+          "agent": "pax",
+          "call": "go",
+          "note": "Read-only linking is the easy, low-risk first step."
+        },
+        {
+          "agent": "sage",
+          "call": "caution",
+          "note": "We must store only tokens, never bank logins. Plan that before building."
+        },
+        {
+          "agent": "bram",
+          "call": "go",
+          "note": "Read-only access has far fewer rules than moving money."
+        }
+      ],
+      "next": "If yes: Pax builds read-only bank linking in sandbox.",
+      "approval": "pending",
+      "ask": "idea-q4"
+    },
+    {
+      "id": "q5",
+      "title": "Ask-before-you-buy requests",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "An employee who needs more than the envelope holds taps 'request $X for Y'. The owner gets a notice and taps yes or no. Yes moves money into the envelope, then the card works.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "finn",
+          "call": "go",
+          "note": "Two taps for the employee, one for the owner."
+        },
+        {
+          "agent": "quinn",
+          "call": "go",
+          "note": "The card only has 2 seconds at checkout, too short to ask a person. Asking before the purchase fixes that."
+        },
+        {
+          "agent": "rhea",
+          "call": "go",
+          "note": "Owners of small teams want control without being the bottleneck."
+        }
+      ],
+      "next": "If yes: Finn and Nova build it after the ledger.",
+      "approval": "pending",
+      "ask": "idea-q5"
+    },
+    {
+      "id": "q6",
+      "title": "Snap a receipt, auto-sort the spending",
+      "by": "Quinn",
+      "date": "Nov 25",
+      "summary": "After a purchase, the employee snaps the receipt. AI reads it, tags the category and attaches it to the transaction, ready for taxes.",
+      "overall": "caution",
+      "verdicts": [
+        {
+          "agent": "quinn",
+          "call": "caution",
+          "note": "Useful and popular, but it needs an AI service with a cost per receipt. Later, after the core works."
+        },
+        {
+          "agent": "cole",
+          "call": "caution",
+          "note": "Price the AI cost per receipt before promising it."
+        }
+      ],
+      "next": "If yes: Quinn adds a data and AI specialist when the core is done.",
+      "approval": "pending",
+      "ask": "idea-q6"
+    },
+    {
+      "id": "p1",
+      "island": "pb",
+      "title": "Client intake form that writes the profile file",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "A simple form a new client fills in (bio, achievements, strengths, photo, links). It drafts their content/profile.ts so Paige can build the site from it in minutes.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "archer",
+          "call": "go",
+          "note": "The template already runs from one profile file. A form that fills it saves hours per client."
+        },
+        {
+          "agent": "lyra",
+          "call": "go",
+          "note": "I can write the questions so the answers come back as great stories, not one-liners."
+        },
+        {
+          "agent": "remy",
+          "call": "go",
+          "note": "Clients find a form easier than a long chat."
+        }
+      ],
+      "next": "If yes: Remy and Lyra write the questions, Paige wires the form into the template.",
+      "approval": "pending",
+      "ask": "idea-p1"
+    },
+    {
+      "id": "p2",
+      "island": "pb",
+      "title": "Theme gallery to show new clients",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "One demo page where a client clicks through every theme (Neon, Executive and new ones) filled with sample content, then picks the one they want.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "iris",
+          "call": "go",
+          "note": "Seeing it beats describing it. I'd add 2 new themes over time."
+        },
+        {
+          "agent": "archer",
+          "call": "go",
+          "note": "Uses demo content only, so no private details are shown."
+        }
+      ],
+      "next": "If yes: Iris and Paige build the gallery with sample content.",
+      "approval": "pending",
+      "ask": "idea-p2"
+    },
+    {
+      "id": "p3",
+      "island": "pb",
+      "title": "Three fixed packages with clear prices",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "Offer three packages (for example Starter, Pro, Premium) that say exactly what's included and how many revisions. You set the prices.",
+      "overall": "caution",
+      "verdicts": [
+        {
+          "agent": "remy",
+          "call": "go",
+          "note": "Clear packages make yes easier and stop scope creep."
+        },
+        {
+          "agent": "archer",
+          "call": "caution",
+          "note": "Prices are your call. We'll draft what's in each package and leave the prices blank."
+        }
+      ],
+      "next": "If yes: Remy drafts the package contents for you to price.",
+      "approval": "pending",
+      "ask": "idea-p3"
+    },
+    {
+      "id": "p4",
+      "island": "pb",
+      "title": "Launch checklist: 90+ scores before any site goes live",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "Every site must pass Dash's checklist before launch: Lighthouse 90+ on speed, accessibility and SEO, share preview set, no broken links, spelling checked.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "dash",
+          "call": "go",
+          "note": "Free to run, and it catches the mistakes clients notice first."
+        },
+        {
+          "agent": "archer",
+          "call": "go",
+          "note": "Makes every site feel premium, every time."
+        }
+      ],
+      "next": "If yes: Dash writes the checklist and runs it on your own portfolio first.",
+      "approval": "pending",
+      "ask": "idea-p4"
+    },
+    {
+      "id": "p5",
+      "island": "pb",
+      "title": "Monthly care plan for clients",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "After launch, clients can stay on a monthly plan: small edits, new achievements added, photos swapped, and the site kept fast and up to date.",
+      "overall": "caution",
+      "verdicts": [
+        {
+          "agent": "remy",
+          "call": "go",
+          "note": "Steady monthly income and happy repeat clients."
+        },
+        {
+          "agent": "archer",
+          "call": "caution",
+          "note": "Only once we have a few clients. Price is your call."
+        }
+      ],
+      "next": "If yes: Remy drafts what the plan includes; it starts after the first few clients.",
+      "approval": "pending",
+      "ask": "idea-p5"
+    },
+    {
+      "id": "p6",
+      "island": "pb",
+      "title": "Own-domain setup guide for clients",
+      "by": "Archer",
+      "date": "Nov 25",
+      "summary": "A short step-by-step guide so each client can point their own domain (like janedoe.com) at their site, with Dash checking it works.",
+      "overall": "go",
+      "verdicts": [
+        {
+          "agent": "dash",
+          "call": "go",
+          "note": "Most clients want their own name as the address."
+        },
+        {
+          "agent": "archer",
+          "call": "go",
+          "note": "We never buy domains for clients; they buy them, we connect them."
+        }
+      ],
+      "next": "If yes: Dash writes the guide.",
+      "approval": "pending",
+      "ask": "idea-p6"
     }
   ],
   "ideaVerdict": {
