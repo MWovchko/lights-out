@@ -45,6 +45,7 @@ nav.top a:hover{color:var(--text)}
 .hero .lede{font-size:19px;color:var(--muted);max-width:34ch}
 .hero .lede b{color:var(--text)}
 .ctas{display:grid;gap:10px}
+.refnote{justify-self:start;font-weight:600;font-size:15px;color:var(--tag);background:#ff7ab61a;border:1px solid #ff7ab655;border-radius:99px;padding:6px 14px}
 .status{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
 .status i{width:8px;height:8px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 4px #ffd23f33}
 .stage{position:relative;height:240px;overflow:hidden;border-radius:16px;background:#0c0d24;margin:0}

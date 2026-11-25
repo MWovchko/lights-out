@@ -10,6 +10,12 @@
 var SALES_PAUSED = false;
 var PAYMENT_LINK = "https://buy.stripe.com/dRm5kEdrI0Kcay33ao1oI00";
 var CONTACT_EMAIL = "me@darkdorms.com";
+/* REFERRALS: a rep's link is darkdorms.com/r/CODE (or /?ref=CODE). The code is
+   remembered for REF_DAYS and sent to Stripe as client_reference_id, so the
+   private tracker at /referrals can count their strips. Last link clicked wins. */
+var REF_DAYS = 30;
+/* Reps with a personal welcome line on the page. Code -> first name shown. */
+var REF_NAMES = { julia: "Julia" };
 
 (function(){
   var $=function(id){return document.getElementById(id)};
@@ -17,6 +23,29 @@ var CONTACT_EMAIL = "me@darkdorms.com";
 
   /* old Stripe return URL -> thank-you page */
   if (/[?&]checkout=complete/.test(location.search)) { location.replace("/thank-you"); return; }
+
+  /* ---------- referral code: ?ref=CODE -> remembered -> Stripe client_reference_id ---------- */
+  var cleanRef=function(v){v=String(v||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,40);return v||null};
+  var urlRef=cleanRef(new URLSearchParams(location.search).get("ref"));
+  if(urlRef){
+    store.set("dd-ref",JSON.stringify({code:urlRef,at:Date.now()}));
+    if(history.replaceState){var u=new URL(location.href);u.searchParams.delete("ref");history.replaceState(null,"",u.pathname+u.search+u.hash);}
+  }
+  function currentRef(){
+    try{var r=JSON.parse(store.get("dd-ref")||"null");if(r&&r.code&&Date.now()-r.at<REF_DAYS*864e5)return cleanRef(r.code)}catch(e){}
+    return null;
+  }
+  function checkoutUrl(){
+    var ref=currentRef(); if(!ref) return PAYMENT_LINK;
+    return PAYMENT_LINK+(PAYMENT_LINK.indexOf("?")<0?"?":"&")+"client_reference_id="+encodeURIComponent("ref_"+ref);
+  }
+
+  /* personal welcome for a known rep's visitors */
+  var refName=REF_NAMES[currentRef()||""];
+  if(refName){
+    var h=document.querySelector(".hero h1");
+    if(h){var p=document.createElement("p");p.className="refnote";p.textContent=refName+" sent you. Thanks for stopping by!";h.parentNode.insertBefore(p,h);}
+  }
 
   if (!SALES_PAUSED) document.querySelectorAll("[data-paused]").forEach(function(el){el.hidden=true});
 
@@ -39,7 +68,7 @@ var CONTACT_EMAIL = "me@darkdorms.com";
       b.style.minWidth=b.offsetWidth+"px";
       b.setAttribute("aria-busy","true");
       b.innerHTML='<span class="spin" aria-hidden="true"></span>Opening secure checkout…';
-      if(!SALES_PAUSED && PAYMENT_LINK){ location.href=PAYMENT_LINK; return; }
+      if(!SALES_PAUSED && PAYMENT_LINK){ location.href=checkoutUrl(); return; }
       setTimeout(function(){
         b.innerHTML=html; b.removeAttribute("aria-busy"); b.style.minWidth="";
         var n=$("pausedNote"); if(n) n.scrollIntoView({behavior:"smooth",block:"center"});

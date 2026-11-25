@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Referral Tracker | DarkDorms</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#07081a">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  main{padding-block:28px 64px;display:grid;gap:28px}
+  h1{font-size:clamp(34px,8vw,52px)}
+  h2{font-size:26px;margin-bottom:12px}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+  input{width:100%;font:400 17px var(--f-body);color:var(--text);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px 14px;min-height:50px}
+  input:focus{border-color:var(--sun);outline:none}
+  .row{display:grid;gap:12px}
+  @media(min-width:640px){.row{grid-template-columns:1fr auto;align-items:end}}
+  .err{color:var(--bad);font-size:15px;margin-top:8px}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(min-width:768px){.stats{grid-template-columns:repeat(4,1fr)}}
+  .stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stat b{display:block;font:800 28px var(--f-display)}
+  .stat span{font-size:14px;color:var(--muted)}
+  .stat.hi b{color:var(--sun)}
+  .tbl{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .owed{color:var(--sun);font-weight:800}
+  .tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--line);color:var(--muted)}
+  .tag.payable{background:#7ee0a822;color:var(--ok)}
+  .tag.refunded{background:#ff9a9a22;color:var(--bad)}
+  details summary{cursor:pointer;color:var(--muted);font-size:14px}
+  .qrwrap{display:grid;gap:16px;justify-items:start}
+  @media(min-width:640px){.qrwrap{grid-template-columns:auto 1fr;align-items:start}}
+  canvas{max-width:100%;height:auto;border-radius:12px;background:#fff}
+  .link{font:600 16px var(--f-mono);word-break:break-all}
+  .btns{display:flex;flex-wrap:wrap;gap:8px}
+  ol.how{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--muted)}
+  ol.how b{color:var(--text)}
+  code{font-family:var(--f-mono);font-size:.92em;background:var(--bg);padding:1px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<header class="site"><div class="col">
+  <a class="logo" href="/"><img src="/favicon.svg" alt="" width="24" height="24">DarkDorms</a>
+  <span class="muted">Referral tracker (private)</span>
+</div></header>
+
+<main class="col">
+  <section>
+    <h1>Referrals</h1>
+    <p class="muted" style="margin-top:10px">Each rep gets a link and QR code. Every strip bought through it earns them <b id="perStrip">$2</b>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="mkH">
+    <h2 id="mkH">Make a rep's link and QR code</h2>
+    <div class="row">
+      <div>
+        <label for="repName">Rep's name or code</label>
+        <input id="repName" autocomplete="off" placeholder="e.g. Jake" maxlength="40">
+      </div>
+    </div>
+    <div class="qrwrap" id="qrOut" hidden style="margin-top:16px">
+      <canvas id="qrCanvas" width="600" height="760" aria-label="QR code card"></canvas>
+      <div style="display:grid;gap:12px">
+        <p class="link" id="qrLink"></p>
+        <div class="btns">
+          <button class="btn sm" id="dlBtn" type="button">Download QR (PNG)</button>
+          <button class="btn sm ghost" id="copyBtn" type="button">Copy link</button>
+        </div>
+        <p class="muted" style="font-size:15px">The link works right away, no setup needed. Sales show up below under the code <code id="qrCode"></code>. To show their name and track payouts, add them to <code>api/_lib/referrers.mjs</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="trH">
+    <h2 id="trH">Sales and money owed</h2>
+    <form id="login" class="row" autocomplete="off">
+      <div>
+        <label for="pw">Admin password</label>
+        <input id="pw" type="password" autocomplete="current-password">
+      </div>
+      <button class="btn" type="submit" id="loadBtn">Show sales</button>
+    </form>
+    <p class="err" id="err" hidden></p>
+    <div id="report" hidden style="display:grid;gap:18px;margin-top:18px">
+      <div class="stats">
+        <div class="stat hi"><b id="tOwed">$0</b><span>owed now</span></div>
+        <div class="stat"><b id="tPending">$0</b><span>pending (in refund window)</span></div>
+        <div class="stat"><b id="tStrips">0</b><span>strips sold by reps</span></div>
+        <div class="stat"><b id="tPaid">$0</b><span>already paid out</span></div>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Rep</th><th class="n">Strips</th><th class="n">Pending</th><th class="n">Earned</th><th class="n">Paid</th><th class="n">Owed</th><th>Sales</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <p class="muted" style="font-size:14px" id="gen"></p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="howH">
+    <h2 id="howH">How payouts work</h2>
+    <ol class="how">
+      <li><b>Rep shares their QR or link.</b> A visitor who opens it is tagged for 30 days on that phone. The last rep link they opened wins.</li>
+      <li><b>Visitor buys on Stripe.</b> Their checkout carries the rep's code, so this page can count it.</li>
+      <li><b>Sales wait out the refund window</b> (<span id="hold">7</span> days) as "pending", then move to "owed". Refunded orders earn nothing.</li>
+      <li><b>You pay the rep</b> by Venmo or Cash App, then add the payment to <code>api/_lib/referrers.mjs</code> so "owed" goes back to $0.</li>
+    </ol>
+  </section>
+</main>
+
+<script src="/vendor/qrcode-1.4.4.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var SITE="https://darkdorms.com";
+  var fmt=function(n){return "$"+Number(n).toFixed(2).replace(/\.00$/,"")};
+  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+  var toCode=function(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9_-]/g,"").slice(0,40)};
+  var linkFor=function(code){return SITE+"/r/"+code};
+
+  /* ---------- QR card ---------- */
+  var current=null;
+  function drawQR(code,name){
+    var url=linkFor(code), qr=qrcode(0,"M"); qr.addData(url); qr.make();
+    var c=$("qrCanvas"), x=c.getContext("2d"), W=c.width, n=qr.getModuleCount(), size=480, cell=size/n, ox=(W-size)/2, oy=60;
+    x.fillStyle="#ffffff"; x.fillRect(0,0,W,c.height);
+    x.fillStyle="#07081a";
+    for(var r=0;r<n;r++)for(var k=0;k<n;k++) if(qr.isDark(r,k)) x.fillRect(Math.floor(ox+k*cell),Math.floor(oy+r*cell),Math.ceil(cell),Math.ceil(cell));
+    x.textAlign="center";
+    x.font="800 40px 'Bricolage Grotesque', 'Arial Black', sans-serif"; x.fillText("DarkDorms",W/2,oy+size+64);
+    x.font="600 24px Figtree, system-ui, sans-serif"; x.fillStyle="#444a7a"; x.fillText("Scan to block the hallway light",W/2,oy+size+102);
+    x.font="600 20px ui-monospace, Menlo, monospace"; x.fillText("darkdorms.com/r/"+code+(name?"  ·  "+name:""),W/2,oy+size+140);
+    current={code:code,url:url};
+    $("qrLink").textContent=url; $("qrCode").textContent=code; $("qrOut").hidden=false;
+  }
+  var t;
+  $("repName").addEventListener("input",function(){
+    clearTimeout(t); var v=this.value; t=setTimeout(function(){var code=toCode(v); if(code) drawQR(code,""); else $("qrOut").hidden=true;},150);
+  });
+  $("dlBtn").addEventListener("click",function(){
+    if(!current) return; var a=document.createElement("a");
+    a.download="darkdorms-qr-"+current.code+".png"; a.href=$("qrCanvas").toDataURL("image/png"); a.click();
+  });
+  $("copyBtn").addEventListener("click",function(){
+    if(!current) return; var b=this;
+    (navigator.clipboard?navigator.clipboard.writeText(current.url):Promise.reject()).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy link"},1500)},function(){prompt("Copy this link:",current.url)});
+  });
+
+  /* ---------- tracker ---------- */
+  var ss={get:function(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+  function load(pw){
+    var btn=$("loadBtn"); btn.setAttribute("aria-busy","true"); btn.innerHTML='<span class="spin" aria-hidden="true"></span>Loading…'; $("err").hidden=true;
+    fetch("/api/referrals",{headers:{Authorization:"Bearer "+pw},cache:"no-store"}).then(function(r){return r.json().then(function(b){return {ok:r.ok,b:b}})}).then(function(res){
+      if(!res.ok) throw new Error(res.b.error||"Could not load sales");
+      ss.set("dd-admin",pw); render(res.b);
+    }).catch(function(e){ $("err").textContent=e.message==="Failed to fetch"?"Couldn't reach the server. Check your connection and try again.":e.message; $("err").hidden=false; })
+    .finally(function(){btn.removeAttribute("aria-busy"); btn.textContent="Refresh";});
+  }
+  function render(d){
+    $("perStrip").textContent=fmt(d.payoutPerStrip); $("hold").textContent=d.holdDays;
+    $("tOwed").textContent=fmt(d.totals.owed); $("tPending").textContent=fmt(d.totals.pending);
+    $("tStrips").textContent=d.totals.strips+d.totals.pendingStrips; $("tPaid").textContent=fmt(d.totals.paid);
+    $("rows").innerHTML=d.referrers.length?d.referrers.map(function(r){
+      var sales=r.sales.length?'<details><summary>'+r.orders+' order'+(r.orders===1?"":"s")+'</summary><div style="margin-top:6px;display:grid;gap:4px">'+r.sales.map(function(s){
+        return '<div>'+esc(s.date)+' · '+esc(s.customer||"customer")+' · '+s.strips+' strip'+(s.strips===1?"":"s")+' · <span class="tag '+esc(s.status.split(" ")[0])+'">'+esc(s.status)+'</span></div>';
+      }).join("")+'</div></details>':'<span class="muted">none yet</span>';
+      return '<tr><td><b>'+esc(r.name||r.code)+'</b><br><span class="muted" style="font-size:13px">/r/'+esc(r.code)+(r.listed?"":" · not in list")+'</span></td>'+
+        '<td class="n">'+r.strips+'</td><td class="n">'+r.pendingStrips+'</td><td class="n">'+fmt(r.earned)+'</td><td class="n">'+fmt(r.paid)+'</td><td class="n owed">'+fmt(r.owed)+'</td><td>'+sales+'</td></tr>';
+    }).join(""):'<tr><td colspan="7" class="muted">No referral sales yet.</td></tr>';
+    $("gen").textContent="Live from Stripe, "+new Date(d.generated).toLocaleString()+".";
+    $("report").hidden=false;
+  }
+  $("login").addEventListener("submit",function(e){e.preventDefault(); var pw=$("pw").value.trim(); if(!pw){$("err").textContent="Enter the admin password.";$("err").hidden=false;return;} load(pw);});
+  var saved=ss.get("dd-admin"); if(saved){ $("pw").value=saved; load(saved); }
+})();
+</script>
+</body>
+</html>
