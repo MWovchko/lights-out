@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-25T13:44:11.637387+00:00",
+  "updated": "2026-11-25T16:38:20.531227+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -277,7 +277,7 @@
       "status": "scheduled",
       "statusText": "Daily domain hunt at 10:37 AM. Last hunt: today",
       "task": "Hunts every day for good, available domain names for your current and possible businesses, checks price, and lists the best finds here. Never buys: registering is your call.",
-      "latest": "Today's best finds: darkdormdoor.com, quietdormseal.com and textcycle.com (a short .com for a new textbook-resale idea), each $17 first year and available when checked. Dex never buys.",
+      "latest": "Today's best finds: snoozescreen.com (short and catchy for the light strips), quietdormnights.com and dormlaundryfold.com (a new laundry-service idea), each $17 first year and available when checked. Dex never buys.",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4FaPh2rVpFxAhDar1bmLEWC",
       "threadTitle": "Build agent island dashboard",
@@ -1445,6 +1445,30 @@
   ],
   "domainFinds": [
     {
+      "domain": "snoozescreen.com",
+      "price": "17.00",
+      "idea": "DarkDorms-style dorm door light strips",
+      "checked": "2026-11-25"
+    },
+    {
+      "domain": "quietdormnights.com",
+      "price": "17.00",
+      "idea": "dorm soundproofing / sound-first strips",
+      "checked": "2026-11-25"
+    },
+    {
+      "domain": "budgetonlycard.com",
+      "price": "17.00",
+      "idea": "the debt-free business budgeting card",
+      "checked": "2026-11-25"
+    },
+    {
+      "domain": "dormlaundryfold.com",
+      "price": "17.00",
+      "idea": "student-run dorm laundry fold and pickup (new idea)",
+      "checked": "2026-11-25"
+    },
+    {
       "domain": "darkdormdoor.com",
       "price": "17.00",
       "idea": "DarkDorms-style dorm door light strips",
@@ -1491,30 +1515,6 @@
       "price": "17.00",
       "idea": "student-run campus bike repair (new idea)",
       "checked": "2026-11-23"
-    },
-    {
-      "domain": "quietdorm.com",
-      "price": "17.00",
-      "idea": "dorm soundproofing / sound-first strips",
-      "checked": "2026-11-22"
-    },
-    {
-      "domain": "dormdoorstrips.com",
-      "price": "17.00",
-      "idea": "DarkDorms-style dorm door strips",
-      "checked": "2026-11-22"
-    },
-    {
-      "domain": "budgetcard.org",
-      "price": "16.00",
-      "idea": "the debt-free business budgeting card (.com taken)",
-      "checked": "2026-11-22"
-    },
-    {
-      "domain": "dormmovehelp.com",
-      "price": "17.00",
-      "idea": "student-run dorm move-in/move-out help (new idea)",
-      "checked": "2026-11-22"
     }
   ],
   "latestSalesClass": {
