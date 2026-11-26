@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-26T20:21:44.443263+00:00",
+  "updated": "2026-11-26T22:15:00.249103+00:00",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -974,9 +974,9 @@
   ],
   "retired": [],
   "latestLesson": {
-    "title": "The Secret Ingredients of Great Hospitality (Will Guidara, TED)",
-    "oneLine": "Small personal touches beat fancy extras: be present, notice what each customer cares about, and give the team freedom to make someone's day.",
-    "date": "2026-11-25"
+    "title": "Strengthening a Struggling Team (Craig Groeschel)",
+    "oneLine": "Teams don't get healthy by accident: find the real cause (often the leader), address behavior kindly and directly, and keep everyone on one goal.",
+    "date": "2026-11-26"
   },
   "ideas": [
     {
@@ -1518,8 +1518,8 @@
     }
   ],
   "latestSalesClass": {
-    "title": "How to Get Your First 10 Customers (Y Combinator)",
-    "oneLine": "Go where buyers already are: ask friends for one specific introduction, show up in person, and keep every ask short, honest and one-time.",
-    "date": "2026-11-25"
+    "title": "Dave Ramsey Gives Proven Marketing Advice Anyone Can Use (EntreLeadership)",
+    "oneLine": "Before buying ads, do more of what already works: ask happy customers to spread the word, be easy to reach, reply fast, and use being small as a strength.",
+    "date": "2026-11-26"
   }
 }
