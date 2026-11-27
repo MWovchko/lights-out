@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-26T22:15:00.249103+00:00",
+  "updated": "2026-11-27",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -335,10 +335,10 @@
       "name": "Quinn",
       "role": "Lead engineer (coding lead)",
       "color": "#1f6f78",
-      "status": "waiting",
+      "status": "working",
       "statusText": "Waiting on your OK for 6 ideas",
       "task": "Leads the budgeting app's coding team: pins feature and tech ideas on the idea board for your Yes or No, hands approved work to the right specialist, reviews their code, and can add new specialists (max 2 a day).",
-      "latest": "Started Nov 25. Pinned 6 ideas on the idea board for your OK. Nothing gets built until you press Yes.",
+      "latest": "Nov 27: all 6 ideas approved. Built the Budget First app (ledger, card rules, requests, bank link). 21 tests pass. Waiting on Maxwell to create a GitHub repo and OK Stripe test mode.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -393,10 +393,10 @@
       "name": "Finn",
       "role": "Frontend and mobile engineer",
       "color": "#e07a5f",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Builds what owners and employees see: the budget dashboard, envelopes, card controls and approvals, on the web first and phones later.",
-      "latest": "Ready. Waiting for Quinn to hand over an approved idea.",
+      "latest": "Built the demo screens: envelopes, balances and ask-before-you-buy requests.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -456,10 +456,10 @@
       "name": "Nova",
       "role": "Backend and ledger engineer",
       "color": "#5e60ce",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Builds the server, the database and the ledger: every dollar sits in an envelope, every move is a balanced entry that can't be edited.",
-      "latest": "Ready. Waiting for Quinn to hand over an approved idea.",
+      "latest": "Built the double-entry envelope ledger. Money in cents, append-only, bank always equals the envelopes.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -519,10 +519,10 @@
       "name": "Pax",
       "role": "Payments and bank integration engineer",
       "color": "#2d6a4f",
-      "status": "scheduled",
+      "status": "waiting",
       "statusText": "Ready, in class until work is approved",
       "task": "Writes the code that connects the app to money: the card's real-time approve or decline, linking a business's bank, and moving cash into the card's account. Tess designs the card rules; Pax builds them.",
-      "latest": "Ready. Everything in test mode only, no real money, until you say otherwise.",
+      "latest": "Card swipe rules written for Stripe Issuing TEST mode. Code refuses live keys. Waiting for Maxwell's OK before touching Stripe.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -582,10 +582,10 @@
       "name": "Sage",
       "role": "Security and compliance engineer",
       "color": "#6c757d",
-      "status": "scheduled",
+      "status": "working",
       "statusText": "Ready, in class until work is approved",
       "task": "Keeps customers' money and data safe: reviews every change for security holes, keeps card numbers out of our servers, and tracks the bank and card rules (PCI, KYB, SOC 2) with Bram.",
-      "latest": "Ready. First job when work starts: a security checklist every change must pass.",
+      "latest": "Live keys blocked, webhook signatures checked. Login comes next before real users.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -639,10 +639,10 @@
       "name": "Juno",
       "role": "QA and DevOps engineer",
       "color": "#c9a227",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Tests everything before it ships (especially money math), runs the automatic checks on every change, and watches the live app so problems are caught before customers see them.",
-      "latest": "Ready. Will set up automatic tests on the first approved build.",
+      "latest": "21 automatic tests set up and passing.",
       "island": "bb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -696,10 +696,10 @@
       "name": "Archer",
       "role": "Lead architect (portfolio business)",
       "color": "#7b2cbf",
-      "status": "waiting",
+      "status": "working",
       "statusText": "Waiting on your OK for 6 ideas",
       "task": "Leads the portfolio business: pins ideas on the Portfolio Business idea board for your Yes or No, plans each client site, hands work to Paige and the specialists, reviews every site before launch, and can add new specialists (max 2 a day).",
-      "latest": "Started Nov 25. Pinned 6 ideas on the Portfolio Business idea board for your OK. Nothing gets built until you press Yes.",
+      "latest": "Nov 27: all 6 ideas built or drafted. PR #2 on the portfolio repo, plus a packages and care plan doc with blank prices for Maxwell.",
       "island": "pb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -754,10 +754,10 @@
       "name": "Iris",
       "role": "Visual designer (themes and motion)",
       "color": "#ff5d8f",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Designs how each portfolio looks and moves: new themes beside Neon and Executive, layouts that fit each client's photos, color and type choices, and tasteful scroll animation.",
-      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "latest": "Built the theme gallery with sample content.",
       "island": "pb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -817,10 +817,10 @@
       "name": "Lyra",
       "role": "Copywriter (bios and stories)",
       "color": "#f4a261",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Turns a client's intake answers into words that win: the headline, bio, achievements and strengths, written in the client's voice, honest and specific, never inflated.",
-      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "latest": "Wrote the packages, care plan and own-domain guide.",
       "island": "pb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -868,10 +868,10 @@
       "name": "Dash",
       "role": "Launch checker (speed, SEO, accessibility)",
       "color": "#2a9d8f",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Checks every site before launch: fast on phones, readable for everyone, found on Google, no broken links or typos, and a share preview that looks right.",
-      "latest": "Ready. Will write the launch checklist once Archer gets your OK.",
+      "latest": "Built the launch checker (90+ Lighthouse). Maxwell's site scored 75/77 on speed and has no share image.",
       "island": "pb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -925,10 +925,10 @@
       "name": "Remy",
       "role": "Client success (intake and revisions)",
       "color": "#457b9d",
-      "status": "scheduled",
+      "status": "done",
       "statusText": "Ready, in class until work is approved",
       "task": "Takes care of each client: prepares the intake questions, tracks their feedback and revision requests, and drafts proposals and updates for you to send. Never contacts a client or charges anyone without your OK.",
-      "latest": "Ready. Waiting for Archer to hand over an approved idea.",
+      "latest": "Built the client intake form. Stays hidden until Maxwell turns it on.",
       "island": "pb",
       "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
@@ -1145,8 +1145,9 @@
         }
       ],
       "next": "If yes: Quinn sets up an empty project in a new private GitHub repo you create.",
-      "approval": "pending",
-      "ask": "idea-q1"
+      "approval": "approved",
+      "ask": "idea-q1",
+      "progress": "Built"
     },
     {
       "id": "q2",
@@ -1168,8 +1169,9 @@
         }
       ],
       "next": "If yes: Nova builds the ledger and envelopes with tests, no card yet.",
-      "approval": "pending",
-      "ask": "idea-q2"
+      "approval": "approved",
+      "ask": "idea-q2",
+      "progress": "Built"
     },
     {
       "id": "q3",
@@ -1196,8 +1198,9 @@
         }
       ],
       "next": "If yes: Pax builds the test-mode demo. Applying for live Issuing stays your call.",
-      "approval": "pending",
-      "ask": "idea-q3"
+      "approval": "approved",
+      "ask": "idea-q3",
+      "progress": "Built in code; Stripe test mode waits for your OK"
     },
     {
       "id": "q4",
@@ -1224,8 +1227,9 @@
         }
       ],
       "next": "If yes: Pax builds read-only bank linking in sandbox.",
-      "approval": "pending",
-      "ask": "idea-q4"
+      "approval": "approved",
+      "ask": "idea-q4",
+      "progress": "Built (sandbox, balances only)"
     },
     {
       "id": "q5",
@@ -1252,8 +1256,9 @@
         }
       ],
       "next": "If yes: Finn and Nova build it after the ledger.",
-      "approval": "pending",
-      "ask": "idea-q5"
+      "approval": "approved",
+      "ask": "idea-q5",
+      "progress": "Built"
     },
     {
       "id": "q6",
@@ -1275,8 +1280,9 @@
         }
       ],
       "next": "If yes: Quinn adds a data and AI specialist when the core is done.",
-      "approval": "pending",
-      "ask": "idea-q6"
+      "approval": "approved",
+      "ask": "idea-q6",
+      "progress": "Queued until the core works"
     },
     {
       "id": "p1",
@@ -1304,8 +1310,9 @@
         }
       ],
       "next": "If yes: Remy and Lyra write the questions, Paige wires the form into the template.",
-      "approval": "pending",
-      "ask": "idea-p1"
+      "approval": "approved",
+      "ask": "idea-p1",
+      "progress": "Built, hidden until you say"
     },
     {
       "id": "p2",
@@ -1328,8 +1335,9 @@
         }
       ],
       "next": "If yes: Iris and Paige build the gallery with sample content.",
-      "approval": "pending",
-      "ask": "idea-p2"
+      "approval": "approved",
+      "ask": "idea-p2",
+      "progress": "Built"
     },
     {
       "id": "p3",
@@ -1352,8 +1360,9 @@
         }
       ],
       "next": "If yes: Remy drafts the package contents for you to price.",
-      "approval": "pending",
-      "ask": "idea-p3"
+      "approval": "approved",
+      "ask": "idea-p3",
+      "progress": "Drafted, prices blank for you"
     },
     {
       "id": "p4",
@@ -1376,8 +1385,9 @@
         }
       ],
       "next": "If yes: Dash writes the checklist and runs it on your own portfolio first.",
-      "approval": "pending",
-      "ask": "idea-p4"
+      "approval": "approved",
+      "ask": "idea-p4",
+      "progress": "Built, tested on your site"
     },
     {
       "id": "p5",
@@ -1400,8 +1410,9 @@
         }
       ],
       "next": "If yes: Remy drafts what the plan includes; it starts after the first few clients.",
-      "approval": "pending",
-      "ask": "idea-p5"
+      "approval": "approved",
+      "ask": "idea-p5",
+      "progress": "Drafted, price blank for you"
     },
     {
       "id": "p6",
@@ -1424,8 +1435,9 @@
         }
       ],
       "next": "If yes: Dash writes the guide.",
-      "approval": "pending",
-      "ask": "idea-p6"
+      "approval": "approved",
+      "ask": "idea-p6",
+      "progress": "Written"
     }
   ],
   "ideaVerdict": {
