@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-28T05:55:00Z",
+  "updated": "2026-11-28T06:23:00Z",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -80,13 +80,11 @@
       "name": "Melvin",
       "role": "Chief of staff",
       "color": "#2f5e9e",
-      "status": "waiting",
+      "status": "scheduled",
       "statusText": "Evening report to you at 8:41 PM",
       "task": "Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
-      "latest": "Promoted to chief of staff (Nov 17, 10:59 PM): runs the team, makes small calls, can add or replace helper agents.",
-      "needs": [
-        "Merge the DarkDorms referral PR #5"
-      ],
+      "latest": "Nov 28: redid your costs ($3.90 a strip, about $639 on 100 sold, $439 with the $2 referral) and put up a preview of the referral page.",
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4EKuCknhiBbJukLidxxjn22",
       "threadTitle": "Connect Melvin to Outlook"
     },
@@ -720,15 +718,12 @@
       "name": "Archer",
       "role": "Lead architect (portfolio business)",
       "color": "#7b2cbf",
-      "status": "waiting",
-      "statusText": "Waiting on your OK for 6 ideas",
+      "status": "working",
+      "statusText": "Merging portfolio PRs #1 and #2 (saving a before copy first)",
       "task": "Leads the portfolio business: pins ideas on the Portfolio Business idea board for your Yes or No, plans each client site, hands work to Paige and the specialists, reviews every site before launch, and can add new specialists (max 2 a day).",
-      "latest": "Nov 27: all 6 ideas built or drafted. PR #2 on the portfolio repo, plus a packages and care plan doc with blank prices for Maxwell.",
+      "latest": "Nov 28: you said yes to the merges and asked for researched cheaper and premium package prices to compare.",
       "island": "pb",
-      "needs": [
-        "Set prices for the portfolio packages doc",
-        "Merge portfolio PR #1, then PR #2"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
       "threadTitle": "Create lead coding agent for budgeting app",
       "look": {
