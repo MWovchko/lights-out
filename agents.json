@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-28T05:25:00Z",
+  "updated": "2026-11-28T05:55:00Z",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -23,15 +23,41 @@
     "refunds": 1,
     "gross": 32.97,
     "price": 10.99,
-    "costPerStrip": 0.9,
-    "feePerSale": 0.67,
-    "salesTaxRate": 0.08517,
-    "incomeTaxRate": 0.25,
-    "costNote": "Strip cost only: Maxwell chose 100 strips from a new supplier at $90 for 100 (Nov 28).",
+    "costPerStrip": 3.9,
+    "feePerSale": 0.7,
+    "salesTaxRate": 0,
+    "incomeTaxRate": 0.3,
+    "costNote": "Per strip: $0.90 strip (100 for $90) + $3.00 black cloth ($12/yd, about 4 covers per yard). Sales tax is added on top at checkout, so it isn't counted as yours. Already spent: $113.67.",
     "costScenarios": [
       {
-        "label": "100 strips at $90 (chosen)",
-        "cost": 0.9
+        "label": "No referral (100 sold: about $639 profit on the batch)",
+        "cost": 3.9
+      },
+      {
+        "label": "With the $2 referral on every sale (100 sold: about $439)",
+        "cost": 5.9
+      }
+    ],
+    "fixedCosts": [
+      {
+        "item": "First 10 strips (Oct 22)",
+        "amount": 47.73
+      },
+      {
+        "item": "Neoprene (Nov 15)",
+        "amount": 11.66
+      },
+      {
+        "item": "Cover cloth (Nov 17)",
+        "amount": 16.78
+      },
+      {
+        "item": "Oklahoma sales tax permit (Nov 18)",
+        "amount": 20.0
+      },
+      {
+        "item": "18 more strips (Nov 20)",
+        "amount": 17.5
       }
     ]
   },
