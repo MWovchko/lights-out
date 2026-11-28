@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-28T05:20:00Z",
+  "updated": "2026-11-28T05:25:00Z",
   "biz": {
     "stock": 6,
     "sold": 3,
@@ -23,19 +23,15 @@
     "refunds": 1,
     "gross": 32.97,
     "price": 10.99,
-    "costPerStrip": 1.63,
+    "costPerStrip": 0.9,
     "feePerSale": 0.67,
     "salesTaxRate": 0.08517,
     "incomeTaxRate": 0.25,
-    "costNote": "Strip cost only: $163.49/100 or $232.48/150 quote. Maxwell picks one by Nov 19-20.",
+    "costNote": "Strip cost only: Maxwell chose 100 strips from a new supplier at $90 for 100 (Nov 28).",
     "costScenarios": [
       {
-        "label": "If you order 100 strips",
-        "cost": 1.63
-      },
-      {
-        "label": "If you order 150 strips",
-        "cost": 1.55
+        "label": "100 strips at $90 (chosen)",
+        "cost": 0.9
       }
     ]
   },
@@ -45,13 +41,11 @@
       "name": "Penny",
       "role": "Accountant",
       "color": "#3f8a5f",
-      "status": "waiting",
-      "statusText": "Stripe sign-in expired; needs Maxwell to reconnect",
+      "status": "scheduled",
+      "statusText": "Stripe reconnected; hourly order checks back on",
       "task": "Keeps the Ledger: logs every Stripe sale and refund, tracks inventory and taxes, and writes the weekly books every Sunday at 7:13 PM.",
-      "latest": "Stripe needs you to sign in again before I can check orders. Last check (11:12 PM CT Nov 26) found no new sales; profit -$85.89, 24 strips in stock.",
-      "needs": [
-        "To-do: sign in to Stripe again (a button can't do this for you)"
-      ],
+      "latest": "Stripe is connected again. No new orders or refunds since Nov 26.",
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4K4fUZsAnJGrPEmSp3WPb1f",
       "threadTitle": "Track DormDarker income and taxes"
     },
@@ -65,8 +59,7 @@
       "task": "Gets every DarkDorms order email (cc on me@darkdorms.com) and texts you about orders and fixes.",
       "latest": "Promoted to chief of staff (Nov 17, 10:59 PM): runs the team, makes small calls, can add or replace helper agents.",
       "needs": [
-        "Merge the DarkDorms referral PR #5",
-        "Order 100 or 150 strips?"
+        "Merge the DarkDorms referral PR #5"
       ],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4EKuCknhiBbJukLidxxjn22",
       "threadTitle": "Connect Melvin to Outlook"
@@ -340,14 +333,12 @@
       "name": "Quinn",
       "role": "Lead engineer (coding lead)",
       "color": "#1f6f78",
-      "status": "waiting",
+      "status": "working",
       "statusText": "Waiting on your OK for 6 ideas",
       "task": "Leads the budgeting app's coding team: pins feature and tech ideas on the idea board for your Yes or No, hands approved work to the right specialist, reviews their code, and can add new specialists (max 2 a day).",
       "latest": "Nov 27: all 6 ideas approved. Built the Budget First app (ledger, card rules, requests, bank link). 21 tests pass. Waiting on Maxwell to create a GitHub repo and OK Stripe test mode.",
       "island": "bb",
-      "needs": [
-        "Name the budgeting app's private GitHub repo and OK creating it"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
       "threadTitle": "Create lead coding agent for budgeting app",
       "look": {
@@ -526,14 +517,12 @@
       "name": "Pax",
       "role": "Payments and bank integration engineer",
       "color": "#2d6a4f",
-      "status": "waiting",
+      "status": "working",
       "statusText": "Ready, in class until work is approved",
       "task": "Writes the code that connects the app to money: the card's real-time approve or decline, linking a business's bank, and moving cash into the card's account. Tess designs the card rules; Pax builds them.",
       "latest": "Card swipe rules written for Stripe Issuing TEST mode. Code refuses live keys. Waiting for Maxwell's OK before touching Stripe.",
       "island": "bb",
-      "needs": [
-        "Let Pax build the budgeting card in Stripe test mode"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
       "threadTitle": "Create lead coding agent for budgeting app",
       "look": {
@@ -880,14 +869,12 @@
       "name": "Dash",
       "role": "Launch checker (speed, SEO, accessibility)",
       "color": "#2a9d8f",
-      "status": "waiting",
+      "status": "working",
       "statusText": "Ready, in class until work is approved",
       "task": "Checks every site before launch: fast on phones, readable for everyone, found on Google, no broken links or typos, and a share preview that looks right.",
       "latest": "Built the launch checker (90+ Lighthouse). Maxwell's site scored 75/77 on speed and has no share image.",
       "island": "pb",
-      "needs": [
-        "Let Dash fix the portfolio site's speed scores and add a share image"
-      ],
+      "needs": [],
       "thread": "cmsg_01DWJNahrsmHXUPwCMnYHJf4NwDWVwa9MnQyszYW3QR9om",
       "threadTitle": "Create lead coding agent for budgeting app",
       "look": {
